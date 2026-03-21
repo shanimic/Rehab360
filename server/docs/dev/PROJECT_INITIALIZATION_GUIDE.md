@@ -90,7 +90,7 @@ Expected response:
 
 1. Activate venv
 2. Install new dependencies: `pip install <pkg>` and `pip freeze > requirements.txt`
-3. Run backend: `uvicorn app.main:app --reload`
+3. Run backend: Navigate to server directory and run `uvicorn app.main:app --reload`
 4. Open API docs: `http://localhost:8000/docs`
 
 ## 8) Quick troubleshooting

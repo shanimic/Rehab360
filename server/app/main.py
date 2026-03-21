@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.base import api_router
+
+from app.api.health import health_router
+from app.api.user_routes import user_router
 from app.core.config import settings
 
 def get_application() -> FastAPI:
@@ -17,8 +19,8 @@ def get_application() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Include all routes from the api_router
-    _app.include_router(api_router)
+    _app.include_router(health_router)
+    _app.include_router(user_router, prefix="/users")
 
     return _app
 
