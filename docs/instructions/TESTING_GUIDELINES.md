@@ -240,3 +240,5 @@ tests/
 - Unit test directory structure mirrors `cpm2srs_services/` structure
 - Integration tests can use `USE_REMOTE_API=true` to test against live APIs
 - Keep test files close to the code they test (same relative path)
+- Always prefer the use of `assert` rather than `self.assertEqual`
+- Have the test method return `None`
