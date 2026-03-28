@@ -1,0 +1,57 @@
+import './AuthLayout.css';
+
+export const LogoIcon = ({ size = 48 }) => (
+  <svg width={size} height={size} viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0.365467" y="0.365467" width="139.269" height="139.269" rx="69.6345" fill="url(#logo_grad0)" stroke="url(#logo_grad1)" strokeWidth="0.730934"/>
+    <path opacity="0.95" d="M106 59C115.941 59 124 50.9411 124 41C124 31.0589 115.941 23 106 23C96.0589 23 88 31.0589 88 41C88 50.9411 96.0589 59 106 59Z" fill="white"/>
+    <path d="M95 36.9998C95 30.9998 103 26.9998 107 32.9998C111 26.9998 119 30.9998 119 36.9998C119 42.9998 107 52.9998 107 52.9998C107 52.9998 95 42.9998 95 36.9998Z" fill="url(#logo_grad2)"/>
+    <path d="M61.5039 66.6465H64.7266L65.166 66.5977H65.9961C71.9531 66.5977 76.071 65.6699 78.3496 63.8145C80.6283 61.9264 81.7676 59.1595 81.7676 55.5137V54.5859C81.7676 51.2005 80.6934 48.7103 78.5449 47.1152C76.429 45.5202 73.1087 44.7227 68.584 44.7227H66.4844L66.0938 44.7715C62.3503 44.7715 60.1204 44.9668 59.4043 45.3574C58.7207 45.748 58.3789 47.0339 58.3789 49.2148C58.3138 49.7357 58.2812 50.2077 58.2812 50.6309V54.0977L58.2324 55.3672V62.0078C58.3301 62.7891 58.3789 63.4238 58.3789 63.9121C58.3789 65.735 59.4206 66.6465 61.5039 66.6465ZM82.4512 74.8984C82.4512 75.0938 82.793 75.7936 83.4766 76.998C84.1602 78.2025 86.4225 82.5482 90.2637 90.0352C94.1048 97.5221 96.0254 101.575 96.0254 102.193C96.0254 103.528 94.3327 104.195 90.9473 104.195C87.5618 104.195 85.1042 103.333 83.5742 101.607C82.5326 100.436 80.5143 96.7409 77.5195 90.5234C74.5247 84.2734 72.2298 80.4486 70.6348 79.0488C69.0723 77.6165 66.5658 76.9004 63.1152 76.9004C60.804 76.9004 59.4206 77.7956 58.9648 79.5859C58.5091 81.3438 58.2812 85.3802 58.2812 91.6953C58.2812 98.0104 57.8418 101.705 56.9629 102.779C56.084 103.821 54.2773 104.342 51.543 104.342H50.127C48.1738 104.342 46.9531 104.049 46.4648 103.463C46.0091 102.844 45.7812 101.135 45.7812 98.3359V79.5859L45.8301 78.1211V69.5273C45.8301 49.2799 46.0579 38.5866 46.5137 37.4473C47.002 36.2754 48.2389 35.543 50.2246 35.25C52.2103 34.957 56.5397 34.8105 63.2129 34.8105H69.0234C81.7513 34.8105 89.6452 38.5703 92.7051 46.0898C93.6165 48.3359 94.0723 51.2168 94.0723 54.7324C94.0723 58.2155 93.3561 61.2917 91.9238 63.9609C90.5241 66.6302 88.5872 68.8926 86.1133 70.748C83.6719 72.6035 82.4512 73.987 82.4512 74.8984Z" fill="white"/>
+    <defs>
+      <linearGradient id="logo_grad0" x1="19.0103" y1="6.32869e-07" x2="120.99" y2="140" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#1F59DA"/>
+        <stop offset="0.5" stopColor="#6998FF"/>
+        <stop offset="1" stopColor="#1F59DA"/>
+      </linearGradient>
+      <linearGradient id="logo_grad1" x1="114.567" y1="-2.93288e-06" x2="10.8794" y2="143.062" gradientUnits="userSpaceOnUse">
+        <stop stopColor="white"/>
+        <stop offset="1" stopColor="white" stopOpacity="0"/>
+      </linearGradient>
+      <linearGradient id="logo_grad2" x1="107" y1="30.0317" x2="107" y2="52.9998" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#487CEF"/>
+        <stop offset="1" stopColor="#6492FC"/>
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+export default function AuthLayout({ children, panelTitle, panelSubtitle }) {
+  return (
+    <div className="auth-layout">
+      {/* Left panel */}
+      <div className="auth-panel">
+        <div className="auth-panel__content">
+          <div className="auth-panel__logo">
+            <LogoIcon size={72} color="white" />
+          </div>
+          <h1 className="auth-panel__brand">Rehab360</h1>
+          <p className="auth-panel__tagline">
+            {panelTitle || 'Your complete rehabilitation management platform'}
+          </p>
+          <p className="auth-panel__subtitle">
+            {panelSubtitle || 'Connecting patients, physiotherapists, and fitness trainers in one seamless system.'}
+          </p>
+          <div className="auth-panel__dots">
+            <span /><span /><span />
+          </div>
+        </div>
+      </div>
+
+      {/* Right form area */}
+      <div className="auth-form-area">
+        <div className="auth-form-card">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
