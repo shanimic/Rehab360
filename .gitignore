@@ -11,6 +11,7 @@ build/
 *.log
 .env
 venv/
+.venv/
 env/
 *.sqlite3
 
@@ -37,5 +38,5 @@ Thumbs.db
 # Misc
 *.bak
 *.tmp
-
+.claude/
 *.claude
