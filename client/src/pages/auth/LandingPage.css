@@ -1,0 +1,197 @@
+.landing {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── Background images ── */
+.landing__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 1.2s ease-in-out;
+  will-change: opacity;
+  z-index: 0;
+}
+
+/* ── Dark overlay ── */
+.landing__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  z-index: 1;
+}
+
+/* ── Main content ── */
+.landing__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  max-width: 560px;
+  padding: 0 24px;
+  animation: contentEnter 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes contentEnter {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing__logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.4));
+}
+
+.landing__brand {
+  font-family: var(--font-brand);
+  font-size: 28px;
+  font-weight: 100;
+  letter-spacing: 2px;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.landing__headline {
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: white;
+  margin-bottom: 18px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+}
+
+.landing__tagline {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 44px;
+}
+
+.landing__actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-landing-primary {
+  padding: 15px 44px;
+  background: white;
+  color: #0f172a;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-landing-primary:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.btn-landing-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-landing-secondary {
+  padding: 15px 44px;
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  backdrop-filter: blur(6px);
+}
+
+.btn-landing-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: white;
+  transform: translateY(-2px);
+}
+
+.btn-landing-secondary:active {
+  transform: scale(0.98);
+}
+
+/* ── Dots navigation ── */
+.landing__dots {
+  position: absolute;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+}
+
+.landing__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s, width 0.3s;
+}
+
+.landing__dot--active {
+  background: white;
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ── Trust text ── */
+.landing__trust {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .landing__headline {
+    font-size: 36px;
+  }
+
+  .landing__actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-landing-primary,
+  .btn-landing-secondary {
+    width: 100%;
+    max-width: 300px;
+  }
+}
