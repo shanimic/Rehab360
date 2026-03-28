@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Rehab360 is a full-stack rehabilitation/therapy management web application. The backend is a FastAPI (Python) service using raw SQL (no ORM) against MySQL. The frontend (React/TypeScript) is planned but not yet implemented.
+Rehab360 is a full-stack rehabilitation/therapy management web application. The backend is a FastAPI (Python) service using raw SQL (no ORM) against MySQL. The frontend is a React/TypeScript SPA built with Vite.
 
 ## Commands
 
@@ -20,6 +20,25 @@ pip install -r requirements.txt
 ```bash
 cd server
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Client Setup (Node 24.14)
+```bash
+cd client
+npm install
+```
+
+### Run the Client Dev Server
+```bash
+cd client
+npm run dev       # Vite dev server — http://localhost:5173
+```
+
+### Client Build
+```bash
+cd client
+npm run build     # Production build to client/dist/
+npm run preview   # Preview the production build locally
 ```
 
 ### Tests
@@ -57,6 +76,117 @@ api/ (route handlers) → services/ (business logic) → dal/ (raw SQL) → db/ 
 
 MySQL database `rehab360`. No ORM — raw SQL via aiomysql (async). Connection config via `.env` (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME). Schema and seed data in `db/init.sql`. Current tables: `users` (id, name, email, password, role, created_at, updated_at). Role values: `PATIENT`, `THERAPIST`.
 
+## Client Architecture
+
+The client is a React 19 + TypeScript 6 SPA. Key tech: Vite 8, React Router 7, TanStack Query 5, TanStack Form 1, Zod, Tailwind CSS 3, shadcn-style UI components.
+
+```
+client/src/
+├── components/        # Reusable components
+│   ├── PageTransition.tsx   # Animated route wrapper
+│   └── ui/            # shadcn-style primitives (Button, Input, Badge, Label)
+├── lib/
+│   └── utils.ts       # cn() — merges Tailwind classes via clsx + tailwind-merge
+├── pages/
+│   └── auth/          # Auth flow: LandingPage, RoleSelect, Login, SignUp, SetPassword
+├── styles/
+│   └── variables.css  # CSS custom properties (colors, spacing, fonts, shadows)
+├── types/
+│   └── index.ts       # Shared TypeScript interfaces
+├── App.tsx            # Router definition + AnimatedRoutes
+└── main.tsx           # Entry point — mounts React Query QueryClientProvider
+```
+
+### Routing
+
+Routes are defined in `App.tsx` via `AnimatedRoutes` (wraps each route with `PageTransition` for fade+slide transitions):
+
+| Path | Component | Notes |
+|---|---|---|
+| `/` | LandingPage | Image carousel, CTA |
+| `/role-select` | RoleSelect | Patient / Therapist / Trainer picker |
+| `/login` | Login | Email or phone + password |
+| `/signup` | SignUp | Receives `role` via `location.state` |
+| `/set-password` | SetPassword | Password reset |
+| `*` | — | Redirects to `/` |
+
+### State Management
+
+| Concern | Tool |
+|---|---|
+| Server/API state | `@tanstack/react-query` (`useMutation`, `useQuery`) |
+| Form state | `@tanstack/react-form` |
+| Local UI state | `useState` |
+| Navigation state | React Router (`useNavigate`, `useLocation`) |
+
+### Form Handling Pattern
+
+Use `@tanstack/react-form` with the `zodValidator()` adapter:
+
+```typescript
+import { useForm } from '@tanstack/react-form'
+import { zodValidator } from '@tanstack/zod-form-adapter'
+import { z } from 'zod'
+
+const schema = z.object({ email: z.string().email(), password: z.string().min(1) })
+
+const form = useForm({
+  defaultValues: { email: '', password: '' },
+  validatorAdapter: zodValidator(),
+  validators: { onSubmit: schema },
+  onSubmit: async ({ value }) => { /* call mutation */ },
+})
+
+// In JSX — render-prop pattern:
+<form.Field name="email">
+  {(field) => (
+    <>
+      <Input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} onBlur={field.handleBlur} />
+      {field.state.meta.errors[0] && <p>{field.state.meta.errors[0]}</p>}
+    </>
+  )}
+</form.Field>
+```
+
+### API Integration Pattern
+
+All auth pages use `useMutation` with `fetch`. Current calls have `// TODO` comments pending backend connection:
+
+```typescript
+const mutation = useMutation({
+  mutationFn: async (data: DataType) => {
+    const res = await fetch('/api/endpoint', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) throw new Error(await res.text())
+    return res.json()
+  },
+  onSuccess: () => navigate('/next-route'),
+})
+```
+
+Disable the submit button during inflight: `disabled={mutation.isPending}`.
+
+### UI Components
+
+`src/components/ui/` holds shadcn-style primitives:
+- **Button** — CVA variants (`default`, `outline`, `ghost`, `link`) and sizes (`default`, `sm`, `lg`, `icon`). Uses `@radix-ui/react-slot` for the `asChild` prop.
+- **Input** — Forwarded ref, Tailwind-styled.
+- **Badge** — CVA variants for role labels.
+- **Label** — Wraps `@radix-ui/react-label` for accessibility.
+
+Always use `cn()` from `@/lib/utils` when merging Tailwind classes.
+
+## Client Code Style
+
+- **Imports**: Use the `@/` alias (maps to `src/`). Group: React → third-party → `@/` local → relative. Use `import type` for type-only imports.
+- **Components**: PascalCase filename and function name; `export default` functional components. Co-locate a `.css` file alongside the component for page-level styles.
+- **CSS**: BEM naming for component-level classes (`.auth-layout`, `.auth-panel__logo`). Use CSS custom properties from `variables.css` (`var(--color-primary)`) rather than hardcoded values. Use Tailwind for inline utility styling inside JSX.
+- **TypeScript**: Strict mode enabled. Centralize shared interfaces in `src/types/index.ts`. Extend HTML element interfaces for primitive components (e.g., `ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>`).
+- **Naming**: Components — PascalCase; utilities — camelCase; CSS classes — BEM kebab-case; types/interfaces — PascalCase with descriptive suffix (`LoginRequest`, `RoleOption`).
+
 ## Code Style
 
 Full rules in [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md). Key rules:
@@ -84,4 +214,4 @@ Full rules in [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTIN
 - Code style: [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md)
 - Testing: [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTING_GUIDELINES.md)
 - When editing under `server/` (excluding any future `client/`): follow backend instructions
-- When editing under `client/`: follow frontend instructions (docs to be added)
+- When editing under `client/`: follow the **Client Architecture** and **Client Code Style** sections above
