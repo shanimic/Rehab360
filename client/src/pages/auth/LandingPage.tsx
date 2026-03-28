@@ -1,30 +1,30 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LogoIcon } from './AuthLayout';
-import './LandingPage.css';
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { LogoIcon } from './AuthLayout'
+import { Button } from '@/components/ui/button'
+import './LandingPage.css'
 
-const images = [
+const images: string[] = [
   '/images/rehab1.jpg',
   '/images/rehab2.jpg',
   '/images/rehab3.jpg',
   '/images/rehab4.jpg',
   '/images/rehab5.jpg',
-];
+]
 
 export default function LandingPage() {
-  const navigate = useNavigate();
-  const [current, setCurrent] = useState(0);
+  const navigate = useNavigate()
+  const [current, setCurrent] = useState<number>(0)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % images.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+      setCurrent((prev) => (prev + 1) % images.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="landing">
-      {/* כל התמונות תמיד רנדרות — cross-fade בלי מסך ריק */}
       {images.map((src, i) => (
         <div
           key={src}
@@ -36,10 +36,8 @@ export default function LandingPage() {
         />
       ))}
 
-      {/* Dark overlay */}
       <div className="landing__overlay" />
 
-      {/* Main content */}
       <div className="landing__content">
         <div className="landing__logo-wrap">
           <LogoIcon size={88} />
@@ -51,16 +49,15 @@ export default function LandingPage() {
         </p>
 
         <div className="landing__actions">
-          <button className="btn-landing-primary" onClick={() => navigate('/login')}>
+          <Button className="btn-landing-primary" onClick={() => navigate('/login')}>
             Log In
-          </button>
-          <button className="btn-landing-secondary" onClick={() => navigate('/role-select')}>
+          </Button>
+          <Button className="btn-landing-secondary" onClick={() => navigate('/role-select')}>
             Sign Up
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Dots navigation */}
       <div className="landing__dots">
         {images.map((_, i) => (
           <button
@@ -74,5 +71,5 @@ export default function LandingPage() {
 
       <p className="landing__trust">Trusted by 500+ rehabilitation professionals</p>
     </div>
-  );
+  )
 }

@@ -1,8 +1,10 @@
-import { useNavigate } from 'react-router-dom';
-import { LogoIcon } from './AuthLayout';
-import './RoleSelect.css';
+import { useNavigate } from 'react-router-dom'
+import { LogoIcon } from './AuthLayout'
+import { Button } from '@/components/ui/button'
+import type { RoleOption, Role } from '@/types'
+import './RoleSelect.css'
 
-const roles = [
+const roles: RoleOption[] = [
   {
     id: 'patient',
     label: 'Patient',
@@ -33,20 +35,20 @@ const roles = [
       </svg>
     ),
   },
-];
+]
 
 export default function RoleSelect() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const handleSelect = (roleId) => {
-    navigate('/signup', { state: { role: roleId } });
-  };
+  const handleSelect = (roleId: Role) => {
+    navigate('/signup', { state: { role: roleId } })
+  }
 
   return (
     <div className="role-select">
       <div className="role-select__content">
         <div className="role-select__logo">
-          <LogoIcon size={48} color="white" />
+          <LogoIcon size={48} />
           <span className="role-select__brand">Rehab360</span>
         </div>
 
@@ -75,7 +77,7 @@ export default function RoleSelect() {
 
           <p className="role-select__login">
             Already have an account?{' '}
-            <button className="role-select__link" onClick={() => navigate('/login')}>Log In</button>
+            <Button variant="link" className="role-select__link p-0 h-auto" onClick={() => navigate('/login')}>Log In</Button>
           </p>
         </div>
       </div>
@@ -83,5 +85,5 @@ export default function RoleSelect() {
       <div className="role-select__bg-circle role-select__bg-circle--1" />
       <div className="role-select__bg-circle role-select__bg-circle--2" />
     </div>
-  );
+  )
 }
