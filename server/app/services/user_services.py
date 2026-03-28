@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 
-from app.core.security import verify_password
+from app.core.security import hash_password, verify_password
 from app.dal.user_repository import UserRepository
-from app.models.users.user import LoginRequest, LoginResponse
+from app.models.users.user import LoginRequest, LoginResponse, RegisterRequest, RegisterResponse
 
 
 class UserServices:
@@ -22,3 +22,13 @@ class UserServices:
         
         # 3. Return the user (optionally strip the password here)
         return user
+
+    async def register_user(self, register_request: RegisterRequest) -> RegisterResponse:
+        existing = await self.repository.get_user_for_auth(
+            LoginRequest(email=register_request.email, password="", role=register_request.role)
+        )
+        if existing:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists")
+
+        register_request.password = hash_password(register_request.password)
+        return await self.repository.create_user(register_request)

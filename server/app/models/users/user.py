@@ -12,3 +12,16 @@ class LoginRequest(BaseModel):
     email: str
     password: str
     role: Role
+
+
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: Role
+
+
+class RegisterResponse(BaseModel):
+    name: str
+    email: str
+    role: Role
