@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import './styles/variables.css'
 
-import LandingPage from './pages/auth/LandingPage'
-import RoleSelect from './pages/auth/RoleSelect'
-import Login from './pages/auth/Login'
-import SignUp from './pages/auth/SignUp'
-import SetPassword from './pages/auth/SetPassword'
+import LandingPage from './pages/auth/landing/LandingPage'
+import RoleSelect from './pages/auth/register/RoleSelect'
+import Login from './pages/auth/login/Login'
+import SignUp from './pages/auth/register/SignUp'
+import SetPassword from './pages/auth/login/SetPassword'
 import PageTransition from './components/PageTransition'
 
 function Dashboard() {
