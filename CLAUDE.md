@@ -190,7 +190,7 @@ Always use `cn()` from `@/lib/utils` when merging Tailwind classes.
 
 ## Code Style
 
-Full rules in [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md). Key rules:
+Full rules in [server/docs/instructions/CODE_STYLE.md](server/docs/instructions/CODE_STYLE.md). Key rules:
 
 - **Imports**: top-level only, never inside functions; group stdlib / third-party / local with blank lines; absolute imports only
 - **Type hints**: required on all function signatures; use `T | None` not `Optional[T]`; lowercase builtins (`dict`, `list`, `set`); always annotate return type (including `-> None`)
@@ -198,7 +198,7 @@ Full rules in [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md)
 
 ## Testing
 
-Full rules in [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTING_GUIDELINES.md). Key rules:
+Full rules in [server/docs/instructions/TESTING_GUIDELINES.md](server/docs/instructions/TESTING_GUIDELINES.md). Key rules:
 
 - Inherit from `unittest.TestCase`; run with `pytest`
 - Test files: `test_*.py` | Test classes: `*Test` | Test methods: `test_*`
@@ -225,8 +225,8 @@ Repeat the cycle — run pylint, fix errors, run again — until the score is **
 
 - Backend structure: [server/docs/dev/FASTAPI_PROJECT_GUIDE.md](server/docs/dev/FASTAPI_PROJECT_GUIDE.md)
 - Backend setup: [server/docs/dev/PROJECT_INITIALIZATION_GUIDE.md](server/docs/dev/PROJECT_INITIALIZATION_GUIDE.md)
-- Code style: [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md)
-- Testing: [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTING_GUIDELINES.md)
+- Code style: [server/docs/instructions/CODE_STYLE.md](server/docs/instructions/CODE_STYLE.md)
+- Testing: [server/docs/instructions/TESTING_GUIDELINES.md](server/docs/instructions/TESTING_GUIDELINES.md)
 - Frontend style: [client/docs/instructions/FRONTEND_CODING_STYLE.md](client/docs/instructions/FRONTEND_CODING_STYLE.md)
 - When editing under `server/` (excluding any future `client/`): follow backend instructions
 - When editing under `client/`: follow the **Client Architecture** and **Client Code Style** sections above, and `FRONTEND_CODING_STYLE.md` for detailed rules
