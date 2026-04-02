@@ -27,7 +27,7 @@ class UserServicesTest(unittest.TestCase):
         repo = mock(UserRepository)
         service = UserServices(repository=repo)
         request = LoginRequest(email="test@test.com", password="plain123", role=Role.PATIENT)
-        stored_user = LoginResponse(email="test@test.com", password="hashed123", role=Role.PATIENT)
+        stored_user = LoginResponse(email="test@test.com", password="hashed123", role=Role.PATIENT, first_name="Test")
 
         # MOCK
         expect(repo, times=1).get_user_for_auth(request).thenReturn(stored_user)
@@ -69,7 +69,7 @@ class UserServicesTest(unittest.TestCase):
         repo = mock(UserRepository)
         service = UserServices(repository=repo)
         request = LoginRequest(email="test@test.com", password="wrong_pass", role=Role.PATIENT)
-        stored_user = LoginResponse(email="test@test.com", password="hashed123", role=Role.PATIENT)
+        stored_user = LoginResponse(email="test@test.com", password="hashed123", role=Role.PATIENT, first_name="Test")
 
         # MOCK
         expect(repo, times=1).get_user_for_auth(request).thenReturn(stored_user)
@@ -121,7 +121,7 @@ class UserServicesTest(unittest.TestCase):
         service = UserServices(repository=repo)
         request = RegisterRequest(name="Dup User", email="dup@test.com", password="pass", role=Role.PATIENT)
         auth_check = LoginRequest(email="dup@test.com", password="", role=Role.PATIENT)
-        existing = LoginResponse(email="dup@test.com", password="hashed", role=Role.PATIENT)
+        existing = LoginResponse(email="dup@test.com", password="hashed", role=Role.PATIENT, first_name="Dup")
 
         # MOCK
         expect(repo, times=1).get_user_for_auth(auth_check).thenReturn(existing)
