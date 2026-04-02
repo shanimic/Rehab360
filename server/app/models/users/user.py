@@ -7,6 +7,7 @@ class LoginResponse(BaseModel):
     email: str
     password: str = Field(exclude=True)
     role: Role
+    name: str
 
 class LoginRequest(BaseModel):
     email: str
