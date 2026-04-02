@@ -32,4 +32,4 @@ jobs:
           # 2. --rcfile ensures your local config is used
           # 3. We target the 'server' directory specifically
           export PYTHONPATH=$PYTHONPATH:$(pwd)/server
-          pylint server/ --rcfile=.pylintrc --fail-under=10.0
+          pylint server/ --rcfile=server/.pylintrc --fail-under=10.0
