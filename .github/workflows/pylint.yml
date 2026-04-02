@@ -1,0 +1,35 @@
+name: Pylint Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint fastapi pydantic-settings aiomysql mockito pydantic pwdlib
+          # If you have a requirements file inside 'server', install it:
+          if [ -f server/requirements.txt ]; then pip install -r server/requirements.txt; fi
+
+      - name: Run Pylint
+        run: |
+          # 1. We add 'server' to PYTHONPATH so 'import app...' works
+          # 2. --rcfile ensures your local config is used
+          # 3. We target the 'server' directory specifically
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/server
+          pylint server/ --rcfile=server/.pylintrc --fail-under=10.0

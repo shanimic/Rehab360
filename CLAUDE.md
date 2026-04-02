@@ -208,6 +208,19 @@ Full rules in [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTIN
 - Do not call `mockito.unstub()` in tearDown — pytest-mockito handles cleanup automatically
 - Match mock parameter style (positional vs named) to the actual call site
 
+## Pylint (Backend)
+
+After every code change under `server/`, run pylint and fix all errors before considering the task done:
+
+```bash
+cd server && .venv/Scripts/pylint app
+```
+
+Repeat the cycle — run pylint, fix errors, run again — until the score is **10.00/10**. Do not stop at a partial score.
+
+- The `.pylintrc` config is at `server/.pylintrc`
+- Always run from the `server/` directory so `init-hook` resolves imports correctly
+
 ## Instruction Index
 
 - Backend structure: [server/docs/dev/FASTAPI_PROJECT_GUIDE.md](server/docs/dev/FASTAPI_PROJECT_GUIDE.md)
