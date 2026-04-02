@@ -150,24 +150,25 @@ const form = useForm({
 
 ### API Integration Pattern
 
-All auth pages use `useMutation` with `fetch`. Current calls have `// TODO` comments pending backend connection:
+Never call `useMutation` or `useQuery` directly inside a component. Always wrap each API interaction in a dedicated custom hook. Use **axios** for all HTTP calls (not `fetch`):
 
 ```typescript
-const mutation = useMutation({
-  mutationFn: async (data: DataType) => {
-    const res = await fetch('/api/endpoint', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-    if (!res.ok) throw new Error(await res.text())
-    return res.json()
-  },
-  onSuccess: () => navigate('/next-route'),
-})
+// hooks/useLoginMutation.ts
+export function useLoginMutation() {
+  return useMutation({
+    mutationFn: (data: LoginRequest) =>
+      axios.post('/api/auth/login', data).then((res) => res.data),
+  })
+}
+
+// Inside the component:
+const loginMutation = useLoginMutation()
+// onSuccess/navigate logic stays in the component
 ```
 
-Disable the submit button during inflight: `disabled={mutation.isPending}`.
+Disable the submit button during inflight: `disabled={loginMutation.isPending}`.
+
+Current auth calls have `// TODO` comments — API is not yet connected.
 
 ### UI Components
 
@@ -213,5 +214,6 @@ Full rules in [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTIN
 - Backend setup: [server/docs/dev/PROJECT_INITIALIZATION_GUIDE.md](server/docs/dev/PROJECT_INITIALIZATION_GUIDE.md)
 - Code style: [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md)
 - Testing: [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTING_GUIDELINES.md)
+- Frontend style: [client/docs/instructions/FRONTEND_CODING_STYLE.md](client/docs/instructions/FRONTEND_CODING_STYLE.md)
 - When editing under `server/` (excluding any future `client/`): follow backend instructions
-- When editing under `client/`: follow the **Client Architecture** and **Client Code Style** sections above
+- When editing under `client/`: follow the **Client Architecture** and **Client Code Style** sections above, and `FRONTEND_CODING_STYLE.md` for detailed rules

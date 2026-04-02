@@ -282,6 +282,12 @@
   text-decoration: underline;
 }
 
+.auth-field__error {
+  color: var(--color-error);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
 .auth-divider {
   height: 1px;
   background: var(--color-border);

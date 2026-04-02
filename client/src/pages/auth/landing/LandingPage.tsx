@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogoIcon } from './AuthLayout'
+
+import { LogoIcon } from '../AuthLayout'
 import { Button } from '@/components/ui/button'
 import './LandingPage.css'
 

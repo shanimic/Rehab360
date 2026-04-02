@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { LogoIcon } from './AuthLayout'
+
+import { LogoIcon } from '../AuthLayout'
 import { Button } from '@/components/ui/button'
 import type { RoleOption, Role } from '@/types'
 import './RoleSelect.css'
