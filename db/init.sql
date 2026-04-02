@@ -1,146 +1,148 @@
 CREATE DATABASE IF NOT EXISTS `rehab360`;
 USE `rehab360`;
 
-CREATE TABLE IF NOT EXISTS `users` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL,
-    `email` VARCHAR(255) NOT NULL UNIQUE,
-    `password` VARCHAR(255) NOT NULL,
-    `role` ENUM('PATIENT', 'THERAPIST') NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- CREATE TABLE IF NOT EXISTS `users` (
+--     `id` INT AUTO_INCREMENT PRIMARY KEY,
+--     `name` VARCHAR(255) NOT NULL,
+--     `email` VARCHAR(255) NOT NULL UNIQUE,
+--     `password` VARCHAR(255) NOT NULL,
+--     `role` ENUM('PATIENT', 'THERAPIST') NOT NULL,
+--     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- );
+
+-- INSERT INTO `users` (`name`, `email`, `password`, `role`)
+-- VALUES
+--     ('Shani', 'shani@test.com', '$argon2i$v=19$m=16,t=2,p=1$MTIzNDU2Nzg$tDWRo1Aq6aP70zhxJsPq7w', 'PATIENT'),
+--     ('Liron', 'liron@test.com', '$argon2i$v=19$m=16,t=2,p=1$MTIzNDU2Nzg$tDWRo1Aq6aP70zhxJsPq7w', 'PATIENT'),
+--     ('Elran', 'elran@test.com', '$argon2i$v=19$m=16,t=2,p=1$MTIzNDU2Nzg$tDWRo1Aq6aP70zhxJsPq7w', 'THERAPIST'),
+--     ('Yogev', 'yogev@test.com', '$argon2i$v=19$m=16,t=2,p=1$MTIzNDU2Nzg$tDWRo1Aq6aP70zhxJsPq7w', 'THERAPIST');
+
+-- 1. Registered Users Table
+CREATE TABLE IF NOT EXISTS registered_users (
+    user_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER') NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    birth_date DATE NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255),
+    license_number VARCHAR(50),
+    PRIMARY KEY (user_id, user_role)
 );
 
-INSERT INTO `users` (`name`, `email`, `password`, `role`) 
-VALUES 
-    ('Shani', 'shani@test.com', '$argon2i$v=19$m=16,t=2,p=1$MTIzNDU2Nzg$tDWRo1Aq6aP70zhxJsPq7w', 'PATIENT'),
-    ('Liron', 'liron@test.com', '$argon2i$v=19$m=16,t=2,p=1$MTIzNDU2Nzg$tDWRo1Aq6aP70zhxJsPq7w', 'PATIENT'),
-    ('Elran', 'elran@test.com', '$argon2i$v=19$m=16,t=2,p=1$MTIzNDU2Nzg$tDWRo1Aq6aP70zhxJsPq7w', 'THERAPIST'),
-    ('Yogev', 'yogev@test.com', '$argon2i$v=19$m=16,t=2,p=1$MTIzNDU2Nzg$tDWRo1Aq6aP70zhxJsPq7w', 'THERAPIST');
-
-
-
-
-CREATE TABLE RegisteredUsers (
-    UserID VARCHAR(255),
-    UserRole VARCHAR(255),
-    FirstName VARCHAR(255) NOT NULL,
-    LastName VARCHAR(255) NOT NULL,
-    Phone VARCHAR(20) NOT NULL,
-    BirthDate DATE  NOT NULL,
-    Email VARCHAR(255) NOT NULL,
-    Password VARCHAR(255),
-    LicenseNumber VARCHAR(50), 
-    PRIMARY KEY (UserID, UserRole)
+-- 2. Exercises Table
+CREATE TABLE IF NOT EXISTS exercises (
+    exercise_id INT PRIMARY KEY,
+    exercise_name VARCHAR(255) NOT NULL,
+    difficulty_level INT NOT NULL,
+    treatment_area VARCHAR(100) NOT NULL,
+    ex_video_url VARCHAR(255) NOT NULL,
+    text_instructions TEXT NOT NULL
 );
 
-CREATE TABLE Exercises (
-    ExerciseID INT PRIMARY KEY,
-    ExerciseName VARCHAR(255) NOT NULL,
-    DifficultyLevel INT NOT NULL,
-    TreatmentArea VARCHAR(100) NOT NULL,
-    EXVideoURL VARCHAR(255) NOT NULL,
-    TextInstructions TEXT NOT NULL
+-- 3. Sessions Table
+CREATE TABLE IF NOT EXISTS sessions (
+    session_id INT PRIMARY KEY,
+    visit_date DATE NOT NULL,
+    visit_time TIME NOT NULL,
+    visit_type VARCHAR(50) NOT NULL,
+    treatment_area VARCHAR(100) NOT NULL,
+    medical_diagnosis TEXT NOT NULL,
+    description TEXT NOT NULL,
+    recommendations TEXT,
+    patient_id VARCHAR(255), -- Must match registered_users.user_id
+    patient_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
+    therapist_id VARCHAR(255),
+    therapist_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
+    FOREIGN KEY (patient_id, patient_role) REFERENCES registered_users(user_id, user_role),
+    FOREIGN KEY (therapist_id, therapist_role) REFERENCES registered_users(user_id, user_role)
 );
 
-CREATE TABLE Sessions (
-    SessionID INT PRIMARY KEY,
-    VisitDate DATE NOT NULL,
-    VisitTime TIME NOT NULL,
-    VisitType VARCHAR(50) NOT NULL,
-    TreatmentArea VARCHAR(100) NOT NULL,
-    MedicalDiagnosis TEXT NOT NULL,
-    Description TEXT NOT NULL,
-    Recommendations  TEXT,
-    PatientID VARCHAR(20),
-    PatientRole VARCHAR(50),
-    TherapistID VARCHAR(20),
-    TherapistRole VARCHAR(50),
-    FOREIGN KEY (PatientID, PatientRole) REFERENCES RegisteredUsers(UserID, UserRole),
-    FOREIGN KEY (TherapistID, TherapistRole) REFERENCES RegisteredUsers(UserID, UserRole)
+-- 4. Plans Table
+CREATE TABLE IF NOT EXISTS plans (
+    plan_id INT PRIMARY KEY,
+    goal TEXT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    session_id INT,
+    FOREIGN KEY (session_id) REFERENCES sessions(session_id)
 );
 
-CREATE TABLE Plans (
-    PlanID INT PRIMARY KEY,
-    Goal TEXT NOT NULL,
-    StartDate DATE NOT NULL,
-    EndDate DATE NOT NULL,
-    SessionID INT,
-    FOREIGN KEY (SessionID) REFERENCES Sessions(SessionID)
+-- 5. Plan Exercises Table
+CREATE TABLE IF NOT EXISTS plan_exercises (
+    plan_id INT,
+    session_id INT,
+    exercise_id INT,
+    reps INT NOT NULL,
+    sets INT NOT NULL,
+    weight FLOAT NOT NULL,
+    time_duration INT NOT NULL,
+    time_unit VARCHAR(30) NOT NULL,
+    description TEXT,
+    PRIMARY KEY (plan_id, session_id, exercise_id),
+    FOREIGN KEY (plan_id) REFERENCES plans(plan_id),
+    FOREIGN KEY (session_id) REFERENCES sessions(session_id),
+    FOREIGN KEY (exercise_id) REFERENCES exercises(exercise_id)
 );
 
-CREATE TABLE PlanExercises (
-    PlanID INT,
-    SessionID INT,
-    ExerciseID INT,
-    Reps INT NOT NULL,
-    Sets INT NOT NULL,
-    Weight FLOAT NOT NULL,
-    TimeDuration INT NOT NULL,
-    TimeUnit VARCHAR(30) NOT NULL,
-    Description TEXT,
-    PRIMARY KEY (PlanID, SessionID, ExerciseID),
-    FOREIGN KEY (PlanID) REFERENCES Plans(PlanID),
-    FOREIGN KEY (SessionID) REFERENCES Sessions(SessionID),
-    FOREIGN KEY (ExerciseID) REFERENCES Exercises(ExerciseID)
+-- 6. Weekly Plans Table
+CREATE TABLE IF NOT EXISTS weekly_plans (
+    weekly_plan_id INT,
+    plan_id INT,
+    session_id INT,
+    exercise_id INT,
+    reminder_time DATETIME NOT NULL,
+    notification_enabled BOOLEAN,
+    PRIMARY KEY (weekly_plan_id, plan_id, session_id, exercise_id),
+    FOREIGN KEY (plan_id, session_id, exercise_id) REFERENCES plan_exercises(plan_id, session_id, exercise_id)
 );
 
-CREATE TABLE WeeklyPlans (
-    WeeklyPlanID INT,
-    PlanID INT,
-    SessionID INT,
-    ExerciseID INT,
-    ReminderTime DATETIME NOT NULL,
-    notificationEnabled BOOLEAN,
-    PRIMARY KEY (WeeklyPlanID, PlanID, SessionID, ExerciseID),
-    FOREIGN KEY (PlanID, SessionID, ExerciseID) REFERENCES PlanExercises(PlanID, SessionID, ExerciseID)
+-- 7. Exercise Execution Log
+CREATE TABLE IF NOT EXISTS exercise_execution_log (
+    log_id INT PRIMARY KEY,
+    weekly_plan_id INT,
+    plan_id INT,
+    session_id INT,
+    exercise_id INT,
+    execution_date DATE NOT NULL,
+    execution_status BOOLEAN NOT NULL,
+    reason_for_non_performance TEXT,
+    pain_level INT NOT NULL,
+    effort_level INT NOT NULL,
+    request_for_change TEXT,
+    FOREIGN KEY (weekly_plan_id, plan_id, session_id, exercise_id) 
+        REFERENCES weekly_plans(weekly_plan_id, plan_id, session_id, exercise_id)
 );
 
-CREATE TABLE ExerciseExecutionLog (
-    LogID INT PRIMARY KEY,
-    WeeklyPlanID INT,
-    PlanID INT,
-    SessionID INT,
-    ExerciseID INT,
-    ExecutionDate DATE NOT NULL,
-    ExecutionStatus BOOLEAN NOT NULL,
-    ReasonForNonPerformance TEXT,
-    PainLevel INT Not NULL,
-    EffortLevel INT NOT NULL,
-    RequestForChange TEXT,
-    FOREIGN KEY (WeeklyPlanID, PlanID, SessionID, ExerciseID) 
-        REFERENCES WeeklyPlans(WeeklyPlanID, PlanID, SessionID, ExerciseID)
+-- 8. Queries Table
+CREATE TABLE IF NOT EXISTS queries (
+    query_id INT PRIMARY KEY,
+    query_text TEXT NOT NULL,
+    query_date DATE NOT NULL,
+    user_id VARCHAR(255),
+    user_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
+    FOREIGN KEY (user_id, user_role) REFERENCES registered_users(user_id, user_role)
 );
 
--- 8. טבלת שאילתא
-CREATE TABLE Queries (
-    QueryID INT PRIMARY KEY,
-    QueryText TEXT NOT NULL,
-    QueryDate DATE NOT NULL,
-    UserID VARCHAR(20),
-    UserRole VARCHAR(50),
-    FOREIGN KEY (UserID, UserRole) REFERENCES RegisteredUsers(UserID, UserRole)
+-- 9. Content Table
+CREATE TABLE IF NOT EXISTS content (
+    content_id INT PRIMARY KEY,
+    content_type VARCHAR(50) NOT NULL,
+    content_title VARCHAR(255) NOT NULL,
+    content_source_link VARCHAR(255) NOT NULL,
+    query_id INT,
+    FOREIGN KEY (query_id) REFERENCES queries(query_id)
 );
 
--- 9. טבלת תוכן
-CREATE TABLE Content (
-    ContentID INT PRIMARY KEY,
-    ContentType VARCHAR(50) NOT NULL,
-    ContentTitle VARCHAR(255) NOT NULL,
-    ContentSourceLink VARCHAR(255) NOT NULL,
-    QueryID INT,
-    FOREIGN KEY (QueryID) REFERENCES Queries(QueryID)
+-- 10. Recommended Content Table
+CREATE TABLE IF NOT EXISTS recommended_content (
+    recommended_id INT PRIMARY KEY,
+    recommendation_date DATE NOT NULL,
+    content_id INT,
+    user_id VARCHAR(255),
+    user_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
+    FOREIGN KEY (content_id) REFERENCES content(content_id),
+    FOREIGN KEY (user_id, user_role) REFERENCES registered_users(user_id, user_role)
 );
-
--- 10. טבלת תוכן מומלץ
-CREATE TABLE RecommendedContent (
-    RecommendedID INT PRIMARY KEY,
-    RecommendationDate DATE NOT NULL,
-    ContentID INT,
-    UserID VARCHAR(20),
-    UserRole VARCHAR(50),
-    FOREIGN KEY (ContentID) REFERENCES Content(ContentID),
-    FOREIGN KEY (UserID, UserRole) REFERENCES RegisteredUsers(UserID, UserRole)
-);
-
-

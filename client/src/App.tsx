@@ -6,6 +6,7 @@ import RoleSelect from './pages/auth/RoleSelect'
 import Login from './pages/auth/Login'
 import SignUp from './pages/auth/SignUp'
 import SetPassword from './pages/auth/SetPassword'
+import PatientHome from './pages/patient/PatientHome'
 import PageTransition from './components/PageTransition'
 
 function Dashboard() {
@@ -27,6 +28,7 @@ function AnimatedRoutes() {
       <Route path="/signup" element={<PageTransition><SignUp /></PageTransition>} />
       <Route path="/set-password" element={<PageTransition><SetPassword /></PageTransition>} />
       <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+      <Route path="/patient/home" element={<PageTransition><PatientHome /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
