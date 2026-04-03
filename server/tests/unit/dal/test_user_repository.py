@@ -52,7 +52,7 @@ class UserRepositoryTest(unittest.TestCase):
         # PREPARE
         cursor = mock()
         repo = UserRepository(db=cursor)
-        login = LoginRequest(email="missing@test.com", password="x", role=Role.THERAPIST)
+        login = LoginRequest(email="missing@test.com", password="x", role=Role.PHYSIOTHERAPIST)
 
         # MOCK
         expect(cursor, times=1).execute(query=ANY, args=ANY).thenReturn(async_return(None))
@@ -74,9 +74,12 @@ class UserRepositoryTest(unittest.TestCase):
         cursor = mock()
         repo = UserRepository(db=cursor)
         register = RegisterRequest(
-            name="N",
+            first_name="N",
+            last_name="Test",
             email="n@test.com",
             password="hashed-stored",
+            phone="050-0000000",
+            birth_date="1990-01-01",
             role=Role.PATIENT,
         )
 
@@ -87,6 +90,7 @@ class UserRepositoryTest(unittest.TestCase):
         result = asyncio.run(repo.create_user(register))
 
         # ASSERT
-        assert result.name == "N"
+        assert result.first_name == "N"
+        assert result.last_name == "Test"
         assert result.email == "n@test.com"
         assert result.role == Role.PATIENT

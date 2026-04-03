@@ -16,13 +16,18 @@ class LoginRequest(BaseModel):
 
 
 class RegisterRequest(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     email: str
     password: str
+    phone: str
+    birth_date: str
     role: Role
+    license_number: str | None = None
 
 
 class RegisterResponse(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     email: str
     role: Role
