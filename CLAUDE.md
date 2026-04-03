@@ -208,18 +208,35 @@ Full rules in [server/docs/instructions/TESTING_GUIDELINES.md](server/docs/instr
 - Do not call `mockito.unstub()` in tearDown — pytest-mockito handles cleanup automatically
 - Match mock parameter style (positional vs named) to the actual call site
 
-## Pylint (Backend)
+## Pylint + unit tests (backend — before finishing a turn)
 
-After every code change under `server/`, run pylint and fix all errors before considering the task done:
+When a task **changes code under `server/`**, do not consider the task done until verification has run **in this order**, and your **final reply to the user states the outcome of both** (pylint score or failure summary; pytest pass/fail and counts or failing test names).
+
+1. **Pylint** — run and fix until **10.00/10**:
 
 ```bash
-cd server && .venv/Scripts/pylint app
+cd server
+source .venv/bin/activate   # Windows: .venv\Scripts\Activate.ps1
+pylint app --rcfile=.pylintrc
 ```
+
+(On Windows, if `pylint` is not on `PATH`, use `.venv\Scripts\pylint` instead of `pylint`.)
 
 Repeat the cycle — run pylint, fix errors, run again — until the score is **10.00/10**. Do not stop at a partial score.
 
+2. **Unit tests** — after pylint succeeds, run:
+
+```bash
+cd server
+pytest tests/unit/ -v
+```
+
+Fix any failures before finishing. If the sandbox blocks pylint’s default cache directory, set e.g. `PYLINTHOME` to a path inside the repo (e.g. `server/.pylint_cache`) for that run.
+
 - The `.pylintrc` config is at `server/.pylintrc`
-- Always run from the `server/` directory so `init-hook` resolves imports correctly
+- Always run pylint from the `server/` directory so `init-hook` resolves imports correctly
+
+**Notify:** End with a short summary for the user, for example: pylint **10.00/10**; unit tests **N passed** (or list failures).
 
 ## Instruction Index
 
