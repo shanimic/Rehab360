@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 
 import PageTransition from './components/PageTransition'
 import PatientHome from './pages/patient/PatientHome'
-import LandingPage from './pages/auth/LandingPage'
-import RoleSelect from './pages/auth/RoleSelect'
-import Login from './pages/auth/Login'
-import SignUp from './pages/auth/SignUp'
-import SetPassword from './pages/auth/SetPassword'
+import LandingPage from './pages/auth/landing/LandingPage'
+import RoleSelect from './pages/auth/register/RoleSelect'
+import Login from './pages/auth/login/Login'
+import SignUp from './pages/auth/register/SignUp'
+import SetPassword from './pages/auth/login/SetPassword'
 
 function Dashboard() {
   return (
