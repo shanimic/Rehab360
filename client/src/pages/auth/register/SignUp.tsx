@@ -14,7 +14,7 @@ const roleLabelMap: Record<Role, string> = {
 
 export default function SignUp() {
   const location = useLocation()
-  const role = (location.state?.role as Role) || 'patient'
+  const role = ((location.state as { role?: Role })?.role) ?? 'patient'
 
   return (
     <AuthLayout

@@ -92,6 +92,19 @@ Components in `components/ui/` follow the shadcn architecture:
 - **Logic/UI Split:** Keep the Zod schema and form logic clear of the main render loop.
 - **Field Components:** Use a modular approach for form fields (e.g., `TextInput`, `Select`) that consume TanStack Form's field API to maintain consistent styling.
 
+## 10. ESLint (before finishing a turn)
+
+When a task **changes code under `client/`**, do not consider the task done until ESLint passes with zero errors, and your **final reply to the user states the outcome**.
+
+```bash
+cd client
+npm run lint
+```
+
+Repeat the cycle — run ESLint, fix errors, run again — until the output shows `0 problems`. Do not stop with remaining errors.
+
+**Notify:** End with a short summary, for example: ESLint **0 errors**.
+
 ## 9. Execution Context for the Agent
 - **Logic Flow:** When generating a new feature, follow this order:
     1. Define the Zod Schema / TypeScript interfaces.
