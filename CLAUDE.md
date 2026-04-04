@@ -6,6 +6,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Rehab360 is a full-stack rehabilitation/therapy management web application. The backend is a FastAPI (Python) service using raw SQL (no ORM) against MySQL. The frontend is a React/TypeScript SPA built with Vite.
 
+## Domain & Features
+
+Rehab360 connects three user roles — **Patients**, **Physiotherapists**, and **Rehabilitation Fitness Trainers** — around three core processes:
+
+### Process 1 – Exercise Performance Reporting
+Patients report on assigned exercises (execution status, pain level, effort level, notes). Professionals use this data to monitor adherence and progress. Includes integration with **Google Calendar API** so patients can create exercise reminders.
+
+### Process 2 – AI-Powered Search (Gemini)
+Users submit natural language queries and receive professional information about injuries, rehabilitation topics, and exercises via **Google Gemini AI API**. Users can save queries, store relevant content, and mark content as recommended (CRUD on queries and saved content).
+
+### Process 3 – Visit Summaries & Treatment Plans
+Professionals document visits and create/update personalized treatment or training plans (including specific exercises) for patients. Both patients and professionals can view progress history (full CRUD on visit summaries and treatment plans).
+
+### MVP Scope
+Chat functionality between patients and professionals is **not implemented** in the MVP. Ignore any references to it in design documents.
+
+---
+
 ## Commands
 
 ### Backend Setup (Python 3.11+)
