@@ -46,7 +46,7 @@ export default function SetPassword() {
           aria-label="Go back"
         >
           <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-            <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
         <h2 className="auth-title" style={{ marginBottom: 0 }}>Set Password</h2>
