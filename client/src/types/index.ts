@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 export type Role = 'patient' | 'physiotherapist' | 'trainer'
-export type ApiRole = 'PATIENT' | 'THERAPIST'
+export type ApiRole = 'PATIENT' | 'PHYSIOTHERAPIST' | 'FITNESS_TRAINER'
 
 export interface User {
   email: string
@@ -17,14 +17,25 @@ export interface LoginRequest {
 export interface LoginResponse {
   email: string
   role: ApiRole
+  first_name: string
 }
 
 export interface SignUpRequest {
-  fullName: string
+  user_id: string
+  first_name: string
+  last_name: string
   email: string
   password: string
-  mobile: string
-  dateOfBirth: string
+  phone: string
+  birth_date: string
+  role: ApiRole
+  license_number?: string
+}
+
+export interface SignUpResponse {
+  first_name: string
+  last_name: string
+  email: string
   role: ApiRole
 }
 

@@ -93,9 +93,23 @@ class UserServicesTest(unittest.TestCase):
         # PREPARE
         repo = mock(UserRepository)
         service = UserServices(repository=repo)
-        request = RegisterRequest(name="New User", email="new@test.com", password="plain123", role=Role.PATIENT)
+        request = RegisterRequest(
+            user_id="123456789",
+            first_name="New",
+            last_name="User",
+            email="new@test.com",
+            password="plain123",
+            phone="050-0000000",
+            birth_date="1990-01-01",
+            role=Role.PATIENT,
+        )
         auth_check = LoginRequest(email="new@test.com", password="", role=Role.PATIENT)
-        expected = RegisterResponse(name="New User", email="new@test.com", role=Role.PATIENT)
+        expected = RegisterResponse(
+            first_name="New",
+            last_name="User",
+            email="new@test.com",
+            role=Role.PATIENT,
+        )
 
         # MOCK
         expect(repo, times=1).get_user_for_auth(auth_check).thenReturn(None)
@@ -107,7 +121,8 @@ class UserServicesTest(unittest.TestCase):
 
         # ASSERT
         self.assertEqual(result.email, expected.email)
-        self.assertEqual(result.name, expected.name)
+        self.assertEqual(result.first_name, expected.first_name)
+        self.assertEqual(result.last_name, expected.last_name)
         self.assertEqual(result.role, expected.role)
 
     def test_register_user_duplicate_user_raises_409(self) -> None:
@@ -119,7 +134,16 @@ class UserServicesTest(unittest.TestCase):
         # PREPARE
         repo = mock(UserRepository)
         service = UserServices(repository=repo)
-        request = RegisterRequest(name="Dup User", email="dup@test.com", password="pass", role=Role.PATIENT)
+        request = RegisterRequest(
+            user_id="999999999",
+            first_name="Dup",
+            last_name="User",
+            email="dup@test.com",
+            password="pass",
+            phone="050-0000000",
+            birth_date="1990-01-01",
+            role=Role.PATIENT,
+        )
         auth_check = LoginRequest(email="dup@test.com", password="", role=Role.PATIENT)
         existing = LoginResponse(email="dup@test.com", password="hashed", role=Role.PATIENT, first_name="Dup")
 

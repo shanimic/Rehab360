@@ -109,7 +109,7 @@ class UserRoutesTest(unittest.TestCase):
                 {
                     "email": "badpw@test.com",
                     "password": hashed,
-                    "role": "THERAPIST",
+                    "role": "PHYSIOTHERAPIST",
                     "first_name": "T",
                 }
             )
@@ -122,7 +122,7 @@ class UserRoutesTest(unittest.TestCase):
             json={
                 "email": "badpw@test.com",
                 "password": "wrong-password",
-                "role": "THERAPIST",
+                "role": "PHYSIOTHERAPIST",
             },
         )
 
@@ -133,7 +133,7 @@ class UserRoutesTest(unittest.TestCase):
         """
         Given no existing user for the email/role,
         When POST /users/register is called,
-        Then 200 is returned with name, email, and role.
+        Then 200 is returned with first_name, last_name, email, and role.
         """
         # PREPARE
         cursor = mock()
@@ -153,9 +153,13 @@ class UserRoutesTest(unittest.TestCase):
         response = client.post(
             "/users/register",
             json={
-                "name": "New Pat",
+                "user_id": "123456789",
+                "first_name": "New",
+                "last_name": "Pat",
                 "email": "newpat@test.com",
                 "password": "plain-reg",
+                "phone": "050-0000000",
+                "birth_date": "1990-01-01",
                 "role": "PATIENT",
             },
         )
@@ -163,7 +167,8 @@ class UserRoutesTest(unittest.TestCase):
         # ASSERT
         assert response.status_code == 200
         body = response.json()
-        assert body["name"] == "New Pat"
+        assert body["first_name"] == "New"
+        assert body["last_name"] == "Pat"
         assert body["email"] == "newpat@test.com"
         assert body["role"] == "PATIENT"
 
@@ -200,9 +205,13 @@ class UserRoutesTest(unittest.TestCase):
         response = client.post(
             "/users/register",
             json={
-                "name": "Dup",
+                "user_id": "999999999",
+                "first_name": "Dup",
+                "last_name": "User",
                 "email": "dup@test.com",
                 "password": "anything",
+                "phone": "050-0000000",
+                "birth_date": "1990-01-01",
                 "role": "PATIENT",
             },
         )

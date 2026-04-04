@@ -50,10 +50,10 @@ export default function LandingPage() {
         </p>
 
         <div className="landing__actions">
-          <Button className="btn-landing-primary" onClick={() => navigate('/login')}>
+          <Button className="btn-landing-primary" onClick={() => navigate('/role-select', { state: { action: 'login' } })}>
             Log In
           </Button>
-          <Button className="btn-landing-secondary" onClick={() => navigate('/role-select')}>
+          <Button className="btn-landing-secondary" onClick={() => navigate('/role-select', { state: { action: 'signup' } })}>
             Sign Up
           </Button>
         </div>

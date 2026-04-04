@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import './styles/variables.css'
 
+import PageTransition from './components/PageTransition'
+import PatientHome from './pages/patient/PatientHome'
 import LandingPage from './pages/auth/landing/LandingPage'
 import RoleSelect from './pages/auth/register/RoleSelect'
 import Login from './pages/auth/login/Login'
 import SignUp from './pages/auth/register/SignUp'
 import SetPassword from './pages/auth/login/SetPassword'
-import PageTransition from './components/PageTransition'
 
 function Dashboard() {
   return (
@@ -27,6 +27,7 @@ function AnimatedRoutes() {
       <Route path="/signup" element={<PageTransition><SignUp /></PageTransition>} />
       <Route path="/set-password" element={<PageTransition><SetPassword /></PageTransition>} />
       <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+      <Route path="/patient/home" element={<PageTransition><PatientHome /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

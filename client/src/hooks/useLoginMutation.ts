@@ -1,12 +1,13 @@
 import { useMutation } from '@tanstack/react-query'
-import type { LoginRequest } from '@/types'
+
+import apiClient from '@/lib/apiClient'
+import type { LoginRequest, LoginResponse } from '@/types'
 
 export function useLoginMutation() {
   return useMutation({
-    mutationFn: async (_data: LoginRequest) => {
-      // TODO: connect to API
-      // return axios.post('/api/auth/login', _data).then((res) => res.data)
-      await new Promise((resolve) => setTimeout(resolve, 500))
+    mutationFn: async (data: LoginRequest): Promise<LoginResponse> => {
+      const res = await apiClient.post('/users/login', data)
+      return res.data
     },
   })
 }
