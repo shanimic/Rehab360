@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import StepIndicator from '../components/StepIndicator'
 import PasswordField from '../components/PasswordField'
+import getErrorMessage from '../components/getErrorMessage'
 import type { Role, ApiRole } from '@/types'
 
 const ROLE_TO_API: Record<Role, ApiRole> = {
@@ -83,8 +84,8 @@ export default function Login() {
                 onBlur={field.handleBlur}
                 autoComplete="username"
               />
-              {field.state.meta.errors[0] && (
-                <p className="auth-field__error">{field.state.meta.errors[0]}</p>
+              {getErrorMessage(field.state.meta.errors[0]) && (
+                <p className="auth-field__error">{getErrorMessage(field.state.meta.errors[0])}</p>
               )}
             </div>
           )}
@@ -99,7 +100,7 @@ export default function Login() {
                 value={field.state.value}
                 onChange={field.handleChange}
                 onBlur={field.handleBlur}
-                error={field.state.meta.errors[0]}
+                error={getErrorMessage(field.state.meta.errors[0])}
                 autoComplete="current-password"
               />
               <div style={{ textAlign: 'right', marginTop: -12, marginBottom: 20 }}>
