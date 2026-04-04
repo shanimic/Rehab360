@@ -1,6 +1,7 @@
 /* =========================================
    Patient Home Page
    ========================================= */
+@import '../../styles/variables.css';
 
 .ph-page {
   min-height: 100vh;

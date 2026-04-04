@@ -1,10 +1,10 @@
+import { useState } from 'react'
 import {
   Bell, Menu, CheckCircle2, Circle,
   Home, Dumbbell, BarChart2, Sparkles, User,
-  ClipboardList, Flame, CalendarCheck, ChevronRight,
+  Flame, CalendarCheck, ChevronRight,
   Video, MapPin,
 } from 'lucide-react'
-import { useState } from 'react'
 import './PatientHome.css'
 
 /* ── Types ── */
@@ -28,10 +28,10 @@ interface Session {
 
 /* ── Static data ── */
 const exercises: Exercise[] = [
-  { id: 1, name: 'Push Up',       plan: 'Treatment Plan', desc: '100 Push ups a day',        done: true  },
-  { id: 2, name: 'Sit Up',        plan: 'Training Plan',  desc: '20 Sit ups a day',           done: false },
-  { id: 3, name: 'Knee Push Up',  plan: 'Treatment Plan', desc: '20 Knee push ups a day',     done: false },
-  { id: 4, name: 'Shoulder Stretch', plan: 'Treatment Plan', desc: '15 reps each side',       done: false },
+  { id: 1, name: 'Push Up', plan: 'Treatment Plan', desc: '100 Push ups a day', done: true },
+  { id: 2, name: 'Sit Up', plan: 'Training Plan', desc: '20 Sit ups a day', done: false },
+  { id: 3, name: 'Knee Push Up', plan: 'Treatment Plan', desc: '20 Knee push ups a day', done: false },
+  { id: 4, name: 'Shoulder Stretch', plan: 'Treatment Plan', desc: '15 reps each side', done: false },
 ]
 
 // Sessions relative to today
@@ -43,25 +43,25 @@ function buildSessions(): Session[] {
     return d
   }
   return [
-    { id: 1, title: 'Physiotherapy',     professional: 'Dr. Sarah Cohen', date: d(1), time: '10:00 AM', type: 'clinic',  color: '#1a56db' },
-    { id: 2, title: 'Fitness Training',  professional: 'Mike Torres',     date: d(3), time: '2:30 PM',  type: 'online',  color: '#10b981' },
-    { id: 3, title: 'Progress Review',   professional: 'Dr. Sarah Cohen', date: d(7), time: '11:00 AM', type: 'clinic',  color: '#1a56db' },
+    { id: 1, title: 'Physiotherapy', professional: 'Dr. Sarah Cohen', date: d(1), time: '10:00 AM', type: 'clinic', color: '#1a56db' },
+    { id: 2, title: 'Fitness Training', professional: 'Mike Torres', date: d(3), time: '2:30 PM', type: 'online', color: '#10b981' },
+    { id: 3, title: 'Progress Review', professional: 'Dr. Sarah Cohen', date: d(7), time: '11:00 AM', type: 'clinic', color: '#1a56db' },
   ]
 }
 const sessions = buildSessions()
 
-const completedCount  = exercises.filter(e => e.done).length
+const completedCount = exercises.filter(e => e.done).length
 const progressPercent = Math.round((completedCount / exercises.length) * 100)
 
 const stats = [
-  { icon: Flame,         value: '5',                            label: 'Day Streak',  color: '#f97316' },
-  { icon: CalendarCheck, value: '12',                           label: 'This Week',   color: '#10b981' },
-  { icon: Dumbbell,      value: `${completedCount}/${exercises.length}`, label: 'Today', color: '#1a56db' },
+  { icon: Flame, value: '5', label: 'Day Streak', color: '#f97316' },
+  { icon: CalendarCheck, value: '12', label: 'This Week', color: '#10b981' },
+  { icon: Dumbbell, value: `${completedCount}/${exercises.length}`, label: 'Today', color: '#1a56db' },
 ]
 
 /* ── Helpers ── */
-const DAYS   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 function buildWeek() {
   const today = new Date()
@@ -85,7 +85,7 @@ function ExerciseItem({ exercise }: { exercise: Exercise }) {
       <div className="ph-exercise-item__check">
         {exercise.done
           ? <CheckCircle2 size={24} className="ph-exercise-item__check--done" />
-          : <Circle      size={24} className="ph-exercise-item__check--todo" />}
+          : <Circle size={24} className="ph-exercise-item__check--todo" />}
       </div>
       <div className="ph-exercise-item__info">
         <span className="ph-exercise-item__name">{exercise.name}</span>
@@ -99,7 +99,7 @@ function ExerciseItem({ exercise }: { exercise: Exercise }) {
 }
 
 function CalendarCard() {
-  const week  = buildWeek()
+  const week = buildWeek()
   const today = new Date()
   const [selected, setSelected] = useState(today.getDay())
 
@@ -113,7 +113,7 @@ function CalendarCard() {
       {/* Week strip */}
       <div className="ph-week-strip">
         {week.map((day, i) => {
-          const isToday  = day.toDateString() === today.toDateString()
+          const isToday = day.toDateString() === today.toDateString()
           const hasEvent = sessions.some(s => s.date.toDateString() === day.toDateString())
           return (
             <button
@@ -156,17 +156,17 @@ function CalendarCard() {
 
 /* ── Nav items ── */
 const bottomNav = [
-  { label: 'Home',      icon: Home,     active: true  },
+  { label: 'Home', icon: Home, active: true },
   { label: 'Exercises', icon: Dumbbell, active: false },
-  { label: 'Progress',  icon: BarChart2,active: false },
+  { label: 'Progress', icon: BarChart2, active: false },
   { label: 'AI Search', icon: Sparkles, active: false },
-  { label: 'Profile',   icon: User,     active: false },
+  { label: 'Profile', icon: User, active: false },
 ]
 
 const topNav = [
   { label: 'Exercises', icon: Dumbbell },
   { label: 'AI Search', icon: Sparkles },
-  { label: 'My Profile',icon: User     },
+  { label: 'My Profile', icon: User },
 ]
 
 /* ── Page ── */
@@ -248,24 +248,6 @@ export default function PatientHome() {
 
           {/* Quick Actions + Today Plan stacked */}
           <div className="ph-right-col">
-
-            {/* Quick Actions */}
-            <div className="ph-quick-actions">
-              <button className="ph-quick-action ph-quick-action--primary">
-                <div className="ph-quick-action__icon"><ClipboardList size={22} /></div>
-                <div className="ph-quick-action__text">
-                  <span className="ph-quick-action__title">Log Exercise</span>
-                  <span className="ph-quick-action__desc">Report today's session</span>
-                </div>
-              </button>
-              <button className="ph-quick-action ph-quick-action--secondary">
-                <div className="ph-quick-action__icon"><Sparkles size={22} /></div>
-                <div className="ph-quick-action__text">
-                  <span className="ph-quick-action__title">AI Search</span>
-                  <span className="ph-quick-action__desc">Ask about your rehab</span>
-                </div>
-              </button>
-            </div>
 
             {/* Today Plan */}
             <section className="ph-section">

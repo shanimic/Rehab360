@@ -1,13 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import './styles/variables.css'
 
+import PageTransition from './components/PageTransition'
+import PatientHome from './pages/patient/PatientHome'
 import LandingPage from './pages/auth/LandingPage'
 import RoleSelect from './pages/auth/RoleSelect'
 import Login from './pages/auth/Login'
 import SignUp from './pages/auth/SignUp'
 import SetPassword from './pages/auth/SetPassword'
-import PatientHome from './pages/patient/PatientHome'
-import PageTransition from './components/PageTransition'
 
 function Dashboard() {
   return (
