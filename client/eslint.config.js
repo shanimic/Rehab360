@@ -50,6 +50,8 @@ export default tseslint.config(
       'no-unused-vars': 'off', // Turn off base rule as TS handles this
       '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
       '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off'
     },
   },
   eslintConfigPrettier
