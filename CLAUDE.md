@@ -198,6 +198,58 @@ Current auth calls have `// TODO` comments — API is not yet connected.
 
 Always use `cn()` from `@/lib/utils` when merging Tailwind classes.
 
+## Responsive Design
+
+All frontend pages must be fully responsive and optimized for **Mobile, Tablet, and Desktop** screen sizes. This is a hard requirement — never ship a page that breaks or looks broken on any viewport.
+
+### Breakpoint Strategy (Tailwind)
+
+Use Tailwind's mobile-first responsive prefixes consistently:
+
+| Prefix | Min-width | Target |
+|--------|-----------|--------|
+| *(none)* | 0px | Mobile (base styles) |
+| `sm:` | 640px | Large mobile / small tablet |
+| `md:` | 768px | Tablet |
+| `lg:` | 1024px | Desktop |
+| `xl:` | 1280px | Wide desktop |
+
+Always write **base (mobile) styles first**, then layer larger breakpoints on top.
+
+### Layout Rules
+
+- Use **CSS Grid or Flexbox** for all layouts; never use fixed pixel widths for containers.
+- Containers should use `max-w-*` with `mx-auto` and horizontal padding (`px-4 sm:px-6 lg:px-8`) so content breathes on all sizes.
+- Stack columns vertically on mobile, switch to side-by-side on `md:` or `lg:` (e.g., `grid grid-cols-1 md:grid-cols-2`).
+- Avoid fixed heights (`h-[600px]`) on content areas — let content dictate height; use `min-h-*` if a floor is needed.
+
+### Typography & Spacing
+
+- Scale font sizes across breakpoints (e.g., `text-2xl md:text-3xl lg:text-4xl`).
+- Scale padding/margin at breakpoints rather than using a single fixed value.
+
+### Touch & Interaction
+
+- Interactive targets (buttons, links, inputs) must be **≥ 44px tall** on mobile.
+- Avoid hover-only interactions; ensure tap/click works on touch devices.
+- Use `gap-*` for spacing between flex/grid children instead of margins where possible.
+
+### Images & Media
+
+- Always set images to `w-full` or constrain with `max-w-*`; never let images overflow their container.
+- Use `object-cover` / `object-contain` with explicit aspect ratios (`aspect-video`, `aspect-square`) instead of fixed `h-*` on image wrappers.
+
+### Verification Checklist (before finishing any frontend task)
+
+Before marking a frontend task done, mentally verify (or test in DevTools) at these widths:
+- **375px** — iPhone SE / small Android
+- **768px** — Tablet portrait
+- **1280px** — Desktop
+
+If any layout breaks, overflows, or looks unpolished at these sizes, fix it before finishing.
+
+---
+
 ## Client Code Style
 
 - **Imports**: Use the `@/` alias (maps to `src/`). Group: React → third-party → `@/` local → relative. Use `import type` for type-only imports.
