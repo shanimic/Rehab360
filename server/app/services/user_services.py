@@ -12,14 +12,14 @@ class UserServices:
     async def authenticate_user(self, login_request: LoginRequest) -> LoginResponse:
         # 1. Get the user from DB by email only
         user = await self.repository.get_user_for_auth(login_request)
-        
+
         # 2. If user doesn't exist or password doesn't match
         if not user or not verify_password(login_request.password, user.password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
-        
+
         # 3. Return the user (optionally strip the password here)
         return user
 

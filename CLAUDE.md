@@ -168,24 +168,25 @@ const form = useForm({
 
 ### API Integration Pattern
 
-All auth pages use `useMutation` with `fetch`. Current calls have `// TODO` comments pending backend connection:
+Never call `useMutation` or `useQuery` directly inside a component. Always wrap each API interaction in a dedicated custom hook. Use **axios** for all HTTP calls (not `fetch`):
 
 ```typescript
-const mutation = useMutation({
-  mutationFn: async (data: DataType) => {
-    const res = await fetch('/api/endpoint', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-    if (!res.ok) throw new Error(await res.text())
-    return res.json()
-  },
-  onSuccess: () => navigate('/next-route'),
-})
+// hooks/useLoginMutation.ts
+export function useLoginMutation() {
+  return useMutation({
+    mutationFn: (data: LoginRequest) =>
+      axios.post('/api/auth/login', data).then((res) => res.data),
+  })
+}
+
+// Inside the component:
+const loginMutation = useLoginMutation()
+// onSuccess/navigate logic stays in the component
 ```
 
-Disable the submit button during inflight: `disabled={mutation.isPending}`.
+Disable the submit button during inflight: `disabled={loginMutation.isPending}`.
+
+Current auth calls have `// TODO` comments — API is not yet connected.
 
 ### UI Components
 
@@ -207,7 +208,7 @@ Always use `cn()` from `@/lib/utils` when merging Tailwind classes.
 
 ## Code Style
 
-Full rules in [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md). Key rules:
+Full rules in [server/docs/instructions/CODE_STYLE.md](server/docs/instructions/CODE_STYLE.md). Key rules:
 
 - **Imports**: top-level only, never inside functions; group stdlib / third-party / local with blank lines; absolute imports only
 - **Type hints**: required on all function signatures; use `T | None` not `Optional[T]`; lowercase builtins (`dict`, `list`, `set`); always annotate return type (including `-> None`)
@@ -215,7 +216,7 @@ Full rules in [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md)
 
 ## Testing
 
-Full rules in [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTING_GUIDELINES.md). Key rules:
+Full rules in [server/docs/instructions/TESTING_GUIDELINES.md](server/docs/instructions/TESTING_GUIDELINES.md). Key rules:
 
 - Inherit from `unittest.TestCase`; run with `pytest`
 - Test files: `test_*.py` | Test classes: `*Test` | Test methods: `test_*`
@@ -225,11 +226,42 @@ Full rules in [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTIN
 - Do not call `mockito.unstub()` in tearDown — pytest-mockito handles cleanup automatically
 - Match mock parameter style (positional vs named) to the actual call site
 
+## Pylint + unit tests (backend — before finishing a turn)
+
+When a task **changes code under `server/`**, do not consider the task done until verification has run **in this order**, and your **final reply to the user states the outcome of both** (pylint score or failure summary; pytest pass/fail and counts or failing test names).
+
+1. **Pylint** — run and fix until **10.00/10**:
+
+```bash
+cd server
+source .venv/bin/activate   # Windows: .venv\Scripts\Activate.ps1
+pylint app --rcfile=.pylintrc
+```
+
+(On Windows, if `pylint` is not on `PATH`, use `.venv\Scripts\pylint` instead of `pylint`.)
+
+Repeat the cycle — run pylint, fix errors, run again — until the score is **10.00/10**. Do not stop at a partial score.
+
+2. **Unit tests** — after pylint succeeds, run:
+
+```bash
+cd server
+pytest tests/unit/ -v
+```
+
+Fix any failures before finishing. If the sandbox blocks pylint’s default cache directory, set e.g. `PYLINTHOME` to a path inside the repo (e.g. `server/.pylint_cache`) for that run.
+
+- The `.pylintrc` config is at `server/.pylintrc`
+- Always run pylint from the `server/` directory so `init-hook` resolves imports correctly
+
+**Notify:** End with a short summary for the user, for example: pylint **10.00/10**; unit tests **N passed** (or list failures).
+
 ## Instruction Index
 
 - Backend structure: [server/docs/dev/FASTAPI_PROJECT_GUIDE.md](server/docs/dev/FASTAPI_PROJECT_GUIDE.md)
 - Backend setup: [server/docs/dev/PROJECT_INITIALIZATION_GUIDE.md](server/docs/dev/PROJECT_INITIALIZATION_GUIDE.md)
-- Code style: [docs/instructions/CODE_STYLE.md](docs/instructions/CODE_STYLE.md)
-- Testing: [docs/instructions/TESTING_GUIDELINES.md](docs/instructions/TESTING_GUIDELINES.md)
+- Code style: [server/docs/instructions/CODE_STYLE.md](server/docs/instructions/CODE_STYLE.md)
+- Testing: [server/docs/instructions/TESTING_GUIDELINES.md](server/docs/instructions/TESTING_GUIDELINES.md)
+- Frontend style: [client/docs/instructions/FRONTEND_CODING_STYLE.md](client/docs/instructions/FRONTEND_CODING_STYLE.md)
 - When editing under `server/` (excluding any future `client/`): follow backend instructions
-- When editing under `client/`: follow the **Client Architecture** and **Client Code Style** sections above
+- When editing under `client/`: follow the **Client Architecture** and **Client Code Style** sections above, and `FRONTEND_CODING_STYLE.md` for detailed rules

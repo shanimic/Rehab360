@@ -1,9 +1,8 @@
+import asyncio
 from typing import AsyncGenerator
 
 from aiomysql import Pool, DictCursor, create_pool
-import asyncio
 
-import aiomysql
 from app.core.config import settings
 
 class Database:
