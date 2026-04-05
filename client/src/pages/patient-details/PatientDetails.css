@@ -1,0 +1,267 @@
+/* ── Page shell ──────────────────────────────────── */
+.patient-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* ── Top nav row (back + title) ──────────────────── */
+.patient-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 24px 0;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.patient-nav__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-primary-light);
+  border: none;
+  cursor: pointer;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  transition: none;
+}
+
+.patient-nav__back:active {
+  background-color: var(--color-primary-light-hover);
+  transform: scale(0.93);
+}
+
+.patient-nav__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.2px;
+}
+
+/* ── Profile header (flat, no card) ─────────────── */
+.patient-profile-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 8px 0 4px;
+}
+
+/* Avatar circle */
+.patient-profile-card__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+  box-shadow: 0 0 0 4px var(--color-primary-light);
+}
+
+/* Info block */
+.patient-profile-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.patient-profile-card__name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+}
+
+/* Single-line info row */
+.patient-profile-card__meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.patient-profile-card__sep {
+  color: var(--color-border);
+  font-weight: 300;
+  user-select: none;
+}
+
+.patient-profile-card__contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.patient-profile-card__contact-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.patient-profile-card__contact:active {
+  color: var(--color-primary);
+}
+
+/* ── Priority alerts section ─────────────────────── */
+.patient-alerts {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  border: 1px solid #f1f5f9;
+}
+
+.patient-alerts__heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.patient-alerts__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px 12px;
+}
+
+/* ── Body ────────────────────────────────────────── */
+.patient-body {
+  padding: 16px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .patient-nav {
+    padding: 24px 32px 0;
+  }
+
+  .patient-body {
+    padding: 20px 32px 40px;
+  }
+}
+
+/* ── Cards grid ──────────────────────────────────── */
+.patient-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .patient-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+}
+
+/* ── Visit Summaries card internals ──────────────── */
+.patient-visit__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.patient-visit__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.patient-visit__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+}
+
+.patient-visit__value {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.patient-visit__note {
+  background-color: #f8fafc;
+  border-radius: 10px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--color-primary-light-hover);
+}
+
+.patient-visit__note-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.patient-visit__note-text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+  font-style: italic;
+}
+
+/* ── Plan card internals ─────────────────────────── */
+.patient-plan__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.patient-plan__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.patient-plan__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+}
+
+.patient-plan__value {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.patient-plan__progress {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
