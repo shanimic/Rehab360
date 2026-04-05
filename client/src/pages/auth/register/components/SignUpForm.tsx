@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
-import { zodValidator } from '@tanstack/zod-form-adapter'
 import type { AxiosError } from 'axios'
 
 import { useSignUpMutation } from '@/hooks/useSignUpMutation'
+import { errMsg } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import type { Role, ApiRole } from '@/types'
 
@@ -41,7 +41,6 @@ export default function SignUpForm({ role }: SignUpFormProps) {
 
   const form = useForm({
     defaultValues: { user_id: '', first_name: '', last_name: '', email: '', password: '', phone: '', birth_date: '', license_number: '' } as SignUpValues,
-    validatorAdapter: zodValidator(),
     validators: { onSubmit: signUpSchema },
     onSubmit: async ({ value }) => {
       await signUpMutation.mutateAsync({
@@ -66,36 +65,36 @@ export default function SignUpForm({ role }: SignUpFormProps) {
   return (
     <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit() }}>
       <form.Field name="user_id" validators={{ onChange: z.string().min(1, 'ID number is required') }}>
-        {(field) => <FormTextField id="user_id" label="ID Number" placeholder="123456789" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={field.state.meta.errors[0]} autoComplete="off" />}
+        {(field) => <FormTextField id="user_id" label="ID Number" placeholder="123456789" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="off" />}
       </form.Field>
 
       <form.Field name="first_name" validators={{ onChange: z.string().min(1, 'First name is required') }}>
-        {(field) => <FormTextField id="first_name" label="First Name" placeholder="Liron" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={field.state.meta.errors[0]} autoComplete="given-name" />}
+        {(field) => <FormTextField id="first_name" label="First Name" placeholder="Liron" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="given-name" />}
       </form.Field>
 
       <form.Field name="last_name" validators={{ onChange: z.string().min(1, 'Last name is required') }}>
-        {(field) => <FormTextField id="last_name" label="Last Name" placeholder="Gabay" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={field.state.meta.errors[0]} autoComplete="family-name" />}
+        {(field) => <FormTextField id="last_name" label="Last Name" placeholder="Gabay" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="family-name" />}
       </form.Field>
 
       <form.Field name="email" validators={{ onChange: z.string().email('Invalid email address') }}>
-        {(field) => <FormTextField id="email" label="Email" type="email" placeholder="liron@gmail.com" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={field.state.meta.errors[0]} autoComplete="email" />}
+        {(field) => <FormTextField id="email" label="Email" type="email" placeholder="liron@gmail.com" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="email" />}
       </form.Field>
 
       <form.Field name="password" validators={{ onChange: z.string().min(8, 'Password must be at least 8 characters') }}>
-        {(field) => <PasswordField id="password" label="Password" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={field.state.meta.errors[0]} autoComplete="new-password" />}
+        {(field) => <PasswordField id="password" label="Password" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="new-password" />}
       </form.Field>
 
       <form.Field name="phone" validators={{ onChange: z.string().min(1, 'Phone number is required') }}>
-        {(field) => <FormTextField id="phone" label="Phone Number" type="tel" placeholder="050-1234567" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={field.state.meta.errors[0]} autoComplete="tel" />}
+        {(field) => <FormTextField id="phone" label="Phone Number" type="tel" placeholder="050-1234567" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="tel" />}
       </form.Field>
 
       <form.Field name="birth_date" validators={{ onChange: z.string().min(1, 'Date of birth is required') }}>
-        {(field) => <FormTextField id="birth_date" label="Date of Birth" type="date" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={field.state.meta.errors[0]} />}
+        {(field) => <FormTextField id="birth_date" label="Date of Birth" type="date" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} />}
       </form.Field>
 
       {needsLicense && (
         <form.Field name="license_number">
-          {(field) => <FormTextField id="license_number" label="License Number" placeholder="LIC-0000" value={field.state.value ?? ''} onChange={field.handleChange} onBlur={field.handleBlur} error={field.state.meta.errors[0]} />}
+          {(field) => <FormTextField id="license_number" label="License Number" placeholder="LIC-0000" value={field.state.value ?? ''} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} />}
         </form.Field>
       )}
 

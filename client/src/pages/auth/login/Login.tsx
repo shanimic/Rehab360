@@ -1,10 +1,10 @@
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
-import { zodValidator } from '@tanstack/zod-form-adapter'
 import type { AxiosError } from 'axios'
 
 import { useLoginMutation } from '@/hooks/useLoginMutation'
+import { errMsg } from '@/lib/utils'
 import AuthLayout from '../AuthLayout'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -41,11 +41,14 @@ export default function Login() {
 
   const form = useForm({
     defaultValues: { email: '', password: '' } as LoginValues,
-    validatorAdapter: zodValidator(),
     validators: { onSubmit: loginSchema },
     onSubmit: async ({ value }) => {
-      await loginMutation.mutateAsync({ email: value.email, password: value.password, role: ROLE_TO_API[role] })
-      navigate('/dashboard')
+      const data = await loginMutation.mutateAsync({ email: value.email, password: value.password, role: ROLE_TO_API[role] })
+      if (role === 'physiotherapist') {
+        navigate('/physiotherapist', { state: { firstName: data.first_name } })
+      } else {
+        navigate('/dashboard')
+      }
     },
   })
 
@@ -84,7 +87,7 @@ export default function Login() {
                 autoComplete="username"
               />
               {field.state.meta.errors[0] && (
-                <p className="auth-field__error">{field.state.meta.errors[0]}</p>
+                <p className="auth-field__error">{errMsg(field.state.meta.errors[0])}</p>
               )}
             </div>
           )}
@@ -99,7 +102,7 @@ export default function Login() {
                 value={field.state.value}
                 onChange={field.handleChange}
                 onBlur={field.handleBlur}
-                error={field.state.meta.errors[0]}
+                error={errMsg(field.state.meta.errors[0])}
                 autoComplete="current-password"
               />
               <div style={{ textAlign: 'right', marginTop: -12, marginBottom: 20 }}>
