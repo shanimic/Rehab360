@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import PageTransition from './components/PageTransition'
 import PatientHome from './pages/patient/PatientHome'
 import ExerciseReport from './pages/patient/ExerciseReport'
+import MyPlan from './pages/patient/MyPlan'
 import LandingPage from './pages/auth/landing/LandingPage'
 import RoleSelect from './pages/auth/register/RoleSelect'
 import Login from './pages/auth/login/Login'
@@ -30,6 +31,7 @@ function AnimatedRoutes() {
       <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
       <Route path="/patient/home" element={<PageTransition><PatientHome /></PageTransition>} />
       <Route path="/patient/exercise/:id" element={<PageTransition><ExerciseReport /></PageTransition>} />
+      <Route path="/patient/my-plan" element={<PageTransition><MyPlan /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

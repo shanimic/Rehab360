@@ -1,58 +1,27 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ArrowLeft, CheckCircle2, Circle, Play, Minus, Plus,
   Home, Dumbbell, BarChart2, Sparkles, User,
   Bell, Menu,
 } from 'lucide-react'
+import { markReported } from '@/lib/reportedExercises'
+import type { PlanExercise } from './MyPlan'
 import './ExerciseReport.css'
-
-/* ── Types ── */
-interface Instruction {
-  step: number
-  text: string
-}
-
-interface ExerciseDetail {
-  id: number
-  name: string
-  plan: 'Treatment Plan' | 'Training Plan'
-  desc: string
-  duration: string
-  done: boolean
-  imageUrl: string
-  instructions: Instruction[]
-}
-
-/* ── Static data ── */
-const exercise: ExerciseDetail = {
-  id: 1,
-  name: 'Push Up',
-  plan: 'Treatment Plan',
-  desc: '100 Push up a day',
-  duration: '3 minutes',
-  done: true,
-  imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80',
-  instructions: [
-    { step: 1, text: 'Stand with feet shoulder-width apart' },
-    { step: 2, text: 'Keep your arms relaxed at your sides' },
-    { step: 3, text: 'Slowly rotate shoulders forward in circular motion' },
-  ],
-}
 
 /* ── Nav items ── */
 const bottomNav = [
-  { label: 'Home', icon: Home, active: false },
-  { label: 'Exercises', icon: Dumbbell, active: true },
-  { label: 'Progress', icon: BarChart2, active: false },
-  { label: 'AI Search', icon: Sparkles, active: false },
-  { label: 'Profile', icon: User, active: false },
+  { label: 'Home',     icon: Home,      active: false },
+  { label: 'Exercises', icon: Dumbbell,  active: true  },
+  { label: 'Progress', icon: BarChart2,  active: false },
+  { label: 'AI Search', icon: Sparkles,  active: false },
+  { label: 'Profile',  icon: User,       active: false },
 ]
 
 const topNav = [
-  { label: 'Exercises', icon: Dumbbell },
-  { label: 'AI Search', icon: Sparkles },
-  { label: 'My Profile', icon: User },
+  { label: 'Exercises',  icon: Dumbbell },
+  { label: 'AI Search',  icon: Sparkles  },
+  { label: 'My Profile', icon: User      },
 ]
 
 /* ── Rating control ── */
@@ -98,18 +67,64 @@ function RatingControl({
 /* ── Page ── */
 export default function ExerciseReport() {
   const navigate = useNavigate()
-  const [completed, setCompleted] = useState(exercise.done)
-  const [pain, setPain] = useState(2)
-  const [effort, setEffort] = useState(2)
+  const location = useLocation()
+
+  // Exercise is passed via navigation state from MyPlan
+  const exercise = (location.state as { exercise: PlanExercise; source?: string } | null)
+    ?.exercise ?? null
+
+  const [completed, setCompleted] = useState(false)
+  const [pain, setPain]           = useState(2)
+  const [effort, setEffort]       = useState(2)
   const [notCompletedReason, setNotCompletedReason] = useState('')
-  const [changeRequest, setChangeRequest] = useState('')
-  const [saved, setSaved] = useState(false)
+  const [changeRequest, setChangeRequest]           = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved]   = useState(false)
 
   function handleSave() {
-    // TODO: wire to API mutation
-    console.log({ exerciseId: exercise.id, completed, pain, effort, notCompletedReason, changeRequest })
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    if (!exercise) return
+    setSaving(true)
+
+    // TODO: replace with API mutation
+    // Simulates an async save (remove the setTimeout when wiring to real API)
+    setTimeout(() => {
+      console.log({
+        exerciseId: exercise.id,
+        completed,
+        pain,
+        effort,
+        notCompletedReason,
+        changeRequest,
+      })
+
+      // Mark as reported in localStorage — this is what removes it from Today's list
+      markReported(exercise.id)
+
+      setSaving(false)
+      setSaved(true)
+
+      // Navigate back after brief success flash so the user sees the confirmation
+      setTimeout(() => navigate('/patient/my-plan'), 800)
+    }, 600)
+  }
+
+  // ── No exercise data guard ──
+  if (!exercise) {
+    return (
+      <div className="er-page er-page--empty">
+        <div className="er-empty-state">
+          <p className="er-empty-state__text">No exercise data found.</p>
+          <button
+            className="er-empty-state__back"
+            onClick={() => navigate('/patient/my-plan')}
+            type="button"
+          >
+            <ArrowLeft size={16} />
+            Back to My Plan
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -153,7 +168,7 @@ export default function ExerciseReport() {
             <div className="er-media-card">
               <button
                 className="er-back-btn"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/patient/my-plan')}
                 aria-label="Go back"
                 type="button"
               >
@@ -181,7 +196,7 @@ export default function ExerciseReport() {
               >
                 {completed
                   ? <CheckCircle2 size={26} className="er-exercise-info__check--done" />
-                  : <Circle size={26} className="er-exercise-info__check--todo" />}
+                  : <Circle       size={26} className="er-exercise-info__check--todo" />}
               </button>
               <div className="er-exercise-info__text">
                 <span className="er-exercise-info__name">{exercise.name}</span>
@@ -208,7 +223,7 @@ export default function ExerciseReport() {
 
             {/* Ratings */}
             <div className="er-ratings-row">
-              <RatingControl label="Pain" value={pain} onChange={setPain} />
+              <RatingControl label="Pain"   value={pain}   onChange={setPain}   />
               <RatingControl label="Effort" value={effort} onChange={setEffort} />
             </div>
 
@@ -246,9 +261,10 @@ export default function ExerciseReport() {
             <button
               className={`er-save-btn${saved ? ' er-save-btn--saved' : ''}`}
               onClick={handleSave}
+              disabled={saving || saved}
               type="button"
             >
-              {saved ? 'Saved!' : 'Save'}
+              {saved ? 'Saved! Returning…' : saving ? 'Saving…' : 'Save'}
             </button>
 
           </div>
