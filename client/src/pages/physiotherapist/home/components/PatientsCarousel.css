@@ -1,0 +1,91 @@
+/* ── Outer wrapper ── */
+.patients-carousel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Arrow buttons ── */
+.patients-carousel__arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  color: #64748b;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+  transition: all 0.15s;
+}
+
+.patients-carousel__arrow:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.patients-carousel__arrow:active {
+  background: #dbeafe;
+  border-color: #1a56db;
+  color: #1a56db;
+  transform: scale(0.9);
+}
+
+/* ── Scrollable track ── */
+.patients-carousel__track {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.patients-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+/* 3 cards visible at a time in full-width bottom row */
+.patients-carousel__item {
+  min-width: calc(33.333% - 10px);
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+}
+
+.patients-carousel__item > button {
+  flex: 1;
+}
+
+/* ── Mobile: vertical list, no arrows ── */
+@media (max-width: 1023px) {
+  .patients-carousel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .patients-carousel__arrow {
+    display: none;
+  }
+
+  .patients-carousel__track {
+    flex-direction: column;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    gap: 12px;
+    padding-bottom: 0;
+  }
+
+  .patients-carousel__item {
+    min-width: unset;
+    width: 100%;
+  }
+}

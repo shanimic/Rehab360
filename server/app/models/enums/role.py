@@ -3,4 +3,5 @@ from enum import Enum
 
 class Role(Enum):
     PATIENT = 'PATIENT'
-    THERAPIST = 'THERAPIST'
+    PHYSIOTHERAPIST = 'PHYSIOTHERAPIST'
+    FITNESS_TRAINER = 'FITNESS_TRAINER'

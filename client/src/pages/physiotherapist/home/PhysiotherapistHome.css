@@ -1,0 +1,68 @@
+/* ── Page wrapper ── */
+.physio-home {
+  min-height: 100vh;
+  background: #f8fafc; /* slate-50 */
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ── Main content clears fixed top nav ── */
+.physio-home__content {
+  padding-top: 64px;
+}
+
+/* ── Centered container ── */
+.physio-home__container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 32px 40px;
+}
+
+/* ── Two-column desktop grid ── */
+.physio-home__grid {
+  display: grid;
+  grid-template-columns: 1fr 30%;
+  gap: 32px;
+  align-items: stretch; /* sidebar stretches to match main area height */
+}
+
+.physio-home__main {
+  min-width: 0;
+}
+
+.physio-home__sidebar {
+  position: sticky;
+  top: 88px;
+  min-width: 0;
+  width: 100%;
+  /* height matches the sticky viewport area so card can fill it */
+  max-height: calc(100vh - 88px - 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Responsive: tablet ── */
+@media (max-width: 1023px) {
+  .physio-home__grid {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .physio-home__sidebar {
+    position: static;
+    order: -1; /* schedule first on mobile */
+    max-height: none;
+    display: block;
+  }
+
+  .physio-home__container {
+    padding: 28px 20px 48px;
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 639px) {
+  .physio-home__container {
+    padding: 20px 16px 40px;
+  }
+}

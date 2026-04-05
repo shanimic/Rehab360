@@ -1,7 +1,8 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import { LogoIcon } from '../AuthLayout'
 import { Button } from '@/components/ui/button'
+import StepIndicator from '../components/StepIndicator'
 import type { RoleOption, Role } from '@/types'
 import './RoleSelect.css'
 
@@ -40,9 +41,12 @@ const roles: RoleOption[] = [
 
 export default function RoleSelect() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const action = (location.state?.action as 'login' | 'signup') ?? 'signup'
 
   const handleSelect = (roleId: Role) => {
-    navigate('/signup', { state: { role: roleId } })
+    const destination = action === 'login' ? '/login' : '/signup'
+    navigate(destination, { state: { role: roleId } })
   }
 
   return (
@@ -54,6 +58,8 @@ export default function RoleSelect() {
         </div>
 
         <div className="role-select__card">
+          <StepIndicator currentStep={1} />
+
           <h2 className="role-select__title">Who are you?</h2>
           <p className="role-select__subtitle">Select your role to get started</p>
 
@@ -77,8 +83,14 @@ export default function RoleSelect() {
           </div>
 
           <p className="role-select__login">
-            Already have an account?{' '}
-            <Button variant="link" className="role-select__link p-0 h-auto" onClick={() => navigate('/login')}>Log In</Button>
+            {action === 'login' ? "Don't have an account? " : 'Already have an account? '}
+            <Button
+              variant="link"
+              className="role-select__link p-0 h-auto"
+              onClick={() => navigate('/role-select', { state: { action: action === 'login' ? 'signup' : 'login' } })}
+            >
+              {action === 'login' ? 'Sign Up' : 'Log In'}
+            </Button>
           </p>
         </div>
       </div>

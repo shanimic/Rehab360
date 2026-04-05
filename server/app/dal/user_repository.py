@@ -42,7 +42,25 @@ class UserRepository:
             A RegisterResponse with the created user's details.
         """
         await self.cursor.execute(
-            f"INSERT INTO {self.table_name} (name, email, password, role) VALUES (%s, %s, %s, %s)",
-            (register.name, register.email, register.password, register.role.value)
+            f"""INSERT INTO {self.table_name}
+                (user_id, user_role, first_name, last_name, phone, birth_date,
+                 email, password_hash, license_number)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (
+                register.user_id,
+                register.role.value,
+                register.first_name,
+                register.last_name,
+                register.phone,
+                register.birth_date,
+                register.email,
+                register.password,
+                register.license_number,
+            )
         )
-        return RegisterResponse(name=register.name, email=register.email, role=register.role)
+        return RegisterResponse(
+            first_name=register.first_name,
+            last_name=register.last_name,
+            email=register.email,
+            role=register.role,
+        )

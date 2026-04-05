@@ -2,6 +2,7 @@ import { useLocation, Link } from 'react-router-dom'
 
 import AuthLayout from '../AuthLayout'
 import { Badge } from '@/components/ui/badge'
+import StepIndicator from '../components/StepIndicator'
 import type { Role } from '@/types'
 
 import SignUpForm from './components/SignUpForm'
@@ -21,6 +22,8 @@ export default function SignUp() {
       panelTitle="Join Rehab360 today"
       panelSubtitle={`Create your ${roleLabelMap[role]} account and start your rehabilitation journey.`}
     >
+      <StepIndicator currentStep={2} />
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
         <h2 className="auth-title" style={{ marginBottom: 0 }}>New Account</h2>
         <Badge
