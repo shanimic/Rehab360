@@ -92,7 +92,26 @@ Components in `components/ui/` follow the shadcn architecture:
 - **Logic/UI Split:** Keep the Zod schema and form logic clear of the main render loop.
 - **Field Components:** Use a modular approach for form fields (e.g., `TextInput`, `Select`) that consume TanStack Form's field API to maintain consistent styling.
 
-## 9. Execution Context for the Agent
+## 9. Global State (Jotai)
+
+Use Jotai only for state that is genuinely global — shared across unrelated parts of the tree (e.g., authenticated user, active role, theme). Do not use it for state that is local to a component or a feature subtree; prefer `useState` or lifted state there.
+
+- **Atoms live in `src/store/`**, one file per domain slice (e.g., `authAtom.ts`, `notificationsAtom.ts`).
+- **Naming:** name the exported atom after what it holds — `authAtom`, not `authState` or `globalAuth`.
+- **Prefer the narrow hooks:** use `useAtomValue` (read-only) or `useSetAtom` (write-only) over `useAtom` when a component only needs one side, to avoid unnecessary re-renders.
+- **Derived state:** use `atom(get => ...)` for computed values instead of duplicating state.
+- **No logic in atom files** — keep atoms as plain declarations. Business logic (validation, side effects) belongs in hooks or components.
+- **Update CLAUDE.md** when a new atom is added — keep the atoms table in the State Management section current.
+
+```typescript
+// src/store/authAtom.ts
+import { atom } from 'jotai'
+import type { LoginResponse } from '@/types'
+
+export const authAtom = atom<LoginResponse | null>(null)
+```
+
+## 10. Execution Context for the Agent
 - **Logic Flow:** When generating a new feature, follow this order:
     1. Define the Zod Schema / TypeScript interfaces.
     2. Create the folder structure (per the two-tier model above).
