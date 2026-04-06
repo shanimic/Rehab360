@@ -18,6 +18,7 @@ export interface LoginResponse {
   email: string
   role: ApiRole
   first_name: string
+  token?: string
 }
 
 export interface SignUpRequest {
