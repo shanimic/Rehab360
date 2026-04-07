@@ -6,6 +6,7 @@ import RoleSelect from './pages/auth/register/RoleSelect'
 import Login from './pages/auth/login/Login'
 import SignUp from './pages/auth/register/SignUp'
 import SetPassword from './pages/auth/login/SetPassword'
+import PatientDetails from './pages/patient-details/PatientDetails'
 import PhysiotherapistHome from './pages/physiotherapist/home/PhysiotherapistHome'
 import PlaceholderPage from './pages/PlaceholderPage'
 import PageTransition from './components/PageTransition'
@@ -21,6 +22,7 @@ function AnimatedRoutes() {
       <Route path="/set-password" element={<PageTransition><SetPassword /></PageTransition>} />
       <Route path="/physiotherapist" element={<PageTransition><PhysiotherapistHome /></PageTransition>} />
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
+      <Route path="/patient/:id" element={<PageTransition><PatientDetails /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

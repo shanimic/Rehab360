@@ -1,0 +1,48 @@
+.alert-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-card);
+  border-left: 4px solid transparent;
+  margin-bottom: 10px;
+}
+
+.alert-card--warning {
+  background-color: #fffbeb;
+  border-left-color: #f59e0b;
+}
+
+.alert-card--critical {
+  background-color: #fef2f2;
+  border-left-color: var(--color-error);
+}
+
+.alert-card--info {
+  background-color: var(--color-primary-light);
+  border-left-color: var(--color-primary);
+}
+
+.alert-card__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.alert-card__icon--warning {
+  color: #f59e0b;
+}
+
+.alert-card__icon--critical {
+  color: var(--color-error);
+}
+
+.alert-card__icon--info {
+  color: var(--color-primary);
+}
+
+.alert-card__message {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
