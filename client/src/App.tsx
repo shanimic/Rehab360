@@ -6,6 +6,7 @@ import RoleSelect from './pages/auth/register/RoleSelect'
 import Login from './pages/auth/login/Login'
 import SignUp from './pages/auth/register/SignUp'
 import SetPassword from './pages/auth/login/SetPassword'
+import PatientDetails from './pages/patient-details/PatientDetails'
 import PhysiotherapistHome from './pages/physiotherapist/home/PhysiotherapistHome'
 import PlaceholderPage from './pages/PlaceholderPage'
 import AiSearchPage from './pages/search/AiSearchPage'
@@ -27,6 +28,7 @@ function AnimatedRoutes() {
       <Route path="/ai-search" element={<PageTransition><AiSearchPage /></PageTransition>} />
       <Route path="/ai-search/results" element={<PageTransition><AiSearchResultsPage /></PageTransition>} />
       <Route path="/ai-search/saved" element={<PageTransition><SavedContentPage /></PageTransition>} />
+      <Route path="/patient/:id" element={<PageTransition><PatientDetails /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
