@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Phone, Mail, Calendar, User, Activity } from 'lucide-react'
+import TopNav from '@/components/TopNav'
 import InfoCard from '@/components/InfoCard'
 import ProgressBar from '@/components/ui/progress-bar'
 import AlertCard from '@/components/AlertCard'
@@ -86,7 +87,8 @@ export default function PatientDetails() {
 
   return (
     <div className="patient-page">
-      <main>
+      <TopNav doctorName="Cohen" />
+      <main className="pt-16">
         {/* ── Back navigation ── */}
         <div className="patient-nav">
           <button type="button" className="patient-nav__back" onClick={() => navigate(-1)}>
