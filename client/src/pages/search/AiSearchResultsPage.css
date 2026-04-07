@@ -1,0 +1,341 @@
+.ais-results {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-background);
+}
+
+.ais-results--empty {
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.ais-results__back-link {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-family: var(--font-family);
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ── Header ── */
+.ais-results__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--color-primary);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.ais-results__header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: var(--font-family);
+}
+
+.ais-results__header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.ais-results__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  color: var(--color-surface);
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.ais-results__icon-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Main ── */
+.ais-results__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 16px 40px;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Query display ── */
+.ais-results__query {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* ── AI Summary card ── */
+.ais-results__ai-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  background: var(--color-primary-light);
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-card);
+}
+
+.ais-results__ai-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ais-results__ai-wave {
+  color: var(--color-primary);
+}
+
+.ais-results__ai-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.ais-results__ai-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.ais-results__gemini-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-verified-both));
+  color: var(--color-surface);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ais-results__ai-body {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  line-height: 1.65;
+}
+
+/* ── Filter chips ── */
+.ais-results__filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ais-results__chip {
+  padding: 6px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-family: var(--font-family);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.ais-results__chip--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-surface);
+}
+
+.ais-results__chip:hover:not(.ais-results__chip--active) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ── Sources ── */
+.ais-results__sources {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ais-results__sources-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.ais-results__source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ais-results__no-results {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 24px;
+}
+
+/* ── Source card ── */
+.source-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.source-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.source-card__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.source-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  flex: 1;
+  padding-top: 4px;
+}
+
+.source-card__type-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-input-bg);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.source-card__verify-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--color-surface);
+}
+
+.source-card__badge--physio {
+  background: var(--color-verified-physio);
+}
+
+.source-card__badge--coach {
+  background: var(--color-verified-coach);
+}
+
+.source-card__badge--both {
+  background: var(--color-verified-both);
+}
+
+.source-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+}
+
+.source-card__desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.source-card__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.source-card__btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.source-card__btn--primary {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  border: none;
+}
+
+.source-card__btn--primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.source-card__btn--outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+}
+
+.source-card__btn--outline:hover:not(:disabled) {
+  background: var(--color-primary-light);
+}
+
+.source-card__btn--saved {
+  color: var(--color-verified-coach);
+  border-color: var(--color-verified-coach);
+  cursor: default;
+}
+
+.source-card__btn--verified {
+  color: var(--color-verified-physio);
+  border-color: var(--color-verified-physio);
+}
+
+@media (min-width: 900px) {
+  .ais-results__main {
+    padding-top: 32px;
+  }
+}

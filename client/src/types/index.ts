@@ -121,3 +121,32 @@ export interface PatientDetails extends Patient {
   treatmentPlan: TreatmentPlan
   trainingPlan: TreatmentPlan
 }
+
+// ── AI Search domain types ────────────────────────────────────────────────────
+
+export type ContentType = 'Article' | 'Clinical Guideline' | 'Exercise Guide'
+
+export interface AiQuery {
+  query_id: string
+  user_id: string
+  query_content: string
+  ai_response: string
+  query_date: string
+  query_time: string
+}
+
+export interface SavedContent {
+  recommendation_id: string
+  query_id: string
+  professional_id: string | null
+  content_text: string
+  content_title: string
+  content_type: ContentType
+  verifiedBy: string[]
+  created_at: string
+}
+
+export interface AiSearchResult {
+  query: AiQuery
+  sources: SavedContent[]
+}

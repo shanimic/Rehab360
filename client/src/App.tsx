@@ -8,6 +8,9 @@ import SignUp from './pages/auth/register/SignUp'
 import SetPassword from './pages/auth/login/SetPassword'
 import PhysiotherapistHome from './pages/physiotherapist/home/PhysiotherapistHome'
 import PlaceholderPage from './pages/PlaceholderPage'
+import AiSearchPage from './pages/search/AiSearchPage'
+import AiSearchResultsPage from './pages/search/AiSearchResultsPage'
+import SavedContentPage from './pages/search/SavedContentPage'
 import PageTransition from './components/PageTransition'
 
 function AnimatedRoutes() {
@@ -21,6 +24,9 @@ function AnimatedRoutes() {
       <Route path="/set-password" element={<PageTransition><SetPassword /></PageTransition>} />
       <Route path="/physiotherapist" element={<PageTransition><PhysiotherapistHome /></PageTransition>} />
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
+      <Route path="/ai-search" element={<PageTransition><AiSearchPage /></PageTransition>} />
+      <Route path="/ai-search/results" element={<PageTransition><AiSearchResultsPage /></PageTransition>} />
+      <Route path="/ai-search/saved" element={<PageTransition><SavedContentPage /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
