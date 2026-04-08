@@ -43,12 +43,7 @@ export default function Login() {
     defaultValues: { email: '', password: '' } as LoginValues,
     validators: { onSubmit: loginSchema },
     onSubmit: async ({ value }) => {
-      const data = await loginMutation.mutateAsync({ email: value.email, password: value.password, role: ROLE_TO_API[role] })
-      if (role === 'physiotherapist') {
-        navigate('/physiotherapist', { state: { firstName: data.first_name } })
-      } else {
-        navigate('/dashboard')
-      }
+      await loginMutation.mutateAsync({ email: value.email, password: value.password, role: ROLE_TO_API[role] })
     },
   })
 

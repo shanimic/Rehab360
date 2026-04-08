@@ -6,6 +6,8 @@ import {
   Video, MapPin,
 } from 'lucide-react'
 import './PatientHome.css'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
 
 /* ── Types ── */
 interface Exercise {
@@ -171,6 +173,8 @@ const topNav = [
 
 /* ── Page ── */
 export default function PatientHome() {
+  const user = useAtomValue(authAtom)
+
   return (
     <div className="ph-page">
 
@@ -208,7 +212,7 @@ export default function PatientHome() {
         {/* Greeting */}
         <div className="ph-greeting-block">
           <div>
-            <h1 className="ph-greeting">Hello, Dana 👋</h1>
+            <h1 className="ph-greeting">Hello, {user?.first_name || 'Placeholder'} 👋</h1>
             <p className="ph-greeting__sub">Let's keep up the good work today!</p>
           </div>
         </div>
