@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import StepIndicator from '../components/StepIndicator'
 import PasswordField from '../components/PasswordField'
+import './Login.css'
 import type { Role, ApiRole } from '@/types'
 
 const ROLE_TO_API: Record<Role, ApiRole> = {
@@ -58,9 +59,9 @@ export default function Login() {
     >
       <StepIndicator currentStep={2} />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-        <h2 className="auth-title" style={{ marginBottom: 0 }}>Welcome back</h2>
-        <Badge style={{ background: 'var(--color-primary-light)', color: 'var(--color-primary)', border: 'none' }}>
+      <div className="login-header">
+        <h2 className="auth-title login-header__title">Welcome back</h2>
+        <Badge className="login-header__badge">
           {ROLE_LABEL[role]}
         </Badge>
       </div>
@@ -100,8 +101,8 @@ export default function Login() {
                 error={errMsg(field.state.meta.errors[0])}
                 autoComplete="current-password"
               />
-              <div style={{ textAlign: 'right', marginTop: -12, marginBottom: 20 }}>
-                <Link to="/set-password" className="auth-link" style={{ fontSize: 13 }}>
+              <div className="login-forgot">
+                <Link to="/set-password" className="auth-link login-forgot__link">
                   Forgot Password?
                 </Link>
               </div>
@@ -110,7 +111,7 @@ export default function Login() {
         </form.Field>
 
         {errorMessage && (
-          <p className="auth-field__error" style={{ marginBottom: 12 }}>{errorMessage}</p>
+          <p className="auth-field__error login-error">{errorMessage}</p>
         )}
 
         <Button type="submit" className="btn-primary" disabled={loginMutation.isPending}>
@@ -120,7 +121,7 @@ export default function Login() {
 
       <p className="auth-link-row">
         Don't have an account?{' '}
-        <Button variant="link" className="auth-link p-0 h-auto" style={{ fontSize: 'inherit' }}
+        <Button variant="link" className="auth-link p-0 h-auto login-signup__btn"
           onClick={() => navigate('/role-select', { state: { action: 'signup' } })}>
           Sign Up
         </Button>
