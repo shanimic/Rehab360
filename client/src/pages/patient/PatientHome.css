@@ -160,7 +160,7 @@
 /* ── Stats ── */
 .ph-stats-strip {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -608,7 +608,7 @@
   .ph-greeting { font-size: 26px; }
 
   .ph-stats-strip {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     max-width: 560px;
   }
 

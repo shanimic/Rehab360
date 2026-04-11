@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import {
-  Bell, Menu, CheckCircle2, Circle,
+  Bell, Menu, Circle,
   Home, Dumbbell, BarChart2, Sparkles, User,
-  Flame, CalendarCheck, ChevronRight,
+  CalendarCheck, ChevronRight,
   Video, MapPin,
 } from 'lucide-react'
 import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
+import { Navigate, useNavigate } from 'react-router'
 
 /* ── Types ── */
 interface Exercise {
@@ -53,10 +54,8 @@ function buildSessions(): Session[] {
 const sessions = buildSessions()
 
 const completedCount = exercises.filter(e => e.done).length
-const progressPercent = Math.round((completedCount / exercises.length) * 100)
 
 const stats = [
-  { icon: Flame, value: '5', label: 'Day Streak', color: '#f97316' },
   { icon: CalendarCheck, value: '12', label: 'This Week', color: '#10b981' },
   { icon: Dumbbell, value: `${completedCount}/${exercises.length}`, label: 'Today', color: '#1a56db' },
 ]
@@ -85,9 +84,7 @@ function ExerciseItem({ exercise }: { exercise: Exercise }) {
   return (
     <div className="ph-exercise-item">
       <div className="ph-exercise-item__check">
-        {exercise.done
-          ? <CheckCircle2 size={24} className="ph-exercise-item__check--done" />
-          : <Circle size={24} className="ph-exercise-item__check--todo" />}
+        <Circle size={24} className="ph-exercise-item__check--todo" />
       </div>
       <div className="ph-exercise-item__info">
         <span className="ph-exercise-item__name">{exercise.name}</span>
@@ -173,6 +170,7 @@ const topNav = [
 
 /* ── Page ── */
 export default function PatientHome() {
+  const navigate = useNavigate()
   const user = useAtomValue(authAtom)
 
   return (
@@ -235,29 +233,25 @@ export default function PatientHome() {
         {/* Progress */}
         <div className="ph-progress-card">
           <div className="ph-progress-card__header">
-            <span className="ph-progress-card__label">Today's Progress</span>
-            <span className="ph-progress-card__percent">{progressPercent}%</span>
+            <span className="ph-progress-card__label">Overall Progress</span>
+            <span className="ph-progress-card__percent">65%</span>
           </div>
           <div className="ph-progress-card__bar-track">
-            <div className="ph-progress-card__bar-fill" style={{ width: `${progressPercent}%` }} />
+            <div className="ph-progress-card__bar-fill" style={{ width: '65%' }} />
           </div>
-          <p className="ph-progress-card__sub">{completedCount} of {exercises.length} exercises completed</p>
         </div>
 
         {/* Desktop two-col grid: Calendar + Quick Actions */}
         <div className="ph-mid-grid">
 
-          {/* Calendar */}
-          <CalendarCard />
-
-          {/* Quick Actions + Today Plan stacked */}
+          {/* Today Plan */}
           <div className="ph-right-col">
 
             {/* Today Plan */}
             <section className="ph-section">
               <div className="ph-section__header">
                 <h2 className="ph-section__title">Today Plan</h2>
-                <button className="ph-section__view-all">View All</button>
+                <button className="ph-section__view-all" onClick={() => navigate('/patient/my-plan')}>View All</button>
               </div>
               <div className="ph-exercise-list">
                 {exercises.map(ex => <ExerciseItem key={ex.id} exercise={ex} />)}
@@ -265,6 +259,10 @@ export default function PatientHome() {
             </section>
 
           </div>
+
+          {/* Calendar */}
+          <CalendarCard />
+
         </div>
 
       </main>
