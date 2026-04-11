@@ -120,3 +120,16 @@ export const authAtom = atom<LoginResponse | null>(null)
     5. Assemble the main component.
     6. Write the BEM CSS (if a page-level component) or Tailwind classes (if a UI primitive).
 - **Early Returns:** Always handle `loading`, `error`, and `empty` states using early returns at the top of the component to keep the "Happy Path" JSX flat.
+
+## 11. ESLint (before finishing a turn)
+
+When a task **changes code under `client/`**, do not consider the task done until ESLint passes with zero errors, and your **final reply to the user states the outcome**.
+
+```bash
+cd client
+npm run lint
+```
+
+Repeat the cycle — run ESLint, fix errors, run again — until the output shows `0 problems`. Do not stop with remaining errors.
+
+**Notify:** End with a short summary, for example: ESLint **0 errors**.
