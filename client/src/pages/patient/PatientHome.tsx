@@ -8,34 +8,10 @@ import {
 import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import { Navigate, useNavigate } from 'react-router'
+import { exercises, progressPercent } from './patient.constants'
+import { useNavigate } from "react-router-dom";
+import { Exercise, Session } from "@/pages/patient/patient.types.ts";
 
-/* ── Types ── */
-interface Exercise {
-  id: number
-  name: string
-  plan: 'Treatment Plan' | 'Training Plan'
-  desc: string
-  done: boolean
-}
-
-interface Session {
-  id: number
-  title: string
-  professional: string
-  date: Date
-  time: string
-  type: 'online' | 'clinic'
-  color: string
-}
-
-/* ── Static data ── */
-const exercises: Exercise[] = [
-  { id: 1, name: 'Push Up', plan: 'Treatment Plan', desc: '100 Push ups a day', done: true },
-  { id: 2, name: 'Sit Up', plan: 'Training Plan', desc: '20 Sit ups a day', done: false },
-  { id: 3, name: 'Knee Push Up', plan: 'Treatment Plan', desc: '20 Knee push ups a day', done: false },
-  { id: 4, name: 'Shoulder Stretch', plan: 'Treatment Plan', desc: '15 reps each side', done: false },
-]
 
 // Sessions relative to today
 function buildSessions(): Session[] {
@@ -183,7 +159,6 @@ export default function PatientHome() {
           <span className="ph-header__brand">Rehab<span>360</span></span>
         </div>
 
-        {/* Desktop nav links */}
         <nav className="ph-header__nav">
           {topNav.map(({ label, icon: Icon }) => (
             <button key={label} className="ph-header__nav-link">
@@ -218,12 +193,16 @@ export default function PatientHome() {
         {/* Stats */}
         <div className="ph-stats-strip">
           {stats.map(({ icon: Icon, value, label, color }) => (
-            <div className="ph-stat-card" key={label}>
-              <div className="ph-stat-card__icon" style={{ background: `${color}18`, color }}>
+            <div
+              className="ph-stat-card"
+              key={label}
+              style={{ '--ph-stat-color': color } as React.CSSProperties}
+            >
+              <div className="ph-stat-card__icon">
                 <Icon size={18} />
               </div>
               <div className="ph-stat-card__body">
-                <span className="ph-stat-card__value" style={{ color }}>{value}</span>
+                <span className="ph-stat-card__value">{value}</span>
                 <span className="ph-stat-card__label">{label}</span>
               </div>
             </div>
@@ -238,6 +217,10 @@ export default function PatientHome() {
           </div>
           <div className="ph-progress-card__bar-track">
             <div className="ph-progress-card__bar-fill" style={{ width: '65%' }} />
+            <div
+              className="ph-progress-card__bar-fill"
+              style={{ '--ph-progress': `${progressPercent}%` } as React.CSSProperties}
+            />
           </div>
         </div>
 

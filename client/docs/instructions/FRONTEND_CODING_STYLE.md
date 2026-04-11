@@ -49,6 +49,7 @@ The project uses two distinct styling tracks depending on component type. Never 
     - Block: `.auth-layout`
     - Element: `.auth-layout__content`
     - Modifier: `.auth-layout--compact`
+- **No inline `style` props.** All styles — including layout adjustments, spacing overrides, and dynamic-looking values — belong in the co-located `.css` file with a BEM class name. Apply that class via `className` instead.
 - Never use hardcoded hex codes or pixel values. Always reference CSS custom properties from `variables.css`:
     ```css
     color: var(--color-primary);
