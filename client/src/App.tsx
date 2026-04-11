@@ -11,6 +11,8 @@ import PatientHome from './pages/patient/PatientHome'
 import PhysiotherapistHome from './pages/physiotherapist/home/PhysiotherapistHome'
 import PlaceholderPage from './pages/PlaceholderPage'
 import PageTransition from './components/PageTransition'
+import ExerciseReport from './pages/patient/ExerciseReport'
+import MyPlan from './pages/patient/MyPlan'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -25,6 +27,8 @@ function AnimatedRoutes() {
       <Route path="/physiotherapist" element={<PageTransition><PhysiotherapistHome /></PageTransition>} />
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
       <Route path="/patient/:id" element={<PageTransition><PatientDetails /></PageTransition>} />
+      <Route path="/patient/exercise/:id" element={<PageTransition><ExerciseReport /></PageTransition>} />
+      <Route path="/patient/my-plan" element={<PageTransition><MyPlan /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
