@@ -18,6 +18,7 @@ export interface LoginResponse {
   email: string
   role: ApiRole
   first_name: string
+  token?: string
 }
 
 export interface SignUpRequest {
@@ -63,4 +64,60 @@ export interface RoleOption {
 export interface LogoIconProps {
   size?: number
   color?: string
+}
+
+// ── Physiotherapist domain types ──────────────────────────────────────────────
+
+export type PainTrend = 'improving' | 'stable' | 'worsening'
+export type AlertType = 'pain_spike' | 'inactivity' | 'stuck' | 'milestone' | 'overexertion'
+export type AlertSeverity = 'critical' | 'warning' | 'info'
+
+export interface PatientAlert {
+  id: string
+  patientId: string
+  patientName: string
+  message: string
+  type: AlertType
+  severity: AlertSeverity
+}
+
+export interface Patient {
+  id: string
+  name: string
+  rehabType: string
+  weeklyCompliance: number
+  painTrend: PainTrend
+  lastReport: string
+  currentPain: number
+  previousPain: number
+  hoursWithoutReport: number
+  stableDays: number
+  completionPercent: number
+  effortLevel: number
+}
+
+export interface Appointment {
+  id: string
+  time: string
+  patientName: string
+  reason: string
+}
+
+export interface TreatmentPlan {
+  condition: string
+  startDate: string
+  duration: string
+  nextSession: string
+}
+
+export interface PatientDetails extends Patient {
+  patientDisplayId: string
+  age: number
+  status: 'active' | 'inactive'
+  totalExercises: number
+  totalDays: number
+  totalSessions: number
+  overallCompletion: number
+  treatmentPlan: TreatmentPlan
+  trainingPlan: TreatmentPlan
 }

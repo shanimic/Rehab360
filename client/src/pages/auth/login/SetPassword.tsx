@@ -1,9 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
-import { zodValidator } from '@tanstack/zod-form-adapter'
-
 import { useSetPasswordMutation } from '@/hooks/useSetPasswordMutation'
+import { errMsg } from '@/lib/utils'
 import AuthLayout from '../AuthLayout'
 import { Button } from '@/components/ui/button'
 
@@ -25,7 +24,6 @@ export default function SetPassword() {
 
   const form = useForm({
     defaultValues: { password: '', confirmPassword: '' } as SetPasswordValues,
-    validatorAdapter: zodValidator(),
     validators: { onSubmit: setPasswordSchema },
     onSubmit: async ({ value }) => {
       await setPasswordMutation.mutateAsync(value)
@@ -65,7 +63,7 @@ export default function SetPassword() {
               value={field.state.value}
               onChange={field.handleChange}
               onBlur={field.handleBlur}
-              error={field.state.meta.errors[0]}
+              error={errMsg(field.state.meta.errors[0])}
               autoComplete="new-password"
             />
           )}
@@ -79,7 +77,7 @@ export default function SetPassword() {
               value={field.state.value}
               onChange={field.handleChange}
               onBlur={field.handleBlur}
-              error={field.state.meta.errors[0]}
+              error={errMsg(field.state.meta.errors[0])}
               autoComplete="new-password"
             />
           )}

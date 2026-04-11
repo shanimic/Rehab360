@@ -134,8 +134,30 @@ Routes are defined in `App.tsx` via `AnimatedRoutes` (wraps each route with `Pag
 |---|---|
 | Server/API state | `@tanstack/react-query` (`useMutation`, `useQuery`) |
 | Form state | `@tanstack/react-form` |
+| Global client state | `jotai` (atoms in `src/store/`) |
 | Local UI state | `useState` |
 | Navigation state | React Router (`useNavigate`, `useLocation`) |
+
+#### Jotai Store
+
+Atoms live in `src/store/`, one file per domain (e.g., `authAtom.ts`). The app root in `main.tsx` is wrapped with Jotai's `<Provider>`.
+
+Current atoms:
+
+| File | Atom | Type | Purpose |
+|------|------|------|---------|
+| `store/authAtom.ts` | `authAtom` | `LoginResponse \| null` | Authenticated user session |
+
+Usage pattern:
+```typescript
+import { useAtom } from 'jotai'
+import { authAtom } from '@/store/authAtom'
+
+const [auth, setAuth] = useAtom(authAtom)    // read + write
+// or
+const auth = useAtomValue(authAtom)           // read-only
+const setAuth = useSetAtom(authAtom)          // write-only
+```
 
 ### Form Handling Pattern
 
