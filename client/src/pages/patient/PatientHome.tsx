@@ -8,6 +8,7 @@ import {
 import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
+import { Navigate, useNavigate } from 'react-router'
 
 /* ── Types ── */
 interface Exercise {
@@ -169,6 +170,7 @@ const topNav = [
 
 /* ── Page ── */
 export default function PatientHome() {
+  const navigate = useNavigate()
   const user = useAtomValue(authAtom)
 
   return (
@@ -249,7 +251,7 @@ export default function PatientHome() {
             <section className="ph-section">
               <div className="ph-section__header">
                 <h2 className="ph-section__title">Today Plan</h2>
-                <button className="ph-section__view-all">View All</button>
+                <button className="ph-section__view-all" onClick={() => navigate('/patient/my-plan')}>View All</button>
               </div>
               <div className="ph-exercise-list">
                 {exercises.map(ex => <ExerciseItem key={ex.id} exercise={ex} />)}
