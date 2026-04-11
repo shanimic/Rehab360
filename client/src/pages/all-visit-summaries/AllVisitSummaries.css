@@ -1,0 +1,244 @@
+/* ── Page shell ──────────────────────────────────── */
+.avs-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* ── Body (mirrors .patient-body) ───────────────── */
+.avs-body {
+  padding: 16px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .avs-body {
+    padding: 20px 32px 40px;
+  }
+}
+
+/* ── Control bar ─────────────────────────────────── */
+.avs-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ── Filter tabs ─────────────────────────────────── */
+.avs-filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.avs-filter-tab {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  font-family: var(--font-family);
+  line-height: 1;
+}
+
+.avs-filter-tab:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.avs-filter-tab--active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.avs-filter-tab--active:hover {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: #fff;
+}
+
+/* ── Visit cards list ────────────────────────────── */
+.avs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.avs-empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  padding: 40px 0;
+}
+
+/* ── Visit card ──────────────────────────────────── */
+.avs-visit-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  border: 1.5px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  outline: none;
+}
+
+.avs-visit-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 20px rgba(26, 86, 219, 0.1);
+}
+
+.avs-visit-card:active {
+  transform: scale(0.995);
+}
+
+/* Left column */
+.avs-visit-card__left {
+  flex-shrink: 0;
+  min-width: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.avs-visit-card__session {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.2px;
+}
+
+.avs-visit-card__date {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.avs-visit-card__time {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Center column */
+.avs-visit-card__center {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.avs-visit-card__top-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Badges */
+.avs-visit-card__badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  flex-shrink: 0;
+}
+
+.avs-visit-card__badge--pt {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.avs-visit-card__badge--training {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.avs-visit-card__therapist {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.avs-visit-card__focus {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avs-visit-card__diagnosis {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.avs-visit-card__note {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right column */
+.avs-visit-card__right {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  align-self: center;
+}
+
+/* ── New Summary button ──────────────────────────── */
+.avs-new-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
+  box-shadow: 0 4px 14px rgba(26, 86, 219, 0.25);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.avs-new-btn:hover {
+  background: var(--color-primary-hover);
+  box-shadow: 0 6px 20px rgba(26, 86, 219, 0.35);
+}
+
+.avs-new-btn:active {
+  transform: scale(0.97);
+}
+
+.avs-new-btn__icon {
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 400;
+}

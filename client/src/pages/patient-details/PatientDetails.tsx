@@ -141,7 +141,7 @@ export default function PatientDetails() {
           {/* Three main cards */}
           <div className="patient-cards-grid">
             {/* Visit Summaries */}
-            <InfoCard title="Visit Summaries" actionLabel="View All Summaries" onAction={() => {}}>
+            <InfoCard title="Visit Summaries" actionLabel="View All Summaries" onAction={() => navigate(`/patient/${patient.id}/visit-summaries`)}>
               <div className="patient-visit__rows">
                 <div className="patient-visit__row">
                   <span className="patient-visit__label">
