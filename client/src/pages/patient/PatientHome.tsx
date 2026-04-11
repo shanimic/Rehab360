@@ -1,6 +1,3 @@
-import { Bell, Menu } from 'lucide-react'
-import { useAtomValue } from 'jotai'
-import { authAtom } from '@/store/authAtom'
 import { useState } from 'react'
 import {
   Bell, Menu, Circle,
@@ -11,37 +8,10 @@ import {
 import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import { Navigate, useNavigate } from 'react-router'
+import { exercises, progressPercent } from './patient.constants'
+import { useNavigate } from "react-router-dom";
+import { Exercise, Session } from "@/pages/patient/patient.types.ts";
 
-import ExerciseItem from './components/ExerciseItem'
-import CalendarCard from './components/CalendarCard'
-import { exercises, completedCount, progressPercent, stats, bottomNav, topNav } from './patient.constants'
-/* ── Types ── */
-interface Exercise {
-  id: number
-  name: string
-  plan: 'Treatment Plan' | 'Training Plan'
-  desc: string
-  done: boolean
-}
-
-interface Session {
-  id: number
-  title: string
-  professional: string
-  date: Date
-  time: string
-  type: 'online' | 'clinic'
-  color: string
-}
-
-/* ── Static data ── */
-const exercises: Exercise[] = [
-  { id: 1, name: 'Push Up', plan: 'Treatment Plan', desc: '100 Push ups a day', done: true },
-  { id: 2, name: 'Sit Up', plan: 'Training Plan', desc: '20 Sit ups a day', done: false },
-  { id: 3, name: 'Knee Push Up', plan: 'Treatment Plan', desc: '20 Knee push ups a day', done: false },
-  { id: 4, name: 'Shoulder Stretch', plan: 'Treatment Plan', desc: '15 reps each side', done: false },
-]
 
 // Sessions relative to today
 function buildSessions(): Session[] {
@@ -176,6 +146,7 @@ const topNav = [
 
 /* ── Page ── */
 export default function PatientHome() {
+  const navigate = useNavigate()
   const user = useAtomValue(authAtom)
 
   return (
