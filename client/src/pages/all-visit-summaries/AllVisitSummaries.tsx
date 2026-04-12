@@ -197,7 +197,11 @@ export default function AllVisitSummaries() {
                 </button>
               ))}
             </div>
-            <button type="button" className="avs-new-btn">
+            <button
+              type="button"
+              className="avs-new-btn"
+              onClick={() => navigate(`/patient/${PATIENT.id}/visit-summaries/new`)}
+            >
               <span className="avs-new-btn__icon">+</span>
               New Summary
             </button>

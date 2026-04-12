@@ -14,7 +14,9 @@ import PageTransition from './components/PageTransition'
 import ExerciseReport from './pages/patient/ExerciseReport'
 import MyPlan from './pages/patient/MyPlan'
 import AllVisitSummaries from './pages/all-visit-summaries/AllVisitSummaries'
+import CreateVisitSummary from './pages/create-visit-summary/CreateVisitSummary'
 import VisitSummaryDetail from './pages/visit-summary-detail/VisitSummaryDetail'
+
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -32,6 +34,7 @@ function AnimatedRoutes() {
       <Route path="/patient/exercise/:id" element={<PageTransition><ExerciseReport /></PageTransition>} />
       <Route path="/patient/my-plan" element={<PageTransition><MyPlan /></PageTransition>} />
       <Route path="/patient/:id/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
+      <Route path="/patient/:id/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
       <Route path="/patient/:id/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
