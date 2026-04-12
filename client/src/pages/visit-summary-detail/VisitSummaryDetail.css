@@ -95,7 +95,7 @@
 
 .vsd-detail-grid__label {
   font-size: 13px;
-  color: var(--color-text-muted);
+  color: #475569;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -207,12 +207,12 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.9px;
-  color: var(--color-text-muted);
+  color: #475569;
 }
 
 .vsd-field-block__text {
   font-size: 14px;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   line-height: 1.6;
 }
 
@@ -234,9 +234,47 @@
 
 .vsd-goal-text {
   font-size: 15px;
+  font-weight: 600;
   color: var(--color-text-primary);
-  line-height: 1.65;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.vsd-goal__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vsd-goal__progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.vsd-goal__progress-label {
+  color: var(--color-text-muted);
   font-weight: 500;
+}
+
+.vsd-goal__progress-pct {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.vsd-goal__progress-track {
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.vsd-goal__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary) 0%, #60a5fa 100%);
+  border-radius: 99px;
+  transition: width 0.4s ease;
 }
 
 .vsd-mock-chip {
