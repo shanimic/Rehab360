@@ -136,8 +136,15 @@
   margin: 0 auto;
 }
 
-/* ── Left column ── */
-.er-left {
+/* ── Form panel (LEFT on desktop) ── */
+.er-form-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Media panel (RIGHT on desktop) ── */
+.er-media-panel {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -223,24 +230,6 @@
   box-shadow: var(--shadow-card);
 }
 
-.er-exercise-info__check {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.er-exercise-info__check--done {
-  color: var(--color-primary);
-}
-
-.er-exercise-info__check--todo {
-  color: var(--color-text-muted);
-}
-
 .er-exercise-info__text {
   display: flex;
   flex-direction: column;
@@ -287,11 +276,79 @@
   line-height: 1.5;
 }
 
-/* ── Right column (report form) ── */
-.er-right {
+/* ── Completion selector ── */
+.er-completion {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
+}
+
+.er-completion__label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.er-completion__options {
+  display: flex;
+  gap: 10px;
+}
+
+.er-completion__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-button);
+  background: var(--color-input-bg);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.er-completion__btn:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text-primary);
+}
+
+.er-completion__btn--active-yes {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #15803d;
+}
+
+.er-completion__btn--active-yes:hover {
+  background: #bbf7d0;
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+.er-completion__btn--active-no {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+
+.er-completion__btn--active-no:hover {
+  background: #fecaca;
+  border-color: #dc2626;
+  color: #b91c1c;
+}
+
+/* ── Required marker ── */
+.er-required-marker {
+  color: var(--color-error);
+  font-weight: 700;
 }
 
 /* ── Ratings row ── */
@@ -315,7 +372,7 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
-  min-width: 40px;
+  min-width: 56px;
 }
 
 .er-rating__controls {
@@ -401,6 +458,20 @@
 .er-field__textarea:focus {
   border-color: var(--color-primary);
   background: var(--color-surface);
+}
+
+.er-field__textarea--error {
+  border-color: var(--color-error);
+}
+
+.er-field__textarea--error:focus {
+  border-color: var(--color-error);
+}
+
+.er-field__error {
+  font-size: 12px;
+  color: var(--color-error);
+  font-weight: 500;
 }
 
 /* ── Save button ── */
@@ -499,16 +570,18 @@
     gap: 28px;
   }
 
-  .er-left {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .er-right {
-    width: 380px;
+  /* Form panel: fixed width, sticky on left */
+  .er-form-panel {
+    width: 400px;
     flex-shrink: 0;
     position: sticky;
     top: 80px;
+  }
+
+  /* Media panel: fluid on right */
+  .er-media-panel {
+    flex: 1;
+    min-width: 0;
   }
 
   /* Hide bottom nav on desktop */

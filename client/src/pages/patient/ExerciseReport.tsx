@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  ArrowLeft, CheckCircle2, Circle, Play, Minus, Plus,
+  ArrowLeft, CheckCircle2, XCircle, Play, Minus, Plus,
   Home, Dumbbell, BarChart2, Sparkles, User,
   Bell, Menu,
 } from 'lucide-react'
@@ -11,11 +11,11 @@ import './ExerciseReport.css'
 
 /* ── Nav items ── */
 const bottomNav = [
-  { label: 'Home',     icon: Home,      active: false },
+  { label: 'Home',      icon: Home,      active: false },
   { label: 'Exercises', icon: Dumbbell,  active: true  },
-  { label: 'Progress', icon: BarChart2,  active: false },
+  { label: 'Progress',  icon: BarChart2,  active: false },
   { label: 'AI Search', icon: Sparkles,  active: false },
-  { label: 'Profile',  icon: User,       active: false },
+  { label: 'Profile',   icon: User,       active: false },
 ]
 
 const topNav = [
@@ -73,37 +73,44 @@ export default function ExerciseReport() {
   const exercise = (location.state as { exercise: PlanExercise; source?: string } | null)
     ?.exercise ?? null
 
-  const [completed, setCompleted] = useState(false)
-  const [pain, setPain]           = useState(2)
-  const [effort, setEffort]       = useState(2)
+  const [completionStatus, setCompletionStatus] = useState<'completed' | 'not-completed' | null>(null)
+  const [pain, setPain]     = useState(2)
+  const [effort, setEffort] = useState(2)
+  const [notes, setNotes]   = useState('')
   const [notCompletedReason, setNotCompletedReason] = useState('')
   const [changeRequest, setChangeRequest]           = useState('')
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved]   = useState(false)
+  const [saving, setSaving]             = useState(false)
+  const [saved, setSaved]               = useState(false)
+  const [submitAttempted, setSubmitAttempted] = useState(false)
+
+  function isFormValid(): boolean {
+    if (completionStatus === null) return false
+    if (completionStatus === 'not-completed') return notCompletedReason.trim().length > 0
+    return true
+  }
 
   function handleSave() {
-    if (!exercise) return
+    setSubmitAttempted(true)
+    if (!exercise || !isFormValid()) return
     setSaving(true)
 
     // TODO: replace with API mutation
-    // Simulates an async save (remove the setTimeout when wiring to real API)
     setTimeout(() => {
       console.log({
         exerciseId: exercise.id,
-        completed,
+        completed: completionStatus === 'completed',
         pain,
         effort,
+        notes,
         notCompletedReason,
         changeRequest,
       })
 
-      // Mark as reported in localStorage — this is what removes it from Today's list
       markReported(exercise.id)
 
       setSaving(false)
       setSaved(true)
 
-      // Navigate back after brief success flash so the user sees the confirmation
       setTimeout(() => navigate('/patient/my-plan'), 800)
     }, 600)
   }
@@ -161,8 +168,116 @@ export default function ExerciseReport() {
       <main className="er-main">
         <div className="er-layout">
 
-          {/* ── Left column: media + exercise info + instructions ── */}
-          <div className="er-left">
+          {/* ── LEFT column: report form ── */}
+          <div className="er-form-panel">
+
+            {/* Completion selector */}
+            <div className="er-completion">
+              <span className="er-completion__label">
+                Did you complete the exercise?
+                <span className="er-required-marker"> *</span>
+              </span>
+              <div className="er-completion__options">
+                <button
+                  className={`er-completion__btn${completionStatus === 'completed' ? ' er-completion__btn--active-yes' : ''}`}
+                  onClick={() => setCompletionStatus('completed')}
+                  type="button"
+                >
+                  <CheckCircle2 size={16} />
+                  Completed
+                </button>
+                <button
+                  className={`er-completion__btn${completionStatus === 'not-completed' ? ' er-completion__btn--active-no' : ''}`}
+                  onClick={() => setCompletionStatus('not-completed')}
+                  type="button"
+                >
+                  <XCircle size={16} />
+                  Not Completed
+                </button>
+              </div>
+              {submitAttempted && completionStatus === null && (
+                <span className="er-field__error">Please indicate whether you completed the exercise.</span>
+              )}
+            </div>
+
+            {/* Completed fields */}
+            {completionStatus === 'completed' && (
+              <>
+                <div className="er-ratings-row">
+                  <RatingControl label="Pain *"   value={pain}   onChange={setPain}   />
+                  <RatingControl label="Effort *" value={effort} onChange={setEffort} />
+                </div>
+
+                <div className="er-field">
+                  <label className="er-field__label" htmlFor="notes">Notes</label>
+                  <textarea
+                    id="notes"
+                    className="er-field__textarea"
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    placeholder="Any additional notes..."
+                    rows={3}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Not Completed fields */}
+            {completionStatus === 'not-completed' && (
+              <>
+                <div className="er-ratings-row">
+                  <RatingControl label="Pain"   value={pain}   onChange={setPain}   />
+                  <RatingControl label="Effort" value={effort} onChange={setEffort} />
+                </div>
+
+                <div className="er-field">
+                  <label className="er-field__label" htmlFor="not-completed">
+                    If not completed, please explain
+                    <span className="er-required-marker"> *</span>
+                  </label>
+                  <textarea
+                    id="not-completed"
+                    className={`er-field__textarea${submitAttempted && !notCompletedReason.trim() ? ' er-field__textarea--error' : ''}`}
+                    value={notCompletedReason}
+                    onChange={e => setNotCompletedReason(e.target.value)}
+                    placeholder="Describe any difficulties or reasons..."
+                    rows={4}
+                  />
+                  {submitAttempted && !notCompletedReason.trim() && (
+                    <span className="er-field__error">This field is required.</span>
+                  )}
+                </div>
+
+                <div className="er-field">
+                  <label className="er-field__label" htmlFor="change-request">
+                    Change requests
+                  </label>
+                  <textarea
+                    id="change-request"
+                    className="er-field__textarea"
+                    value={changeRequest}
+                    onChange={e => setChangeRequest(e.target.value)}
+                    placeholder="Request modifications to this exercise..."
+                    rows={4}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Save */}
+            <button
+              className={`er-save-btn${saved ? ' er-save-btn--saved' : ''}`}
+              onClick={handleSave}
+              disabled={saving || saved}
+              type="button"
+            >
+              {saved ? 'Saved! Returning…' : saving ? 'Saving…' : 'Save'}
+            </button>
+
+          </div>
+
+          {/* ── RIGHT column: media + exercise info + instructions ── */}
+          <div className="er-media-panel">
 
             {/* Media card */}
             <div className="er-media-card">
@@ -186,18 +301,8 @@ export default function ExerciseReport() {
               </button>
             </div>
 
-            {/* Exercise name + completion toggle */}
+            {/* Exercise name + meta */}
             <div className="er-exercise-info">
-              <button
-                className="er-exercise-info__check"
-                onClick={() => setCompleted(prev => !prev)}
-                aria-label="Toggle completion"
-                type="button"
-              >
-                {completed
-                  ? <CheckCircle2 size={26} className="er-exercise-info__check--done" />
-                  : <Circle       size={26} className="er-exercise-info__check--todo" />}
-              </button>
               <div className="er-exercise-info__text">
                 <span className="er-exercise-info__name">{exercise.name}</span>
                 <span className="er-exercise-info__meta">
@@ -218,56 +323,6 @@ export default function ExerciseReport() {
 
           </div>
 
-          {/* ── Right column: report form ── */}
-          <div className="er-right">
-
-            {/* Ratings */}
-            <div className="er-ratings-row">
-              <RatingControl label="Pain"   value={pain}   onChange={setPain}   />
-              <RatingControl label="Effort" value={effort} onChange={setEffort} />
-            </div>
-
-            {/* Not completed reason */}
-            <div className="er-field">
-              <label className="er-field__label" htmlFor="not-completed">
-                If not completed, please explain
-              </label>
-              <textarea
-                id="not-completed"
-                className="er-field__textarea"
-                value={notCompletedReason}
-                onChange={e => setNotCompletedReason(e.target.value)}
-                placeholder="Describe any difficulties or reasons..."
-                rows={4}
-              />
-            </div>
-
-            {/* Change requests */}
-            <div className="er-field">
-              <label className="er-field__label" htmlFor="change-request">
-                Change requests
-              </label>
-              <textarea
-                id="change-request"
-                className="er-field__textarea"
-                value={changeRequest}
-                onChange={e => setChangeRequest(e.target.value)}
-                placeholder="Request modifications to this exercise..."
-                rows={4}
-              />
-            </div>
-
-            {/* Save */}
-            <button
-              className={`er-save-btn${saved ? ' er-save-btn--saved' : ''}`}
-              onClick={handleSave}
-              disabled={saving || saved}
-              type="button"
-            >
-              {saved ? 'Saved! Returning…' : saving ? 'Saving…' : 'Save'}
-            </button>
-
-          </div>
         </div>
       </main>
 
