@@ -66,6 +66,32 @@ export interface LogoIconProps {
   color?: string
 }
 
+// ── Profile domain types ──────────────────────────────────────────────────────
+
+export interface ProfileData {
+  last_name: string
+  phone: string
+  birth_date: string
+  license_number?: string
+}
+
+export interface ActivePlan {
+  plan_id: number
+  goal: string
+  start_date: string
+  end_date: string
+}
+
+export interface ProfessionalStats {
+  total_visits: number
+  active_plans: number
+}
+
+export interface ProfilePreferences {
+  notification_enabled: boolean
+  language: string
+}
+
 // ── Physiotherapist domain types ──────────────────────────────────────────────
 
 export type PainTrend = 'improving' | 'stable' | 'worsening'

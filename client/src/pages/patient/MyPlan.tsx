@@ -189,7 +189,12 @@ export default function MyPlan() {
 
         <nav className="mp-header__nav">
           {topNav.map(({ label, icon: Icon }) => (
-            <button key={label} className="mp-header__nav-link" type="button">
+            <button
+              key={label}
+              className="mp-header__nav-link"
+              type="button"
+              onClick={label === 'My Profile' ? () => navigate('/profile') : undefined}
+            >
               <Icon size={16} />
               {label}
             </button>
