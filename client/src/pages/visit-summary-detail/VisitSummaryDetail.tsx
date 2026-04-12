@@ -22,6 +22,11 @@ interface VisitDetail {
   rehabGoal?: string
 }
 
+const REHAB_GOAL = {
+  title: 'Full shoulder range of motion recovery',
+  progressPercent: 42,
+}
+
 const PATIENT = {
   id: '1',
   firstName: 'John',
@@ -38,7 +43,7 @@ const MOCK_VISITS: VisitDetail[] = [
     visitTime: '10:00 AM',
     visitType: 'Physical Therapy',
     therapistName: 'Dr. Liran Cohen',
-    professionalRole: 'Physical Therapist',
+    professionalRole: 'Physiotherapist',
     treatmentArea: 'Range of Motion Exercises',
     medicalDiagnosis: 'Shoulder Impingement',
     description:
@@ -53,7 +58,7 @@ const MOCK_VISITS: VisitDetail[] = [
     visitTime: '10:00 AM',
     visitType: 'Training',
     therapistName: 'Alex Trainer',
-    professionalRole: 'Rehabilitation Fitness Trainer',
+    professionalRole: 'Fitness Trainer',
     treatmentArea: 'Progress Evaluation',
     medicalDiagnosis: 'Shoulder Impingement',
     description:
@@ -68,7 +73,7 @@ const MOCK_VISITS: VisitDetail[] = [
     visitTime: '10:00 AM',
     visitType: 'Physical Therapy',
     therapistName: 'Dr. Liran Cohen',
-    professionalRole: 'Physical Therapist',
+    professionalRole: 'Physiotherapist',
     treatmentArea: 'Rotator Cuff Strengthening',
     medicalDiagnosis: 'Rotator Cuff Tear',
     description:
@@ -204,11 +209,7 @@ function MedicalCard({ visit }: MedicalCardProps) {
   )
 }
 
-interface RehabGoalCardProps {
-  goal: string
-}
-
-function RehabGoalCard({ goal }: RehabGoalCardProps) {
+function RehabGoalCard() {
   return (
     <div className="vsd-card vsd-card--goal">
       <div className="vsd-card__header">
@@ -217,7 +218,20 @@ function RehabGoalCard({ goal }: RehabGoalCardProps) {
       </div>
 
       <div className="vsd-goal-content">
-        <p className="vsd-goal-text">{goal}</p>
+        <p className="vsd-goal-text">{REHAB_GOAL.title}</p>
+
+        <div className="vsd-goal__progress">
+          <div className="vsd-goal__progress-header">
+            <span className="vsd-goal__progress-label">Overall Progress</span>
+            <span className="vsd-goal__progress-pct">{REHAB_GOAL.progressPercent}%</span>
+          </div>
+          <div className="vsd-goal__progress-track">
+            <div
+              className="vsd-goal__progress-fill"
+              style={{ width: `${REHAB_GOAL.progressPercent}%` }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -293,7 +307,7 @@ export default function VisitSummaryDetail() {
 
             {/* Right column */}
             <div className="vsd-col-side">
-              {visit.rehabGoal && <RehabGoalCard goal={visit.rehabGoal} />}
+              <RehabGoalCard />
               <button type="button" className="vsd-plan-btn">
                 View Treatment Plan
               </button>
