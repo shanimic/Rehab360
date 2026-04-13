@@ -4,8 +4,22 @@ import { useQuery } from '@tanstack/react-query'
 import type { ActivePlan } from '@/types'
 
 const MOCK_PLANS: ActivePlan[] = [
-  { plan_id: 1, goal: 'Increase knee stability', start_date: '2024-01-11', end_date: '2024-02-11' },
-  { plan_id: 2, goal: 'Improve shoulder mobility', start_date: '2024-01-18', end_date: '2024-02-18' },
+  {
+    plan_id: 1,
+    goal: 'Increase knee stability',
+    category: 'Treatment Plan',
+    start_date: '2024-01-11',
+    end_date: '2024-02-11',
+    completion_percent: 60,
+  },
+  {
+    plan_id: 2,
+    goal: 'Improve shoulder mobility',
+    category: 'Training Plan',
+    start_date: '2024-01-18',
+    end_date: '2024-02-18',
+    completion_percent: 40,
+  },
 ]
 
 export function useMyPlans() {

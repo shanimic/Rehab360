@@ -7,7 +7,6 @@ import type { ApiRole } from '@/types'
 
 import ActivityCard from './components/ActivityCard'
 import PersonalInfoCard from './components/PersonalInfoCard'
-import PreferencesCard from './components/PreferencesCard'
 import './ProfilePage.css'
 
 export default function ProfilePage() {
@@ -16,7 +15,6 @@ export default function ProfilePage() {
   const auth = useAtomValue(authAtom)
 
   const firstName = auth?.first_name ?? 'Guest'
-  const email = auth?.email ?? '—'
   const role: ApiRole = auth?.role ?? (searchParams.get('role') as ApiRole) ?? 'PATIENT'
 
   return (
@@ -30,16 +28,14 @@ export default function ProfilePage() {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="pp-header__title">My Profile</h1>
+        <h1 className="pp-header__title text-lg font-medium">My Profile</h1>
+        <span aria-hidden="true" className="pp-header__spacer" />
       </header>
 
       <main className="pp-main">
-        <div className="pp-cards-grid">
-          <div className="pp-cards-grid__top">
-            <PersonalInfoCard firstName={firstName} email={email} role={role} />
-            <ActivityCard role={role} />
-          </div>
-          <PreferencesCard />
+        <div className="pp-cards-grid max-w-2xl mx-auto">
+          <PersonalInfoCard firstName={firstName} role={role} />
+          {role === 'PATIENT' && <ActivityCard />}
         </div>
       </main>
     </div>

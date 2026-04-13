@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { ProfileData } from '@/types'
 
 const MOCK_PROFILE_DATA: ProfileData = {
+  email: 'guest@example.com',
   last_name: 'Guest',
   phone: '050-1234567',
   birth_date: '1990-05-14',

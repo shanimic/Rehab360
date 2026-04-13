@@ -12,7 +12,6 @@
 .pp-header {
   display: flex;
   align-items: center;
-  gap: 12px;
   padding: 12px 20px;
   background: var(--color-surface);
   position: sticky;
@@ -22,7 +21,7 @@
 }
 
 .pp-header__back-btn {
-  width: 36px;
+  width: 2rem;
   height: 44px;
   min-height: 44px;
   display: flex;
@@ -43,10 +42,15 @@
 }
 
 .pp-header__title {
-  font-size: 17px;
-  font-weight: 700;
+  flex: 1;
+  text-align: center;
   color: var(--color-text-primary);
   margin: 0;
+}
+
+.pp-header__spacer {
+  width: 2rem;
+  flex-shrink: 0;
 }
 
 /* ── Main ── */
@@ -60,14 +64,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 960px;
-  margin: 0 auto;
-}
-
-.pp-cards-grid__top {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
 /* ── Base Card ── */
@@ -76,7 +72,7 @@
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   border: 1.5px solid var(--color-border);
-  padding: 20px;
+  padding: 24px 20px;
 }
 
 .pp-card__title {
@@ -88,118 +84,156 @@
   margin: 0 0 16px;
 }
 
-/* ── Personal Info Card ── */
-.pp-personal__avatar-row {
+/* ── Personal Info — Hero ── */
+.pp-personal__hero {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 12px;
+  padding-bottom: 24px;
+  margin-bottom: 8px;
+  border-bottom: 1.5px solid var(--color-border);
+  text-align: center;
 }
 
 .pp-personal__avatar {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: var(--color-primary);
   color: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 800;
   letter-spacing: 1px;
   flex-shrink: 0;
-  box-shadow: 0 0 0 4px var(--color-primary-light);
+  box-shadow: 0 0 0 5px var(--color-primary-light);
 }
 
-.pp-personal__name-block {
+.pp-personal__hero-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
 }
 
 .pp-personal__name {
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.2;
 }
 
 .pp-personal__role-badge {
-  align-self: flex-start;
   background: var(--color-primary-light);
   color: var(--color-primary);
   border: none;
 }
 
+/* ── Personal Info — Fields ── */
 .pp-personal__fields {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
 .pp-personal__field {
   display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pp-personal__field:last-child {
+  border-bottom: none;
+}
+
+.pp-personal__field-left {
+  display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 24px;
 }
 
 .pp-personal__field-icon {
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
+  align-self: center;
+}
+
+.pp-personal__field-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
 }
 
 .pp-personal__field-value {
   font-size: 14px;
+  font-weight: 500;
   color: var(--color-text-primary);
+  text-align: right;
 }
 
 /* ── Activity Card ── */
 .pp-activity__plans {
   display: flex;
   flex-direction: column;
-  gap: 14px;
 }
 
 .pp-activity__plan-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pp-activity__plan-row:last-child {
+  border-bottom: none;
+}
+
+.pp-activity__plan-category {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
 }
 
 .pp-activity__plan-goal {
-  font-size: 14px;
-  font-weight: 600;
   color: var(--color-text-primary);
 }
 
-.pp-activity__progress-wrap {
+.pp-activity__plan-bar-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-top: 6px;
 }
 
-.pp-activity__progress-track {
+.pp-activity__bar-track {
   flex: 1;
-  height: 8px;
-  background: var(--color-primary-light);
+  height: 6px;
+  background: var(--color-border);
   border-radius: 999px;
   overflow: hidden;
 }
 
-.pp-activity__progress-fill {
-  width: 60%;
+.pp-activity__bar-fill {
   height: 100%;
+  width: var(--fill);
   background: var(--color-primary);
   border-radius: 999px;
 }
 
-.pp-activity__progress-label {
+.pp-activity__plan-percent {
   font-size: 12px;
-  font-weight: 700;
-  color: var(--color-primary);
-  white-space: nowrap;
+  color: var(--color-text-secondary);
+  min-width: 2.5rem;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .pp-activity__empty {
@@ -210,72 +244,23 @@
   margin: 0;
 }
 
-.pp-activity__stats {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.pp-activity__stat-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background: var(--color-input-bg);
-  border-radius: 12px;
-  padding: 14px 16px;
-}
-
-.pp-activity__stat-value {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--color-primary);
-  line-height: 1;
-}
-
-.pp-activity__stat-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  line-height: 1.4;
-}
-
-/* ── Preferences Card ── */
-.pp-prefs__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.pp-prefs__field {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 36px;
-}
-
-.pp-prefs__field-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-
-.pp-prefs__field-value {
-  font-size: 14px;
-  color: var(--color-text-secondary);
-}
-
 /* ── Responsive: md+ (768px) ── */
 @media (min-width: 768px) {
   .pp-main {
     padding: 28px 24px 48px;
   }
 
-  .pp-cards-grid__top {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .pp-personal__hero {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
     gap: 20px;
-    align-items: stretch;
   }
+
+  .pp-personal__hero-info {
+    align-items: flex-start;
+  }
+
 }
 
 /* ── Responsive: desktop (900px) ── */
