@@ -2,27 +2,11 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ArrowLeft, CheckCircle2, XCircle, Play, Minus, Plus,
-  Home, Dumbbell, BarChart2, Sparkles, User,
-  Bell, Menu,
 } from 'lucide-react'
 import { markReported } from '@/lib/reportedExercises'
 import type { PlanExercise } from './MyPlan'
 import './ExerciseReport.css'
-
-/* ── Nav items ── */
-const bottomNav = [
-  { label: 'Home',      icon: Home,      active: false },
-  { label: 'Exercises', icon: Dumbbell,  active: true  },
-  { label: 'Progress',  icon: BarChart2,  active: false },
-  { label: 'AI Search', icon: Sparkles,  active: false },
-  { label: 'Profile',   icon: User,       active: false },
-]
-
-const topNav = [
-  { label: 'Exercises',  icon: Dumbbell },
-  { label: 'AI Search',  icon: Sparkles  },
-  { label: 'My Profile', icon: User      },
-]
+import PatientTopNav from '@/components/PatientTopNav'
 
 /* ── Rating control ── */
 function RatingControl({
@@ -138,32 +122,7 @@ const [notCompletedReason, setNotCompletedReason] = useState('')
   return (
     <div className="er-page">
 
-      {/* ── Desktop Header ── */}
-      <header className="er-header">
-        <div className="er-header__logo">
-          <img src="/logo.svg" alt="Rehab360" className="er-header__logo-img" />
-          <span className="er-header__brand">Rehab<span>360</span></span>
-        </div>
-
-        <nav className="er-header__nav">
-          {topNav.map(({ label, icon: Icon }) => (
-            <button key={label} className="er-header__nav-link" type="button">
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="er-header__actions">
-          <button className="er-header__icon-btn" aria-label="Notifications" type="button">
-            <Bell size={20} />
-            <span className="er-header__badge">3</span>
-          </button>
-          <button className="er-header__icon-btn er-header__menu-btn" aria-label="Menu" type="button">
-            <Menu size={20} />
-          </button>
-        </div>
-      </header>
+      <PatientTopNav />
 
       {/* ── Main layout ── */}
       <main className="er-main">
@@ -319,21 +278,6 @@ const [notCompletedReason, setNotCompletedReason] = useState('')
 
         </div>
       </main>
-
-      {/* ── Bottom Nav (mobile) ── */}
-      <nav className="er-bottom-nav">
-        {bottomNav.map(({ label, icon: Icon, active }) => (
-          <button
-            key={label}
-            className={`er-bottom-nav__item${active ? ' er-bottom-nav__item--active' : ''}`}
-            aria-label={label}
-            type="button"
-          >
-            <Icon size={22} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
 
     </div>
   )

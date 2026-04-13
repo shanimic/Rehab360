@@ -1,0 +1,144 @@
+/* ── Fixed top bar ── */
+.patient-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.patient-nav__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (min-width: 900px) {
+  .patient-nav__inner {
+    padding: 0 32px;
+  }
+}
+
+/* ── Brand ── */
+.patient-nav__brand {
+  font-family: var(--font-brand);
+  font-size: 20px;
+  font-weight: 100;
+  letter-spacing: 1.5px;
+  color: var(--color-primary);
+}
+
+/* ── Drawer panel ── */
+.patient-nav__drawer {
+  width: 280px;
+  height: 100%;
+  background: white;
+  box-shadow: -6px 0 32px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.patient-nav__drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+/* ── Menu list ── */
+.patient-nav__menu {
+  list-style: none;
+  padding: 12px;
+  margin: 0;
+  flex: 1;
+}
+
+.patient-nav__menu li + li {
+  margin-top: 2px;
+}
+
+.patient-nav__menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.patient-nav__menu-item:hover {
+  background: var(--color-input-bg);
+}
+
+.patient-nav__menu-item:active {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  transform: scale(0.98);
+}
+
+/* Active route highlight */
+.patient-nav__menu-item--active {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.patient-nav__menu-item--active .patient-nav__menu-icon {
+  color: var(--color-primary);
+}
+
+.patient-nav__menu-icon {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+/* ── Sub-item divider ── */
+.patient-nav__sub-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 8px 14px 10px;
+  list-style: none;
+}
+
+/* ── Sub-items: indented secondary actions ── */
+.patient-nav__sub-item {
+  padding-left: 28px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.patient-nav__sub-item .patient-nav__menu-icon {
+  color: var(--color-text-muted);
+}
+
+/* ── Animations ── */
+@keyframes patientNavFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes patientNavSlideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}

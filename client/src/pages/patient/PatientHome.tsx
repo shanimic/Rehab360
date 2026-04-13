@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
-  Bell, Menu, Circle,
-  Home, Dumbbell, BarChart2, Sparkles, User,
+  Circle,
+  Dumbbell,
   CalendarCheck, ChevronRight,
   Video, MapPin,
 } from 'lucide-react'
@@ -11,6 +11,7 @@ import { authAtom } from '@/store/authAtom'
 import { exercises, progressPercent } from './patient.constants'
 import { useNavigate } from "react-router-dom";
 import { Exercise, Session } from "@/pages/patient/patient.types.ts";
+import PatientTopNav from '@/components/PatientTopNav'
 
 
 // Sessions relative to today
@@ -129,21 +130,6 @@ function CalendarCard() {
   )
 }
 
-/* ── Nav items ── */
-const bottomNav = [
-  { label: 'Home', icon: Home, active: true },
-  { label: 'Exercises', icon: Dumbbell, active: false },
-  { label: 'Progress', icon: BarChart2, active: false },
-  { label: 'AI Search', icon: Sparkles, active: false },
-  { label: 'Profile', icon: User, active: false },
-]
-
-const topNav = [
-  { label: 'Exercises', icon: Dumbbell },
-  { label: 'AI Search', icon: Sparkles },
-  { label: 'My Profile', icon: User },
-]
-
 /* ── Page ── */
 export default function PatientHome() {
   const navigate = useNavigate()
@@ -152,32 +138,7 @@ export default function PatientHome() {
   return (
     <div className="ph-page">
 
-      {/* ── Header ── */}
-      <header className="ph-header">
-        <div className="ph-header__logo">
-          <img src="/logo.svg" alt="Rehab360" className="ph-header__logo-img" />
-          <span className="ph-header__brand">Rehab<span>360</span></span>
-        </div>
-
-        <nav className="ph-header__nav">
-          {topNav.map(({ label, icon: Icon }) => (
-            <button key={label} className="ph-header__nav-link">
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="ph-header__actions">
-          <button className="ph-header__icon-btn" aria-label="Notifications">
-            <Bell size={20} />
-            <span className="ph-header__badge">3</span>
-          </button>
-          <button className="ph-header__icon-btn ph-header__menu-btn" aria-label="Menu">
-            <Menu size={20} />
-          </button>
-        </div>
-      </header>
+      <PatientTopNav />
 
       {/* ── Main ── */}
       <main className="ph-main">
@@ -249,20 +210,6 @@ export default function PatientHome() {
         </div>
 
       </main>
-
-      {/* ── Bottom Nav (mobile) ── */}
-      <nav className="ph-bottom-nav">
-        {bottomNav.map(({ label, icon: Icon, active }) => (
-          <button
-            key={label}
-            className={`ph-bottom-nav__item${active ? ' ph-bottom-nav__item--active' : ''}`}
-            aria-label={label}
-          >
-            <Icon size={22} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
 
     </div>
   )
