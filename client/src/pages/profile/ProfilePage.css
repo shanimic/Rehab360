@@ -1,0 +1,275 @@
+@import '../../styles/variables.css';
+
+/* ── Page ── */
+.pp-page {
+  min-height: 100vh;
+  background: var(--color-background);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.pp-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--color-surface);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 0 var(--color-border);
+}
+
+.pp-header__back-btn {
+  width: 2rem;
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-button);
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.pp-header__back-btn:hover {
+  background: var(--color-input-bg);
+  color: var(--color-text-primary);
+}
+
+.pp-header__title {
+  flex: 1;
+  text-align: center;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.pp-header__spacer {
+  width: 2rem;
+  flex-shrink: 0;
+}
+
+/* ── Main ── */
+.pp-main {
+  flex: 1;
+  padding: 20px 16px 40px;
+}
+
+/* ── Cards Grid ── */
+.pp-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Base Card ── */
+.pp-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1.5px solid var(--color-border);
+  padding: 24px 20px;
+}
+
+.pp-card__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 16px;
+}
+
+/* ── Personal Info — Hero ── */
+.pp-personal__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 24px;
+  margin-bottom: 8px;
+  border-bottom: 1.5px solid var(--color-border);
+  text-align: center;
+}
+
+.pp-personal__avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 5px var(--color-primary-light);
+}
+
+.pp-personal__hero-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pp-personal__name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.pp-personal__role-badge {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: none;
+}
+
+/* ── Personal Info — Fields ── */
+.pp-personal__fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.pp-personal__field {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pp-personal__field:last-child {
+  border-bottom: none;
+}
+
+.pp-personal__field-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pp-personal__field-icon {
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.pp-personal__field-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.pp-personal__field-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+/* ── Activity Card ── */
+.pp-activity__plans {
+  display: flex;
+  flex-direction: column;
+}
+
+.pp-activity__plan-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pp-activity__plan-row:last-child {
+  border-bottom: none;
+}
+
+.pp-activity__plan-category {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.pp-activity__plan-goal {
+  color: var(--color-text-primary);
+}
+
+.pp-activity__plan-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.pp-activity__bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pp-activity__bar-fill {
+  height: 100%;
+  width: var(--fill);
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.pp-activity__plan-percent {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  min-width: 2.5rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pp-activity__empty {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 24px 0;
+  margin: 0;
+}
+
+/* ── Responsive: md+ (768px) ── */
+@media (min-width: 768px) {
+  .pp-main {
+    padding: 28px 24px 48px;
+  }
+
+  .pp-personal__hero {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 20px;
+  }
+
+  .pp-personal__hero-info {
+    align-items: flex-start;
+  }
+
+}
+
+/* ── Responsive: desktop (900px) ── */
+@media (min-width: 900px) {
+  .pp-header {
+    padding: 12px 48px;
+  }
+
+  .pp-main {
+    padding: 32px 48px 56px;
+  }
+}

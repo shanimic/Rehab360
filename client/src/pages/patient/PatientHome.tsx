@@ -161,7 +161,11 @@ export default function PatientHome() {
 
         <nav className="ph-header__nav">
           {topNav.map(({ label, icon: Icon }) => (
-            <button key={label} className="ph-header__nav-link">
+            <button
+              key={label}
+              className="ph-header__nav-link"
+              onClick={label === 'My Profile' ? () => navigate('/profile') : undefined}
+            >
               <Icon size={16} />
               {label}
             </button>
@@ -257,6 +261,7 @@ export default function PatientHome() {
             key={label}
             className={`ph-bottom-nav__item${active ? ' ph-bottom-nav__item--active' : ''}`}
             aria-label={label}
+            onClick={label === 'Profile' ? () => navigate('/profile') : undefined}
           >
             <Icon size={22} />
             <span>{label}</span>
