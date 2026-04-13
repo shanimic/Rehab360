@@ -27,12 +27,14 @@ const topNav = [
 /* ── Rating control ── */
 function RatingControl({
   label,
+  required = false,
   value,
   onChange,
   min = 0,
   max = 10,
 }: {
   label: string
+  required?: boolean
   value: number
   onChange: (v: number) => void
   min?: number
@@ -40,7 +42,10 @@ function RatingControl({
 }) {
   return (
     <div className="er-rating">
-      <span className="er-rating__label">{label}</span>
+      <span className="er-rating__label">
+        {label}
+        {required && <span className="er-required-marker"> *</span>}
+      </span>
       <div className="er-rating__controls">
         <button
           className="er-rating__btn er-rating__btn--minus"
@@ -76,12 +81,10 @@ export default function ExerciseReport() {
   const [completionStatus, setCompletionStatus] = useState<'completed' | 'not-completed' | null>(null)
   const [pain, setPain]     = useState(2)
   const [effort, setEffort] = useState(2)
-  const [notes, setNotes]   = useState('')
-  const [notCompletedReason, setNotCompletedReason] = useState('')
+const [notCompletedReason, setNotCompletedReason] = useState('')
   const [changeRequest, setChangeRequest]           = useState('')
-  const [saving, setSaving]             = useState(false)
-  const [saved, setSaved]               = useState(false)
-  const [submitAttempted, setSubmitAttempted] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved]   = useState(false)
 
   function isFormValid(): boolean {
     if (completionStatus === null) return false
@@ -90,7 +93,6 @@ export default function ExerciseReport() {
   }
 
   function handleSave() {
-    setSubmitAttempted(true)
     if (!exercise || !isFormValid()) return
     setSaving(true)
 
@@ -101,7 +103,6 @@ export default function ExerciseReport() {
         completed: completionStatus === 'completed',
         pain,
         effort,
-        notes,
         notCompletedReason,
         changeRequest,
       })
@@ -166,9 +167,55 @@ export default function ExerciseReport() {
 
       {/* ── Main layout ── */}
       <main className="er-main">
+
+        {/* ── Page title (full width, above columns) ── */}
+        <div className="er-page-title">
+          <button
+            className="er-page-title__back"
+            onClick={() => navigate('/patient/my-plan')}
+            aria-label="Go back"
+            type="button"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div className="er-page-title__info">
+            <h1 className="er-page-title__name">{exercise.name}</h1>
+            <span className="er-page-title__meta">
+              {exercise.desc}&nbsp;|&nbsp;{exercise.duration}
+            </span>
+          </div>
+        </div>
+
         <div className="er-layout">
 
-          {/* ── LEFT column: report form ── */}
+          {/* ── LEFT column: media + instructions ── */}
+          <div className="er-media-panel">
+
+            {/* Media card */}
+            <div className="er-media-card">
+              <img
+                src={exercise.imageUrl}
+                alt={exercise.name}
+                className="er-media-card__img"
+              />
+              <button className="er-media-card__play" aria-label="Play video" type="button">
+                <Play size={24} fill="white" />
+              </button>
+            </div>
+
+            {/* Instructions */}
+            <div className="er-instructions">
+              <h3 className="er-instructions__title">Instructions</h3>
+              <ol className="er-instructions__list">
+                {exercise.instructions.map(({ step, text }) => (
+                  <li key={step} className="er-instructions__item">{text}</li>
+                ))}
+              </ol>
+            </div>
+
+          </div>
+
+          {/* ── RIGHT column: report form ── */}
           <div className="er-form-panel">
 
             {/* Completion selector */}
@@ -195,27 +242,24 @@ export default function ExerciseReport() {
                   Not Completed
                 </button>
               </div>
-              {submitAttempted && completionStatus === null && (
-                <span className="er-field__error">Please indicate whether you completed the exercise.</span>
-              )}
             </div>
 
             {/* Completed fields */}
             {completionStatus === 'completed' && (
               <>
                 <div className="er-ratings-row">
-                  <RatingControl label="Pain *"   value={pain}   onChange={setPain}   />
-                  <RatingControl label="Effort *" value={effort} onChange={setEffort} />
+                  <RatingControl label="Pain"   required value={pain}   onChange={setPain}   />
+                  <RatingControl label="Effort" required value={effort} onChange={setEffort} />
                 </div>
 
                 <div className="er-field">
-                  <label className="er-field__label" htmlFor="notes">Notes</label>
+                  <label className="er-field__label" htmlFor="change-request">Change requests</label>
                   <textarea
-                    id="notes"
+                    id="change-request"
                     className="er-field__textarea"
-                    value={notes}
-                    onChange={e => setNotes(e.target.value)}
-                    placeholder="Any additional notes..."
+                    value={changeRequest}
+                    onChange={e => setChangeRequest(e.target.value)}
+                    placeholder="Request modifications to this exercise..."
                     rows={3}
                   />
                 </div>
@@ -237,15 +281,12 @@ export default function ExerciseReport() {
                   </label>
                   <textarea
                     id="not-completed"
-                    className={`er-field__textarea${submitAttempted && !notCompletedReason.trim() ? ' er-field__textarea--error' : ''}`}
+                    className="er-field__textarea"
                     value={notCompletedReason}
                     onChange={e => setNotCompletedReason(e.target.value)}
                     placeholder="Describe any difficulties or reasons..."
                     rows={4}
                   />
-                  {submitAttempted && !notCompletedReason.trim() && (
-                    <span className="er-field__error">This field is required.</span>
-                  )}
                 </div>
 
                 <div className="er-field">
@@ -268,58 +309,11 @@ export default function ExerciseReport() {
             <button
               className={`er-save-btn${saved ? ' er-save-btn--saved' : ''}`}
               onClick={handleSave}
-              disabled={saving || saved}
+              disabled={saving || saved || !isFormValid()}
               type="button"
             >
               {saved ? 'Saved! Returning…' : saving ? 'Saving…' : 'Save'}
             </button>
-
-          </div>
-
-          {/* ── RIGHT column: media + exercise info + instructions ── */}
-          <div className="er-media-panel">
-
-            {/* Media card */}
-            <div className="er-media-card">
-              <button
-                className="er-back-btn"
-                onClick={() => navigate('/patient/my-plan')}
-                aria-label="Go back"
-                type="button"
-              >
-                <ArrowLeft size={18} />
-              </button>
-
-              <img
-                src={exercise.imageUrl}
-                alt={exercise.name}
-                className="er-media-card__img"
-              />
-
-              <button className="er-media-card__play" aria-label="Play video" type="button">
-                <Play size={24} fill="white" />
-              </button>
-            </div>
-
-            {/* Exercise name + meta */}
-            <div className="er-exercise-info">
-              <div className="er-exercise-info__text">
-                <span className="er-exercise-info__name">{exercise.name}</span>
-                <span className="er-exercise-info__meta">
-                  {exercise.desc}&nbsp;|&nbsp;{exercise.duration}
-                </span>
-              </div>
-            </div>
-
-            {/* Instructions */}
-            <div className="er-instructions">
-              <h3 className="er-instructions__title">Instructions</h3>
-              <ol className="er-instructions__list">
-                {exercise.instructions.map(({ step, text }) => (
-                  <li key={step} className="er-instructions__item">{text}</li>
-                ))}
-              </ol>
-            </div>
 
           </div>
 
