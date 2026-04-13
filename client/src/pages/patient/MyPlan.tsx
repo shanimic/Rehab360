@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Bell, Menu, Info, Plus, ChevronRight,
+  Bell, Menu, Plus, ChevronRight, CheckCircle2,
   Home, Dumbbell, BarChart2, MessageSquare, Search as SearchIcon,
   Sparkles, User,
 } from 'lucide-react'
@@ -137,25 +137,34 @@ const topNav = [
 function ExerciseCard({
   exercise,
   onClick,
+  completed = false,
 }: {
   exercise: PlanExercise
-  onClick: () => void
+  onClick?: () => void
+  completed?: boolean
 }) {
   const { from, to, iconColor } = exercise.thumb
   return (
-    <button className="mp-card" onClick={onClick} type="button">
+    <button
+      className={`mp-card${completed ? ' mp-card--completed' : ''}`}
+      onClick={completed ? undefined : onClick}
+      disabled={completed}
+      type="button"
+    >
       <div
         className="mp-card__thumb"
         style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
         aria-hidden
       >
-        <Dumbbell size={26} color={iconColor} strokeWidth={1.6} />
+        {completed
+          ? <CheckCircle2 size={26} color="#22c55e" strokeWidth={2} />
+          : <Dumbbell size={26} color={iconColor} strokeWidth={1.6} />}
       </div>
       <div className="mp-card__info">
         <span className="mp-card__name">{exercise.name}</span>
         <span className="mp-card__desc">{exercise.desc}</span>
       </div>
-      <ChevronRight size={18} className="mp-card__arrow" />
+      {!completed && <ChevronRight size={18} className="mp-card__arrow" />}
     </button>
   )
 }
@@ -164,11 +173,14 @@ function ExerciseCard({
 export default function MyPlan() {
   const navigate = useNavigate()
 
-  // Filter out exercises already reported today — runs fresh on every mount
+  // Split exercises into active/completed on every mount
   // (React Router re-mounts this component on each navigation to /patient/my-plan)
-  const [today] = useState<PlanExercise[]>(() => {
+  const [{ active, completed }] = useState(() => {
     const reported = getReportedToday()
-    return ALL_TODAY.filter(ex => !reported.has(ex.id))
+    return {
+      active:    ALL_TODAY.filter(ex => !reported.has(ex.id)),
+      completed: ALL_TODAY.filter(ex =>  reported.has(ex.id)),
+    }
   })
 
   function openReport(exercise: PlanExercise) {
@@ -215,15 +227,12 @@ export default function MyPlan() {
           <div className="mp-title-left">
             <h1 className="mp-title">My Plan</h1>
             <span className="mp-title-sub">
-              {today.length === 0
+              {active.length === 0
                 ? 'All exercises reported today!'
-                : `${today.length} exercise${today.length !== 1 ? 's' : ''} remaining today`}
+                : `${active.length} exercise${active.length !== 1 ? 's' : ''} remaining today`}
             </span>
           </div>
           <div className="mp-title-actions">
-            <button className="mp-icon-btn" aria-label="Info" type="button">
-              <Info size={18} />
-            </button>
             <button className="mp-new-btn" type="button">
               <Plus size={15} />
               New
@@ -241,15 +250,18 @@ export default function MyPlan() {
               <button className="mp-section__view-all" type="button">View All</button>
             </div>
 
-            {today.length === 0 ? (
+            {active.length === 0 && completed.length === 0 ? (
               <div className="mp-empty">
                 <span className="mp-empty__icon">🎉</span>
                 <p className="mp-empty__text">All done for today!</p>
               </div>
             ) : (
               <div className="mp-section__list">
-                {today.map(ex => (
+                {active.map(ex => (
                   <ExerciseCard key={ex.id} exercise={ex} onClick={() => openReport(ex)} />
+                ))}
+                {completed.map(ex => (
+                  <ExerciseCard key={ex.id} exercise={ex} completed />
                 ))}
               </div>
             )}
