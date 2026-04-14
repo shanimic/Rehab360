@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Bell, Menu, Plus, ChevronRight, CheckCircle2,
+  Plus, ChevronRight, CheckCircle2,
   Home, Dumbbell, BarChart2, MessageSquare, Search as SearchIcon,
-  Sparkles, User,
 } from 'lucide-react'
 import { getReportedToday } from '@/lib/reportedExercises'
+import PatientNavbar from '@/components/PatientNavbar'
 import './MyPlan.css'
 
 /* ── Types ── */
@@ -22,8 +22,8 @@ export interface PlanExercise {
 
 /* ── Static data ── */
 const thumbs = {
-  pushUp:   { from: '#ff9a9e', to: '#e84393', iconColor: '#fff' },
-  sitUp:    { from: '#2d3436', to: '#636e72', iconColor: '#a78bfa' },
+  pushUp: { from: '#ff9a9e', to: '#e84393', iconColor: '#fff' },
+  sitUp: { from: '#2d3436', to: '#636e72', iconColor: '#a78bfa' },
   kneePush: { from: '#74b9ff', to: '#0984e3', iconColor: '#fff' },
   shoulder: { from: '#a29bfe', to: '#6c5ce7', iconColor: '#fff' },
 }
@@ -120,17 +120,11 @@ const TOMORROW: PlanExercise[] = [
 
 /* ── Nav items ── */
 const bottomNav = [
-  { label: 'Home',      icon: Home,          active: false },
-  { label: 'Exercises', icon: Dumbbell,       active: true  },
-  { label: 'Analytics', icon: BarChart2,      active: false },
-  { label: 'Chats',     icon: MessageSquare,  active: false },
-  { label: 'Search',    icon: SearchIcon,     active: false },
-]
-
-const topNav = [
-  { label: 'Exercises',  icon: Dumbbell  },
-  { label: 'AI Search',  icon: Sparkles  },
-  { label: 'My Profile', icon: User      },
+  { label: 'Home', icon: Home, active: false },
+  { label: 'Exercises', icon: Dumbbell, active: true },
+  { label: 'Analytics', icon: BarChart2, active: false },
+  { label: 'Chats', icon: MessageSquare, active: false },
+  { label: 'Search', icon: SearchIcon, active: false },
 ]
 
 /* ── Exercise Card ── */
@@ -178,8 +172,8 @@ export default function MyPlan() {
   const [{ active, completed }] = useState(() => {
     const reported = getReportedToday()
     return {
-      active:    ALL_TODAY.filter(ex => !reported.has(ex.id)),
-      completed: ALL_TODAY.filter(ex =>  reported.has(ex.id)),
+      active: ALL_TODAY.filter(ex => !reported.has(ex.id)),
+      completed: ALL_TODAY.filter(ex => reported.has(ex.id)),
     }
   })
 
@@ -192,37 +186,7 @@ export default function MyPlan() {
   return (
     <div className="mp-page">
 
-      {/* ── Header ── */}
-      <header className="mp-header">
-        <div className="mp-header__logo">
-          <img src="/logo.svg" alt="Rehab360" className="mp-header__logo-img" />
-          <span className="mp-header__brand">Rehab<span>360</span></span>
-        </div>
-
-        <nav className="mp-header__nav">
-          {topNav.map(({ label, icon: Icon }) => (
-            <button
-              key={label}
-              className="mp-header__nav-link"
-              type="button"
-              onClick={label === 'My Profile' ? () => navigate('/profile') : undefined}
-            >
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="mp-header__actions">
-          <button className="mp-header__icon-btn" aria-label="Notifications" type="button">
-            <Bell size={20} />
-            <span className="mp-header__badge">3</span>
-          </button>
-          <button className="mp-header__icon-btn mp-header__menu-btn" aria-label="Menu" type="button">
-            <Menu size={20} />
-          </button>
-        </div>
-      </header>
+      <PatientNavbar activeNavItem="Exercises" />
 
       {/* ── Main ── */}
       <main className="mp-main">

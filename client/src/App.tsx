@@ -17,6 +17,7 @@ import AllVisitSummaries from './pages/all-visit-summaries/AllVisitSummaries'
 import CreateVisitSummary from './pages/create-visit-summary/CreateVisitSummary'
 import VisitSummaryDetail from './pages/visit-summary-detail/VisitSummaryDetail'
 import ProfilePage from './pages/profile/ProfilePage'
+import ExerciseSchedule from './pages/patient/schedule-exercise/ExerciseSchedule'
 
 
 function AnimatedRoutes() {
@@ -34,6 +35,7 @@ function AnimatedRoutes() {
       <Route path="/patient/:id" element={<PageTransition><PatientDetails /></PageTransition>} />
       <Route path="/patient/exercise/:id" element={<PageTransition><ExerciseReport /></PageTransition>} />
       <Route path="/patient/my-plan" element={<PageTransition><MyPlan /></PageTransition>} />
+      <Route path="/patient/schedule-exercise" element={<PageTransition><ExerciseSchedule /></PageTransition>} />
       <Route path="/patient/:id/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
       <Route path="/patient/:id/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
       <Route path="/patient/:id/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
