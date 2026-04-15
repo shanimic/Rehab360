@@ -8,8 +8,6 @@ import {
 import { markReported } from '@/lib/reportedExercises'
 import type { PlanExercise } from './MyPlan'
 import './ExerciseReport.css'
-import { useAtomValue } from 'jotai'
-import { authAtom } from '@/store/authAtom'
 import PatientTopNav from '@/components/PatientTopNav'
 
 /* ── Nav items ── */
@@ -76,7 +74,6 @@ function RatingControl({
 export default function ExerciseReport() {
   const navigate = useNavigate()
   const location = useLocation()
-  const user = useAtomValue(authAtom)
 
   // Exercise is passed via navigation state from MyPlan
   const exercise = (location.state as { exercise: PlanExercise; source?: string } | null)
