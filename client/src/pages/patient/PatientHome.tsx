@@ -33,7 +33,7 @@ const sessions = buildSessions()
 const completedCount = exercises.filter(e => e.done).length
 
 const stats = [
-  { icon: CalendarCheck, value: '12', label: 'This Week', color: '#10b981' },
+  { icon: CalendarCheck, value: '12', label: 'Exercises Completed This Week', color: '#10b981' },
   { icon: Dumbbell, value: `${completedCount}/${exercises.length}`, label: 'Today', color: '#1a56db' },
 ]
 
@@ -155,7 +155,7 @@ export default function PatientHome() {
         {/* Greeting */}
         <div className="ph-greeting-block">
           <div>
-            <h1 className="ph-greeting">Hello, {user?.first_name || 'Placeholder'} 👋</h1>
+            <h1 className="ph-greeting">Hello, {user?.first_name || 'Guest'}</h1>
             <p className="ph-greeting__sub">Let's keep up the good work today!</p>
           </div>
         </div>
@@ -182,7 +182,7 @@ export default function PatientHome() {
         {/* Progress */}
         <div className="ph-progress-card">
           <div className="ph-progress-card__header">
-            <span className="ph-progress-card__label">Overall Progress</span>
+            <span className="ph-progress-card__label">Physiothrapy Progress</span>
             <span className="ph-progress-card__percent">65%</span>
           </div>
           <div className="ph-progress-card__bar-track">
