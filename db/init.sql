@@ -28,14 +28,15 @@ CREATE TABLE IF NOT EXISTS exercises (
     difficulty_level INT NOT NULL,
     treatment_area VARCHAR(100) NOT NULL,
     ex_video_url VARCHAR(255) NOT NULL,
-    text_instructions TEXT NOT NULL
+    text_instructions TEXT NOT NULL,
+    visit_type varchar(50) NOT NULL
 );
 
-INSERT INTO exercises (exercise_id, exercise_name, difficulty_level, treatment_area, ex_video_url, text_instructions)
+INSERT INTO exercises (exercise_id, exercise_name, difficulty_level, treatment_area, ex_video_url, text_instructions,visit_type)
 VALUES
-(1, 'Wall Squats', 2, 'Knee', 'https://video.link/squat', 'Lean against wall, lower hips until thighs are parallel to floor.'),
-(2, 'Shoulder External Rotation', 1, 'Shoulder', 'https://video.link/shoulder', 'Keep elbow at side, rotate forearm outward with resistance band.'),
-(3, 'Plank', 3, 'Core', 'https://video.link/plank', 'Hold a push-up position on your elbows for 30-60 seconds.');
+(1, 'Wall Squats', 2, 'Knee', 'https://video.link/squat', 'Lean against wall, lower hips until thighs are parallel to floor.','fitness'),
+(2, 'Shoulder External Rotation', 1, 'Shoulder', 'https://video.link/shoulder', 'Keep elbow at side, rotate forearm outward with resistance band.','physioterapist'),
+(3, 'Plank', 3, 'Core', 'https://video.link/plank', 'Hold a push-up position on your elbows for 30-60 seconds.','fitness');
 
 -- 3. Sessions Table
 CREATE TABLE IF NOT EXISTS sessions (
@@ -51,29 +52,34 @@ CREATE TABLE IF NOT EXISTS sessions (
     patient_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
     therapist_id VARCHAR(255),
     therapist_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
+    session_status VARCHAR(20),
     FOREIGN KEY (patient_id, patient_role) REFERENCES registered_users(user_id, user_role),
     FOREIGN KEY (therapist_id, therapist_role) REFERENCES registered_users(user_id, user_role)
 );
 
-INSERT INTO sessions (session_id, visit_date, visit_time, visit_type, treatment_area, medical_diagnosis, description, recommendations, patient_id, patient_role, therapist_id, therapist_role)
+INSERT INTO sessions (session_id, visit_date, visit_time, visit_type, treatment_area, medical_diagnosis, description, recommendations, patient_id, patient_role, therapist_id, therapist_role,session_status)
 VALUES
-(101, '2024-01-10', '09:00:00', 'Initial Assessment', 'Knee', 'ACL Tear recovery', 'Patient reports mild pain.', 'Start with low-impact movements.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST'),
-(102, '2024-01-17', '10:30:00', 'Follow-up', 'Shoulder', 'Rotator Cuff strain', 'Improved range of motion.', 'Increase resistance band tension.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST');
+(101, '2024-01-10', '09:00:00', 'Initial Assessment', 'Knee', 'ACL Tear recovery', 'Patient reports mild pain.', 'Start with low-impact movements.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','ACTIVE'),
+(102, '2024-01-17', '10:30:00', 'Follow-up', 'Shoulder', 'Rotator Cuff strain', 'Improved range of motion.', 'Increase resistance band tension.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','ACTIVE'),
+(103, '2024-01-17', '10:30:00', 'Follow-up', 'Shoulder', 'Rotator Cuff strain', 'Improved range of motion.', 'Increase resistance band tension.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','NOT ACTIVE');
+
 
 -- 4. Plans Table
 CREATE TABLE IF NOT EXISTS plans (
-    plan_id INT PRIMARY KEY,
+    plan_id INT ,
+    session_id INT,
     goal TEXT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    session_id INT,
+    PRIMARY KEY (plan_id, session_id),
     FOREIGN KEY (session_id) REFERENCES sessions(session_id)
+     
 );
 
-INSERT INTO plans (plan_id, goal, start_date, end_date, session_id)
+INSERT INTO plans (plan_id,session_id, goal, start_date, end_date)
 VALUES
-(1, 'Increase knee stability', '2024-01-11', '2024-02-11', 101),
-(2, 'Improve shoulder mobility', '2024-01-18', '2024-02-18', 102);
+(1, 101,'Increase knee stability', '2024-01-11', '2024-02-11' ),
+(2, 102, 'Improve shoulder mobility', '2024-01-18', '2024-02-18' );
 
 -- 5. Plan Exercises Table
 CREATE TABLE IF NOT EXISTS plan_exercises (
@@ -106,18 +112,19 @@ CREATE TABLE IF NOT EXISTS weekly_plans (
     exercise_id INT,
     reminder_time DATETIME NOT NULL,
     notification_enabled BOOLEAN,
+    exercise_date date,
     PRIMARY KEY (weekly_plan_id, plan_id, session_id, exercise_id),
     FOREIGN KEY (plan_id, session_id, exercise_id) REFERENCES plan_exercises(plan_id, session_id, exercise_id)
 );
 
-INSERT INTO weekly_plans (weekly_plan_id, plan_id, session_id, exercise_id, reminder_time, notification_enabled)
+INSERT INTO weekly_plans (weekly_plan_id, plan_id, session_id, exercise_id, reminder_time, notification_enabled,exercise_date )
 VALUES
-(501, 1, 101, 1, '2024-01-12 08:00:00', TRUE),
-(502, 2, 102, 2, '2024-01-19 09:00:00', TRUE);
+(501, 1, 101, 1, '2024-01-12 08:00:00', TRUE,'2026-04-13'),
+(502, 2, 102, 2, '2024-01-19 09:00:00', TRUE,'2026-04-13');
 
 -- 7. Exercise Execution Log
-CREATE TABLE IF NOT EXISTS exercise_execution_log (
-    log_id INT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS exercise_completion (
+    report_id INT PRIMARY KEY,
     weekly_plan_id INT,
     plan_id INT,
     session_id INT,
@@ -132,7 +139,7 @@ CREATE TABLE IF NOT EXISTS exercise_execution_log (
         REFERENCES weekly_plans(weekly_plan_id, plan_id, session_id, exercise_id)
 );
 
-INSERT INTO exercise_execution_log (log_id, weekly_plan_id, plan_id, session_id, exercise_id, execution_date, execution_status, reason_for_non_performance, pain_level, effort_level, request_for_change)
+INSERT INTO exercise_completion (report_id, weekly_plan_id, plan_id, session_id, exercise_id, execution_date, execution_status, reason_for_non_performance, pain_level, effort_level, request_for_change)
 VALUES
 (1, 501, 1, 101, 1, '2024-01-12', TRUE, NULL, 2, 4, 'Feels a bit easy'),
 (2, 502, 2, 102, 2, '2024-01-19', FALSE, 'Felt sharp pain', 8, 2, 'Need easier alternative');

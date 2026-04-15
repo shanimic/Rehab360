@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Bell, Menu, Circle,
+  Circle,
   Home, Dumbbell, BarChart2, Sparkles, User,
   CalendarCheck, ChevronRight,
   Video, MapPin,
@@ -8,6 +8,7 @@ import {
 import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
+import PatientTopNav from '@/components/PatientTopNav'
 import { exercises, progressPercent } from './patient.constants'
 import { useNavigate } from "react-router-dom";
 import { Exercise, Session } from "@/pages/patient/patient.types.ts";
@@ -138,50 +139,15 @@ const bottomNav = [
   { label: 'Profile', icon: User, active: false },
 ]
 
-const topNav = [
-  { label: 'Exercises', icon: Dumbbell },
-  { label: 'AI Search', icon: Sparkles },
-  { label: 'My Profile', icon: User },
-]
-
 /* ── Page ── */
 export default function PatientHome() {
   const navigate = useNavigate()
   const user = useAtomValue(authAtom)
 
   return (
-    <div className="ph-page">
+    <div className="ph-page pt-16">
 
-      {/* ── Header ── */}
-      <header className="ph-header">
-        <div className="ph-header__logo">
-          <img src="/logo.svg" alt="Rehab360" className="ph-header__logo-img" />
-          <span className="ph-header__brand">Rehab<span>360</span></span>
-        </div>
-
-        <nav className="ph-header__nav">
-          {topNav.map(({ label, icon: Icon }) => (
-            <button
-              key={label}
-              className="ph-header__nav-link"
-              onClick={label === 'My Profile' ? () => navigate('/profile') : undefined}
-            >
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="ph-header__actions">
-          <button className="ph-header__icon-btn" aria-label="Notifications">
-            <Bell size={20} />
-            <span className="ph-header__badge">3</span>
-          </button>
-          <button className="ph-header__icon-btn ph-header__menu-btn" aria-label="Menu">
-            <Menu size={20} />
-          </button>
-        </div>
-      </header>
+      <PatientTopNav patientName={user?.first_name} />
 
       {/* ── Main ── */}
       <main className="ph-main">
