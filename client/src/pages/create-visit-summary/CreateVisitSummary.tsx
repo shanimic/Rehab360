@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeft, Phone, Mail, Target, ClipboardList } from 'lucide-react'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import { ChevronLeft, Phone, Mail, Target, ClipboardList, CheckCircle2 } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
@@ -69,7 +69,14 @@ interface FormErrors {
 export default function CreateVisitSummary() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
+  const location = useLocation()
   const auth = useAtomValue(authAtom)
+
+  // Plan data returned from CreateTreatmentPlan (draft = "Back" clicked, saved = "Save" clicked)
+  type PlanState = { goal: string; start_date: string; end_date: string; notes: string }
+  const locationState = location.state as { plan_data?: PlanState; saved_plan?: PlanState } | null
+  const planDraft = locationState?.plan_data ?? null
+  const savedPlan = locationState?.saved_plan ?? null
 
   // Derive session type from user role — not editable
   const isPhysicalTherapy = auth?.role !== 'FITNESS_TRAINER'
@@ -118,6 +125,34 @@ export default function CreateVisitSummary() {
 
   function handleCancel(): void {
     navigate(`/patient/${id ?? PATIENT.id}/visit-summaries`)
+  }
+
+  // True once the user has saved a treatment plan in this session.
+  // In production this would come from an API call (patient already has a plan record).
+  const hasExistingPlan = savedPlan !== null
+
+  // Case A — no existing plan: open a blank form
+  function handleCreateNewPlan(): void {
+    navigate('/create-treatment-plan', {
+      state: {
+        medical_diagnosis: form.medicalDiagnosis,
+        patient_id: id ?? PATIENT.id,
+        isUpdate: false,
+        plan_data: undefined,
+      },
+    })
+  }
+
+  // Case B — plan exists: pre-fill with the saved data for editing
+  function handleUpdatePlan(): void {
+    navigate('/create-treatment-plan', {
+      state: {
+        medical_diagnosis: form.medicalDiagnosis,
+        patient_id: id ?? PATIENT.id,
+        isUpdate: true,
+        plan_data: savedPlan ?? planDraft,
+      },
+    })
   }
 
   return (
@@ -274,27 +309,43 @@ export default function CreateVisitSummary() {
             </div>
           </div>
 
-          {/* 4. Current Rehabilitation Goal — read-only reference */}
+          {/* 4. Rehabilitation Goal — shows saved treatment plan goal if available */}
           <div className="cvs-card cvs-card--goal">
             <div className="cvs-card__title-row">
               <Target size={16} className="cvs-card__title-icon" />
-              <h2 className="cvs-card__title">Current Rehabilitation Goal</h2>
+              <h2 className="cvs-card__title">
+                {savedPlan ? 'Treatment Plan Goal' : 'Current Rehabilitation Goal'}
+              </h2>
+              {savedPlan && (
+                <span className="cvs-plan-saved-badge">
+                  <CheckCircle2 size={12} />
+                  Plan Saved
+                </span>
+              )}
             </div>
 
-            <p className="cvs-goal__text">{REHAB_GOAL.title}</p>
+            <p className="cvs-goal__text">
+              {savedPlan ? savedPlan.goal : REHAB_GOAL.title}
+            </p>
 
-            <div className="cvs-goal__progress">
-              <div className="cvs-goal__progress-header">
-                <span className="cvs-goal__progress-label">Overall Progress</span>
-                <span className="cvs-goal__progress-pct">{REHAB_GOAL.progressPercent}%</span>
+            {savedPlan ? (
+              <p className="cvs-plan-dates">
+                {savedPlan.start_date} &mdash; {savedPlan.end_date}
+              </p>
+            ) : (
+              <div className="cvs-goal__progress">
+                <div className="cvs-goal__progress-header">
+                  <span className="cvs-goal__progress-label">Overall Progress</span>
+                  <span className="cvs-goal__progress-pct">{REHAB_GOAL.progressPercent}%</span>
+                </div>
+                <div className="cvs-goal__progress-track">
+                  <div
+                    className="cvs-goal__progress-fill"
+                    style={{ width: `${REHAB_GOAL.progressPercent}%` }}
+                  />
+                </div>
               </div>
-              <div className="cvs-goal__progress-track">
-                <div
-                  className="cvs-goal__progress-fill"
-                  style={{ width: `${REHAB_GOAL.progressPercent}%` }}
-                />
-              </div>
-            </div>
+            )}
           </div>
 
           {/* 5. Action Buttons */}
@@ -309,19 +360,40 @@ export default function CreateVisitSummary() {
               Cancel
             </button>
 
-            {/* Far right — secondary then primary */}
+            {/* Far right — plan button(s) + primary save */}
             <div className="cvs-actions__right">
-              <button
-                type="button"
-                className="cvs-btn-plan"
-                disabled={isSaving}
-                onClick={() => {
-                  // TODO: link to treatment plan creation flow
-                }}
-              >
-                <ClipboardList size={15} className="cvs-btn-plan__icon" />
-                Create / Update Treatment Plan
-              </button>
+              {hasExistingPlan ? (
+                <>
+                  <button
+                    type="button"
+                    className="cvs-btn-plan"
+                    disabled={isSaving}
+                    onClick={handleCreateNewPlan}
+                  >
+                    <ClipboardList size={15} className="cvs-btn-plan__icon" />
+                    Create New Plan
+                  </button>
+                  <button
+                    type="button"
+                    className="cvs-btn-plan"
+                    disabled={isSaving}
+                    onClick={handleUpdatePlan}
+                  >
+                    <ClipboardList size={15} className="cvs-btn-plan__icon" />
+                    Update Current Plan
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="cvs-btn-plan"
+                  disabled={isSaving}
+                  onClick={handleCreateNewPlan}
+                >
+                  <ClipboardList size={15} className="cvs-btn-plan__icon" />
+                  Create Treatment Plan
+                </button>
+              )}
               <button
                 type="button"
                 className="cvs-btn-save"
