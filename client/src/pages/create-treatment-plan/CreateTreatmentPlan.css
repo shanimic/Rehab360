@@ -1,0 +1,344 @@
+/* ── Page shell ──────────────────────────────────── */
+.ctp-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* ── Body ────────────────────────────────────────── */
+.ctp-body {
+  padding: 16px 16px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;          /* tighter gap → continuous document feel */
+  max-width: 768px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .ctp-body {
+    padding: 20px 24px 64px;
+    gap: 16px;
+  }
+}
+
+/* ── Base card ───────────────────────────────────── */
+.ctp-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+/* Plan Details card uses internal sections instead of a uniform gap */
+.ctp-card--plan {
+  display: flex;
+  flex-direction: column;
+  gap: 0;               /* sections handle their own spacing */
+  overflow: hidden;     /* keeps border-radius clean at dividers */
+}
+
+/* Treatment Goal card — dashed blue */
+.ctp-card--goal {
+  border-style: dashed;
+  border-color: var(--color-primary);
+  background: linear-gradient(145deg, #eff6ff 0%, #f9fafb 100%);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ctp-card--goal-error {
+  border-color: #ef4444;
+  background: linear-gradient(145deg, #fff1f2 0%, #fff 100%);
+}
+
+/* ── Plan Details — internal sections ───────────── */
+.ctp-section {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Full-bleed horizontal rule between sections */
+.ctp-section-divider {
+  height: 1px;
+  background-color: var(--color-border);
+  flex-shrink: 0;
+}
+
+/* ── Form row (side-by-side dates) ───────────────── */
+.ctp-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ── Field ───────────────────────────────────────── */
+.ctp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Labels ──────────────────────────────────────── */
+.ctp-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ctp-required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+/* ── Read-only field ─────────────────────────────── */
+.ctp-readonly-field {
+  padding: 10px 14px;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--color-border);
+  background-color: #f1f5f9;
+  font-family: var(--font-family);
+  font-size: 16px;
+  color: #475569;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Standard inputs ─────────────────────────────── */
+.ctp-input,
+.ctp-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--color-border);
+  background-color: #fff;
+  font-family: var(--font-family);
+  font-size: 16px;
+  color: var(--color-text-primary);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.ctp-input:focus,
+.ctp-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.12);
+}
+
+.ctp-input--error {
+  border-color: #ef4444;
+}
+
+.ctp-input--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.ctp-textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.55;
+}
+
+/* ── Treatment Goal internals ────────────────────── */
+.ctp-goal__header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ctp-goal__icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.ctp-card--goal-error .ctp-goal__icon {
+  color: #ef4444;
+}
+
+.ctp-goal__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/*
+ * Borderless textarea that blends into the dashed card.
+ * The card background and dashed border provide all the visual framing.
+ */
+.ctp-goal__input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-family);
+  font-size: 16px;
+  color: var(--color-text-primary);
+  line-height: 1.65;
+  resize: none;
+  min-height: 80px;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.ctp-goal__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ── Error message ───────────────────────────────── */
+.ctp-error-msg {
+  font-size: 13px;
+  color: #ef4444;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Exercises placeholder ───────────────────────── */
+.ctp-exercises {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  border: 1.5px dashed var(--color-border);
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ctp-exercises__header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ctp-exercises__icon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.ctp-exercises__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.ctp-exercises__placeholder {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.ctp-btn-add-exercise {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 600;
+  background-color: transparent;
+  border: 1.5px dashed var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  align-self: flex-start;
+  opacity: 0.55;
+}
+
+/* ── Action buttons ──────────────────────────────── */
+/*
+ * Mobile  : column-reverse (Save on top visually)
+ * ≥ 480px : row — Back left, Save right
+ */
+.ctp-actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+@media (min-width: 480px) {
+  .ctp-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.ctp-btn-back,
+.ctp-btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 24px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  min-height: 44px;
+  white-space: nowrap;
+  line-height: 1;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .ctp-btn-back,
+  .ctp-btn-save {
+    width: auto;
+  }
+}
+
+.ctp-btn-back {
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.ctp-btn-back:hover:not(:disabled) {
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+}
+
+.ctp-btn-save {
+  background-color: var(--color-primary);
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(26, 86, 219, 0.25);
+}
+
+.ctp-btn-save:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  box-shadow: 0 6px 20px rgba(26, 86, 219, 0.35);
+}
+
+.ctp-btn-back:active:not(:disabled),
+.ctp-btn-save:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.ctp-btn-back:disabled,
+.ctp-btn-save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ── Save button spinner ─────────────────────────── */
+@keyframes ctp-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.ctp-spinner {
+  animation: ctp-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
