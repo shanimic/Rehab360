@@ -8,20 +8,23 @@ import {
 import { markReported } from '@/lib/reportedExercises'
 import type { PlanExercise } from './MyPlan'
 import './ExerciseReport.css'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
+import PatientTopNav from '@/components/PatientTopNav'
 
 /* ── Nav items ── */
 const bottomNav = [
-  { label: 'Home',      icon: Home,      active: false },
-  { label: 'Exercises', icon: Dumbbell,  active: true  },
-  { label: 'Progress',  icon: BarChart2,  active: false },
-  { label: 'AI Search', icon: Sparkles,  active: false },
-  { label: 'Profile',   icon: User,       active: false },
+  { label: 'Home', icon: Home, active: false },
+  { label: 'Exercises', icon: Dumbbell, active: true },
+  { label: 'Progress', icon: BarChart2, active: false },
+  { label: 'AI Search', icon: Sparkles, active: false },
+  { label: 'Profile', icon: User, active: false },
 ]
 
 const topNav = [
-  { label: 'Exercises',  icon: Dumbbell },
-  { label: 'AI Search',  icon: Sparkles  },
-  { label: 'My Profile', icon: User      },
+  { label: 'Exercises', icon: Dumbbell },
+  { label: 'AI Search', icon: Sparkles },
+  { label: 'My Profile', icon: User },
 ]
 
 /* ── Rating control ── */
@@ -73,18 +76,19 @@ function RatingControl({
 export default function ExerciseReport() {
   const navigate = useNavigate()
   const location = useLocation()
+  const user = useAtomValue(authAtom)
 
   // Exercise is passed via navigation state from MyPlan
   const exercise = (location.state as { exercise: PlanExercise; source?: string } | null)
     ?.exercise ?? null
 
   const [completionStatus, setCompletionStatus] = useState<'completed' | 'not-completed' | null>(null)
-  const [pain, setPain]     = useState(2)
+  const [pain, setPain] = useState(2)
   const [effort, setEffort] = useState(2)
-const [notCompletedReason, setNotCompletedReason] = useState('')
-  const [changeRequest, setChangeRequest]           = useState('')
+  const [notCompletedReason, setNotCompletedReason] = useState('')
+  const [changeRequest, setChangeRequest] = useState('')
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved]   = useState(false)
+  const [saved, setSaved] = useState(false)
 
   function isFormValid(): boolean {
     if (completionStatus === null) return false
@@ -253,7 +257,7 @@ const [notCompletedReason, setNotCompletedReason] = useState('')
             {completionStatus === 'completed' && (
               <>
                 <div className="er-ratings-row">
-                  <RatingControl label="Pain"   required value={pain}   onChange={setPain}   />
+                  <RatingControl label="Pain" required value={pain} onChange={setPain} />
                   <RatingControl label="Effort" required value={effort} onChange={setEffort} />
                 </div>
 
@@ -275,7 +279,7 @@ const [notCompletedReason, setNotCompletedReason] = useState('')
             {completionStatus === 'not-completed' && (
               <>
                 <div className="er-ratings-row">
-                  <RatingControl label="Pain"   value={pain}   onChange={setPain}   />
+                  <RatingControl label="Pain" value={pain} onChange={setPain} />
                   <RatingControl label="Effort" value={effort} onChange={setEffort} />
                 </div>
 

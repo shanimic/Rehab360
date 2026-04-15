@@ -8,7 +8,7 @@ import {
 import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import PatientNavbar from '@/components/PatientNavbar'
+import PatientTopNav from '@/components/PatientTopNav'
 import { exercises, progressPercent } from './patient.constants'
 import { useNavigate } from "react-router-dom";
 import { Exercise, Session } from "@/pages/patient/patient.types.ts";
@@ -139,21 +139,15 @@ const bottomNav = [
   { label: 'Profile', icon: User, active: false },
 ]
 
-const topNav = [
-  { label: 'Exercises', icon: Dumbbell },
-  { label: 'AI Search', icon: Sparkles },
-  { label: 'My Profile', icon: User },
-]
-
 /* ── Page ── */
 export default function PatientHome() {
   const navigate = useNavigate()
   const user = useAtomValue(authAtom)
 
   return (
-    <div className="ph-page">
+    <div className="ph-page pt-16">
 
-      <PatientNavbar activeNavItem="Home" />
+      <PatientTopNav patientName={user?.first_name} />
 
       {/* ── Main ── */}
       <main className="ph-main">

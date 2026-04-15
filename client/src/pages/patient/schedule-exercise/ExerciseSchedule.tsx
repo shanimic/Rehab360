@@ -7,6 +7,9 @@ import ExerciseCard from './components/ExerciseCard'
 import DayCard from './components/DayCard'
 import ReminderToggle from './components/ReminderToggle'
 import './ExerciseSchedule.css'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
+import PatientTopNav from '@/components/PatientTopNav'
 
 /* ── Types ── */
 export interface ScheduledExercise {
@@ -19,12 +22,12 @@ export interface ScheduledExercise {
 
 /* ── Static exercise pool (defined by healthcare professional) ── */
 const thumbs = {
-  pushUp:   { from: '#ff9a9e', to: '#e84393', iconColor: '#fff' },
-  sitUp:    { from: '#2d3436', to: '#636e72', iconColor: '#a78bfa' },
+  pushUp: { from: '#ff9a9e', to: '#e84393', iconColor: '#fff' },
+  sitUp: { from: '#2d3436', to: '#636e72', iconColor: '#a78bfa' },
   kneePush: { from: '#74b9ff', to: '#0984e3', iconColor: '#fff' },
   shoulder: { from: '#a29bfe', to: '#6c5ce7', iconColor: '#fff' },
-  squat:    { from: '#55efc4', to: '#00b894', iconColor: '#fff' },
-  plank:    { from: '#fd79a8', to: '#e17055', iconColor: '#fff' },
+  squat: { from: '#55efc4', to: '#00b894', iconColor: '#fff' },
+  plank: { from: '#fd79a8', to: '#e17055', iconColor: '#fff' },
 }
 
 const EXERCISE_POOL: PlanExercise[] = [
@@ -95,6 +98,7 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 /* ── Page ── */
 export default function ExerciseSchedule() {
   const navigate = useNavigate()
+  const user = useAtomValue(authAtom)
 
   // dayIndex (0–6) → array of scheduled exercises
   const [schedule, setSchedule] = useState<Record<number, ScheduledExercise[]>>({})
@@ -195,7 +199,7 @@ export default function ExerciseSchedule() {
     <div className="es-page">
 
       {/* ── Header ── */}
-      <PatientNavbar title="My Exercise Schedule" />
+      <PatientTopNav patientName={user?.first_name} />
 
       <main className="es-main">
 

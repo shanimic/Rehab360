@@ -7,6 +7,9 @@ import {
 import { getReportedToday } from '@/lib/reportedExercises'
 import PatientNavbar from '@/components/PatientNavbar'
 import './MyPlan.css'
+import PatientTopNav from '@/components/PatientTopNav'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
 
 /* ── Types ── */
 export interface PlanExercise {
@@ -166,6 +169,7 @@ function ExerciseCard({
 /* ── Page ── */
 export default function MyPlan() {
   const navigate = useNavigate()
+  const user = useAtomValue(authAtom)
 
   // Split exercises into active/completed on every mount
   // (React Router re-mounts this component on each navigation to /patient/my-plan)
@@ -186,7 +190,7 @@ export default function MyPlan() {
   return (
     <div className="mp-page">
 
-      <PatientNavbar activeNavItem="Exercises" />
+      <PatientTopNav patientName={user?.first_name} />
 
       {/* ── Main ── */}
       <main className="mp-main">
