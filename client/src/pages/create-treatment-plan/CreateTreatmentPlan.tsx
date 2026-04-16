@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ChevronLeft, Target, Dumbbell, Loader2 } from 'lucide-react'
+import { ChevronLeft, Target, Dumbbell, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
+import AddExerciseModal from './AddExerciseModal'
+import type { ExerciseEntry } from './AddExerciseModal'
 
 import '../patient-details/PatientDetails.css'
 import './CreateTreatmentPlan.css'
 
 // ── Types ────────────────────────────────────────────────────────────────────
+export type { ExerciseEntry }
+
 export interface PlanFormState {
   goal: string
   start_date: string
@@ -49,6 +53,8 @@ export default function CreateTreatmentPlan() {
   })
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSaving, setIsSaving] = useState(false)
+  const [exercises, setExercises] = useState<ExerciseEntry[]>([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -77,6 +83,15 @@ export default function CreateTreatmentPlan() {
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  function handleAddExercise(exercise: ExerciseEntry): void {
+    setExercises((prev) => [...prev, exercise])
+    setIsModalOpen(false)
+  }
+
+  function handleRemoveExercise(id: string): void {
+    setExercises((prev) => prev.filter((ex) => ex.id !== id))
   }
 
   // Save: 800 ms simulation → return to CreateVisitSummary with the saved plan
@@ -200,15 +215,55 @@ export default function CreateTreatmentPlan() {
             {errors.goal && <p className="ctp-error-msg">{errors.goal}</p>}
           </div>
 
-          {/* ── Exercises — placeholder ── */}
+          {/* ── Exercises ── */}
           <div className="ctp-exercises">
             <div className="ctp-exercises__header">
-              <Dumbbell size={16} className="ctp-exercises__icon" />
+              <Dumbbell size={16} className="ctp-exercises__icon ctp-exercises__icon--active" />
               <h2 className="ctp-exercises__title">Exercises</h2>
+              {exercises.length > 0 && (
+                <span className="ctp-exercises__count">{exercises.length}</span>
+              )}
             </div>
-            <p className="ctp-exercises__placeholder">Exercise library coming soon...</p>
-            <button type="button" className="ctp-btn-add-exercise" disabled>
-              + Add Exercise
+
+            {exercises.length === 0 ? (
+              <p className="ctp-exercises__placeholder">
+                No exercises added yet. Use the button below to build the plan.
+              </p>
+            ) : (
+              <ul className="ctp-exercise-list">
+                {exercises.map((ex) => (
+                  <li key={ex.id} className="ctp-exercise-card">
+                    <div className="ctp-exercise-card__top">
+                      <span className="ctp-exercise-card__name">{ex.name}</span>
+                      <button
+                        type="button"
+                        className="ctp-exercise-card__remove"
+                        onClick={() => handleRemoveExercise(ex.id)}
+                        aria-label={`Remove ${ex.name}`}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <div className="ctp-exercise-card__meta">
+                      <span>{ex.sets} sets × {ex.reps} reps</span>
+                      {ex.weight > 0 && <span>{ex.weight} kg</span>}
+                      <span>{ex.frequencyAmount}× {ex.frequencyUnit}</span>
+                    </div>
+                    {ex.description && (
+                      <p className="ctp-exercise-card__desc">{ex.description}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <button
+              type="button"
+              className="ctp-btn-add-exercise ctp-btn-add-exercise--active"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <Plus size={14} />
+              Add Exercise
             </button>
           </div>
 
@@ -241,6 +296,13 @@ export default function CreateTreatmentPlan() {
 
         </div>
       </main>
+
+      {isModalOpen && (
+        <AddExerciseModal
+          onAdd={handleAddExercise}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   )
 }
