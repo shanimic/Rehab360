@@ -257,6 +257,26 @@
   margin: 0;
 }
 
+/* ── Progress Grid (2-col on desktop) ── */
+.ph-progress-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Fitness color overrides */
+.ph-progress-card__percent--fitness {
+  color: #10b981;
+}
+
+.ph-progress-card__bar-track--fitness {
+  background: #d1fae5;
+}
+
+.ph-progress-card__bar-fill--fitness {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
 /* ── Mid grid (calendar + right col) – single col mobile ── */
 .ph-mid-grid {
   display: flex;
@@ -630,6 +650,14 @@
     grid-template-columns: 1fr 1fr;
     gap: 24px;
     align-items: start;
+  }
+
+  .ph-progress-grid {
+    flex-direction: row;
+  }
+
+  .ph-progress-grid .ph-progress-card {
+    flex: 1;
   }
 
   .ph-bottom-nav {
