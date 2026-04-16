@@ -34,9 +34,39 @@ CREATE TABLE IF NOT EXISTS exercises (
 
 INSERT INTO exercises (exercise_id, exercise_name, difficulty_level, treatment_area, ex_video_url, text_instructions,visit_type)
 VALUES
-(1, 'Wall Squats', 2, 'Knee', 'https://video.link/squat', 'Lean against wall, lower hips until thighs are parallel to floor.','fitness'),
-(2, 'Shoulder External Rotation', 1, 'Shoulder', 'https://video.link/shoulder', 'Keep elbow at side, rotate forearm outward with resistance band.','physioterapist'),
-(3, 'Plank', 3, 'Core', 'https://video.link/plank', 'Hold a push-up position on your elbows for 30-60 seconds.','fitness');
+(1, 'Wall Squats', 2, 'Knee', 'https://video.link/squat', 'Lean against wall, lower hips until thighs are parallel to floor.', 'fitness'),
+(2, 'Shoulder External Rotation', 1, 'Shoulder', 'https://video.link/shoulder', 'Keep elbow at side, rotate forearm outward with resistance band.', 'physiotherapist'),
+(3, 'Plank', 3, 'Core', 'https://video.link/plank', 'Hold a push-up position on your elbows for 30-60 seconds.', 'fitness'),
+(4, 'Straight Leg Raise', 1, 'Knee', 'https://video.link/slr', 'Lie on back, keep one leg straight and lift it to 45 degrees, hold 3 seconds, lower slowly.', 'physiotherapist'),
+(5, 'Terminal Knee Extension', 1, 'Knee', 'https://video.link/tke', 'Loop resistance band behind knee, stand and straighten the knee fully against band resistance.', 'physiotherapist'),
+(6, 'Step-Ups', 2, 'Knee', 'https://video.link/stepup', 'Step onto a low platform one foot at a time, fully extending the knee at the top before stepping down.', 'fitness'),
+(7, 'Bulgarian Split Squat', 3, 'Knee', 'https://video.link/bss', 'Rear foot elevated on bench, lower front knee toward floor keeping torso upright, drive back up through heel.', 'fitness'),
+(8, 'Pendulum Exercise', 1, 'Shoulder', 'https://video.link/pendulum', 'Lean forward supported on a table, let arm hang freely and make small clockwise and counterclockwise circles.', 'physiotherapist'),
+(9, 'Scapular Retraction', 1, 'Shoulder', 'https://video.link/scap-ret', 'Sit or stand tall, squeeze shoulder blades together and hold for 5 seconds, release slowly.', 'fitness'),
+(10, 'Shoulder Internal Rotation with Band', 2, 'Shoulder', 'https://video.link/ir-band', 'Elbow at 90 degrees at side, rotate forearm inward toward abdomen against resistance band.', 'physiotherapist'),
+(11, 'Overhead Press', 3, 'Shoulder', 'https://video.link/ohp', 'Hold dumbbells at shoulder height, press straight overhead until arms fully extended, lower with control.', 'fitness'),
+(12, 'Dead Bug', 2, 'Core', 'https://video.link/deadbug', 'Lie on back with arms up and knees at 90 degrees, slowly lower opposite arm and leg toward floor while pressing lower back down.', 'fitness'),
+(13, 'Bird Dog', 2, 'Core', 'https://video.link/birddog', 'On hands and knees, extend opposite arm and leg simultaneously, hold 3 seconds, return and switch sides.', 'fitness'),
+(14, 'Side Plank', 2, 'Core', 'https://video.link/sideplank', 'Lie on side, prop up on forearm and feet stacked, lift hips to form a straight line, hold 20-40 seconds.', 'fitness'),
+(15, 'Pallof Press', 3, 'Core', 'https://video.link/pallof', 'Stand sideways to a cable or band anchor, press hands straight out from chest and hold 2 seconds resisting rotation.', 'fitness'),
+(16, 'Clamshells', 1, 'Hip', 'https://video.link/clamshell', 'Lie on side with knees bent, keep feet together and rotate top knee upward like a clamshell opening, hold 2 seconds.', 'physiotherapist'),
+(17, 'Glute Bridge', 1, 'Hip', 'https://video.link/glute-bridge', 'Lie on back with knees bent, drive hips up by squeezing glutes until body is straight from shoulders to knees.', 'fitness'),
+(18, 'Side-Lying Hip Abduction', 1, 'Hip', 'https://video.link/hip-abd', 'Lie on side, keep top leg straight and lift it 30-40 degrees upward, hold 2 seconds and lower slowly.', 'physiotherapist'),
+(19, 'Single-Leg Romanian Deadlift', 3, 'Hip', 'https://video.link/sl-rdl', 'Stand on one leg, hinge at hips and lower torso while extending free leg behind, keep back flat throughout.', 'fitness'),
+(20, 'Ankle Alphabet', 1, 'Ankle', 'https://video.link/ankle-abc', 'Sit with leg extended, trace each letter of the alphabet in the air using only ankle movement.', 'physiotherapist'),
+(21, 'Calf Raises', 2, 'Ankle', 'https://video.link/calf-raise', 'Stand on edge of a step, lower heels below step level then rise up onto toes, lower slowly with control.', 'fitness'),
+(22, 'Single-Leg Balance', 2, 'Ankle', 'https://video.link/sl-balance', 'Stand on one foot for 30-60 seconds, progress by closing eyes or standing on an unstable surface.', 'fitness'),
+(23, 'Resistance Band Dorsiflexion', 1, 'Ankle', 'https://video.link/dorsi', 'Sit with leg straight, band looped around foot, pull toes toward shin against resistance, hold 2 seconds.', 'physiotherapist'),
+(24, 'Cat-Cow Stretch', 1, 'Lower Back', 'https://video.link/catcow', 'On hands and knees, alternate between arching the back upward and letting it sag downward in a slow rhythmic motion.', 'physiotherapist'),
+(25, 'McKenzie Press-Up', 1, 'Lower Back', 'https://video.link/mckenzie', 'Lie face down, place hands under shoulders and press upper body up while keeping hips on the floor.', 'physiotherapist'),
+(26, 'Superman Hold', 2, 'Lower Back', 'https://video.link/superman', 'Lie face down, simultaneously lift arms, chest and legs off the floor, hold 3 seconds and lower slowly.', 'fitness'),
+(27, 'Romanian Deadlift', 3, 'Lower Back', 'https://video.link/rdl', 'Hold barbell at hips, hinge forward keeping back flat and pushing hips back until light stretch in hamstrings, drive hips forward to stand.', 'fitness'),
+(28, 'Chin Tucks', 1, 'Neck', 'https://video.link/chintuck', 'Sit tall, gently draw chin straight back creating a double chin, hold 5 seconds, release. Keep gaze level.', 'physiotherapist'),
+(29, 'Cervical Rotation Stretch', 1, 'Neck', 'https://video.link/cerv-rot', 'Sit upright, slowly rotate head to one side as far as comfortable, hold 10 seconds, return to center and repeat other side.', 'physiotherapist'),
+(30, 'Deep Neck Flexor Activation', 2, 'Neck', 'https://video.link/dnf', 'Lie on back, gently nod chin down without lifting head off floor, hold 10 seconds. Focus on deep muscles not surface ones.', 'physiotherapist'),
+(31, 'Wrist Flexion/Extension Stretch', 1, 'Wrist', 'https://video.link/wrist-stretch', 'Extend arm with palm up, use other hand to gently bend wrist downward, hold 20 seconds each direction.', 'physiotherapist'),
+(32, 'Forearm Pronation/Supination', 1, 'Elbow', 'https://video.link/pron-sup', 'Hold a light hammer or dumbbell vertically, slowly rotate forearm palm-up then palm-down through full range.', 'physiotherapist'),
+(33, 'Eccentric Wrist Curl', 2, 'Wrist', 'https://video.link/ecc-wrist', 'Rest forearm on a table palm-up holding light dumbbell, use other hand to lift weight then lower it slowly using the wrist only.', 'fitness');
 
 -- 3. Sessions Table
 CREATE TABLE IF NOT EXISTS sessions (
