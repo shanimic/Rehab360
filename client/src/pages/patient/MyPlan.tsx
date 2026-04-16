@@ -188,7 +188,7 @@ export default function MyPlan() {
   }
 
   return (
-    <div className="mp-page">
+    <div className="mp-page pt-16">
 
       <PatientTopNav patientName={user?.first_name} />
 
