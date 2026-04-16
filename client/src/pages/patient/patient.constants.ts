@@ -10,6 +10,7 @@ export const exercises: Exercise[] = [
 
 export const completedCount = exercises.filter(e => e.done).length
 export const progressPercent = Math.round((completedCount / exercises.length) * 100)
+export const fitnessProgressPercent = 42
 
 export const stats = [
   { icon: Flame, value: '5', label: 'Day Streak', color: '#f97316' },

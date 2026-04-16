@@ -9,7 +9,7 @@ import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import PatientTopNav from '@/components/PatientTopNav'
-import { exercises, progressPercent } from './patient.constants'
+import { exercises, progressPercent, fitnessProgressPercent } from './patient.constants'
 import { useNavigate } from "react-router-dom";
 import { Exercise, Session } from "@/pages/patient/patient.types.ts";
 
@@ -180,17 +180,30 @@ export default function PatientHome() {
         </div>
 
         {/* Progress */}
-        <div className="ph-progress-card">
-          <div className="ph-progress-card__header">
-            <span className="ph-progress-card__label">Physiothrapy Progress</span>
-            <span className="ph-progress-card__percent">65%</span>
+        <div className="ph-progress-grid">
+          <div className="ph-progress-card">
+            <div className="ph-progress-card__header">
+              <span className="ph-progress-card__label">Physiotherapy Progress</span>
+              <span className="ph-progress-card__percent">{progressPercent}%</span>
+            </div>
+            <div className="ph-progress-card__bar-track">
+              <div className="ph-progress-card__bar-fill" style={{ width: `${progressPercent}%` }} />
+            </div>
           </div>
-          <div className="ph-progress-card__bar-track">
-            <div className="ph-progress-card__bar-fill" style={{ width: '65%' }} />
-            <div
-              className="ph-progress-card__bar-fill"
-              style={{ '--ph-progress': `${progressPercent}%` } as React.CSSProperties}
-            />
+
+          <div className="ph-progress-card">
+            <div className="ph-progress-card__header">
+              <span className="ph-progress-card__label">Fitness Progress</span>
+              <span className="ph-progress-card__percent ph-progress-card__percent--fitness">
+                {fitnessProgressPercent}%
+              </span>
+            </div>
+            <div className="ph-progress-card__bar-track ph-progress-card__bar-track--fitness">
+              <div
+                className="ph-progress-card__bar-fill ph-progress-card__bar-fill--fitness"
+                style={{ width: `${fitnessProgressPercent}%` }}
+              />
+            </div>
           </div>
         </div>
 
