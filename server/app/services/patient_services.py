@@ -8,7 +8,7 @@ class PatientServices:
 
     async def get_patient_home_data(
         self, patient_id: str
-    ):
+    ) -> PatientHomeData:
         daily_exercises = await self.repository.get_patient_total_daily_exercises(patient_id)
         weekly_completion = await self.repository.get_weekly_completion(patient_id)
         fitness_percentage = await self.repository.get_patient_fitness_percentage(patient_id)
