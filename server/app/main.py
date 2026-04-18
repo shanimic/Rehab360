@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.health import health_router
 from app.api.user_routes import user_router
 from app.core.config import settings
+from app.api.patient_routes import patient_router
 
 def get_application() -> FastAPI:
     _app = FastAPI(
@@ -21,6 +22,7 @@ def get_application() -> FastAPI:
 
     _app.include_router(health_router)
     _app.include_router(user_router, prefix="/users")
+    _app.include_router(patient_router, prefix="/patient")
 
     return _app
 

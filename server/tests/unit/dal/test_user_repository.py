@@ -24,6 +24,7 @@ class UserRepositoryTest(unittest.TestCase):
         repo = UserRepository(db=cursor)
         login = LoginRequest(email="u@test.com", password="x", role=Role.PATIENT)
         row = {
+            "id": "user-001",
             "email": "u@test.com",
             "password": "hashed",
             "role": "PATIENT",
@@ -39,6 +40,7 @@ class UserRepositoryTest(unittest.TestCase):
 
         # ASSERT
         assert result is not None
+        assert result.id == "user-001"
         assert result.email == "u@test.com"
         assert result.role == Role.PATIENT
         assert result.first_name == "U"

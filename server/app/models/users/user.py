@@ -4,6 +4,7 @@ from app.models.enums.role import Role
 
 
 class LoginResponse(BaseModel):
+    id: str
     email: str
     password: str = Field(exclude=True)
     role: Role
