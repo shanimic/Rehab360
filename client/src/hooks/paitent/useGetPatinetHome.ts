@@ -11,9 +11,7 @@ export function useGetPatientHome() {
     const { data, isLoading, error } = useQuery({
         queryKey: ['patientHome', patientId],
         queryFn: async (): Promise<PatientHomeData> => {
-            console.log(`/patient/home/${patientId}`)
             const res = await apiClient.get(`/patient/home/${patientId}`)
-            console.log(res.data)
             return res.data
         }
     })
