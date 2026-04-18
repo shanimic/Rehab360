@@ -1,7 +1,7 @@
 import apiClient from "@/lib/apiClient"
 import { authAtom } from "@/store/authAtom"
 import { PatientHomeData } from "@/types/patient"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 
 export function useGetPatientHome() {
