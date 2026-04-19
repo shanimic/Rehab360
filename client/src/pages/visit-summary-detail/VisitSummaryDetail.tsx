@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeft, Phone, Mail, Target, CalendarDays, Stethoscope } from 'lucide-react'
+import { ChevronLeft, Phone, Mail, Target, CalendarDays, Stethoscope, Clock } from 'lucide-react'
 import TopNav from '@/components/TopNav'
 
 import '../patient-details/PatientDetails.css'
@@ -241,7 +241,8 @@ function RehabGoalCard() {
 
 export default function VisitSummaryDetail() {
   const navigate = useNavigate()
-  const { visitId } = useParams<{ visitId: string }>()
+  const { id, visitId } = useParams<{ id: string; visitId: string }>()
+  const [showComingSoon, setShowComingSoon] = useState(false)
 
   const visit = MOCK_VISITS.find((v) => v.id === visitId) ?? null
 
@@ -308,9 +309,35 @@ export default function VisitSummaryDetail() {
             {/* Right column */}
             <div className="vsd-col-side">
               <RehabGoalCard />
-              <button type="button" className="vsd-plan-btn">
-                View Treatment Plan
-              </button>
+
+              {visit.visitType === 'Physical Therapy' ? (
+                <button
+                  type="button"
+                  className="vsd-plan-btn"
+                  onClick={() => navigate(`/patient/${id ?? PATIENT.id}/treatment-plans/1`)}
+                >
+                  View Treatment Plan
+                </button>
+              ) : (
+                <div className="vsd-plan-btn-wrap">
+                  <button
+                    type="button"
+                    className="vsd-plan-btn vsd-plan-btn--disabled"
+                    onClick={() => {
+                      setShowComingSoon(true)
+                      setTimeout(() => setShowComingSoon(false), 3000)
+                    }}
+                  >
+                    View Fitness Plan
+                  </button>
+                  {showComingSoon && (
+                    <div className="vsd-coming-soon">
+                      <Clock size={13} />
+                      Fitness Plan view is coming soon
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
