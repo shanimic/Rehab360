@@ -94,24 +94,6 @@ export default function DayCard({
                   </div>
                 </div>
 
-                {/* Time of day */}
-                <div className="es-ex-row__setting">
-                  <span className="es-ex-row__setting-label">Time</span>
-                  <div className="es-pill-group" role="group" aria-label="Time of day">
-                    {TIMES.map(t => (
-                      <button
-                        key={t}
-                        type="button"
-                        className={`es-pill es-pill--wide${entry.timeOfDay === t ? ' es-pill--active' : ''}`}
-                        onClick={() => onUpdateTime(entry.exerciseId, t)}
-                        aria-pressed={entry.timeOfDay === t}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Reminder */}
                 <div className={`es-reminder${remindersEnabled ? '' : ' es-reminder--disabled'}`}>
                   <span className="es-reminder__label">

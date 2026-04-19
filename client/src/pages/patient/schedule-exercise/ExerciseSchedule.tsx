@@ -102,7 +102,7 @@ export default function ExerciseSchedule() {
 
   // dayIndex (0–6) → array of scheduled exercises
   const [schedule, setSchedule] = useState<Record<number, ScheduledExercise[]>>({})
-  const [remindersEnabled, setRemindersEnabled] = useState(false)
+  const [remindersEnabled, setRemindersEnabled] = useState(true)
   const [pickerDay, setPickerDay] = useState<number | null>(null)
   const [pickerSelected, setPickerSelected] = useState<Set<number>>(new Set())
   const [showValidation, setShowValidation] = useState(false)
@@ -309,7 +309,7 @@ export default function ExerciseSchedule() {
                       <span
                         className={`es-modal__badge${ex.plan === 'Treatment Plan' ? ' es-modal__badge--treatment' : ' es-modal__badge--training'}`}
                       >
-                        {ex.plan === 'Treatment Plan' ? 'Treatment' : 'Training'}
+                        {ex.plan === 'Treatment Plan' ? 'Physio' : 'Fitness'}
                       </span>
                     </label>
                   </li>

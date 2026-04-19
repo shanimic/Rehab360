@@ -23,7 +23,7 @@ export default function ExerciseCard({ exercise }: ExerciseCardProps) {
         <span
           className={`es-pool-card__badge${isTreatment ? ' es-pool-card__badge--treatment' : ' es-pool-card__badge--training'}`}
         >
-          {isTreatment ? 'Treatment' : 'Training'}
+          {isTreatment ? 'Physio' : 'Fitness'}
         </span>
         <span className="es-pool-card__desc">{exercise.desc}</span>
       </div>
