@@ -17,6 +17,7 @@ import AllVisitSummaries from './pages/all-visit-summaries/AllVisitSummaries'
 import CreateVisitSummary from './pages/create-visit-summary/CreateVisitSummary'
 import VisitSummaryDetail from './pages/visit-summary-detail/VisitSummaryDetail'
 import CreateTreatmentPlan from './pages/create-treatment-plan/CreateTreatmentPlan'
+import ViewTreatmentPlan from './pages/view-treatment-plan/ViewTreatmentPlan'
 import ProfilePage from './pages/profile/ProfilePage'
 import ExerciseSchedule from './pages/patient/schedule-exercise/ExerciseSchedule'
 
@@ -41,6 +42,8 @@ function AnimatedRoutes() {
       <Route path="/patient/:id/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
       <Route path="/patient/:id/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
       <Route path="/create-treatment-plan" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
+      <Route path="/patient/:id/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
+      <Route path="/patient/:id/treatment-plans" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
       <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -1,0 +1,217 @@
+/* ── Page shell ──────────────────────────────────── */
+.vtp-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* ── Body ────────────────────────────────────────── */
+.vtp-body {
+  padding: 16px 16px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 768px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .vtp-body {
+    padding: 20px 24px 64px;
+    gap: 16px;
+  }
+}
+
+/* ── Inline icon (used inside label text) ─────────── */
+.vtp-inline-icon {
+  display: inline;
+  vertical-align: middle;
+  margin-right: 4px;
+  color: #475569;
+}
+
+/* ── Empty notes placeholder ─────────────────────── */
+.vtp-empty-notes {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Treatment Goal card (dashed, read-only) ─────── */
+.vtp-goal-card {
+  background: linear-gradient(145deg, #eff6ff 0%, #f9fafb 100%);
+  border: 1.5px dashed var(--color-primary);
+  border-radius: var(--radius-card);
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vtp-goal-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed #bfdbfe;
+}
+
+.vtp-goal-card__icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.vtp-goal-card__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.2px;
+}
+
+.vtp-goal-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Exercise count badge ────────────────────────── */
+.vtp-count {
+  margin-left: auto;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 2px 10px;
+  line-height: 1.6;
+}
+
+/* ── Empty exercises placeholder ─────────────────── */
+.vtp-empty {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin: 0;
+  padding: 4px 0 8px;
+}
+
+/* ── Desktop table (hidden on mobile) ────────────── */
+.vtp-table-wrap {
+  display: none;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .vtp-table-wrap {
+    display: block;
+  }
+}
+
+.vtp-ex-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.vtp-ex-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #475569;
+  padding: 9px 14px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.vtp-ex-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  vertical-align: top;
+}
+
+.vtp-ex-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vtp-ex-table tbody tr:hover td {
+  background-color: #f8fafc;
+}
+
+.vtp-ex-table__name {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.vtp-ex-table__desc {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  max-width: 220px;
+  line-height: 1.5;
+}
+
+/* ── Mobile exercise cards (hidden on desktop) ────── */
+.vtp-ex-cards {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .vtp-ex-cards {
+    display: none;
+  }
+}
+
+.vtp-ex-card {
+  background-color: #f8fafc;
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vtp-ex-card__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Two-column grid for label/value pairs inside the card */
+.vtp-ex-card__grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 9px 18px;
+  align-items: baseline;
+}
+
+.vtp-ex-card__label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.vtp-ex-card__value {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.45;
+}

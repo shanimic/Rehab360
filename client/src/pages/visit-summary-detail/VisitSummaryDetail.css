@@ -313,3 +313,41 @@
   background-color: var(--color-primary-light-hover);
   transform: scale(0.98);
 }
+
+/* Disabled variant — Training visit, fitness plan not yet implemented */
+.vsd-plan-btn--disabled {
+  border-color: #94a3b8;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.vsd-plan-btn--disabled:hover {
+  background-color: #f1f5f9;
+}
+
+/* Wrapper so the coming-soon notice sits below the button */
+.vsd-plan-btn-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Inline "Coming Soon" notice */
+.vsd-coming-soon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 12px;
+  animation: vsd-fade-in 0.2s ease;
+}
+
+@keyframes vsd-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
