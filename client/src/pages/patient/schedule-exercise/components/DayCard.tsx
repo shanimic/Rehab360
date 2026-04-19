@@ -13,7 +13,6 @@ interface DayCardProps {
   onAddClick: () => void
   onRemove: (exerciseId: number) => void
   onUpdateSets: (exerciseId: number, sets: 1 | 2 | 3) => void
-  onUpdateTime: (exerciseId: number, timeOfDay: 'Morning' | 'Afternoon' | 'Evening') => void
   onUpdateReminderDate: (exerciseId: number, date: string) => void
   onUpdateReminderTime: (exerciseId: number, time: string) => void
   showValidation: boolean
@@ -27,7 +26,6 @@ export default function DayCard({
   onAddClick,
   onRemove,
   onUpdateSets,
-  onUpdateTime,
   onUpdateReminderDate,
   onUpdateReminderTime,
   showValidation,
