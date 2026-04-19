@@ -33,7 +33,7 @@ const sessions = buildSessions()
 const completedCount = exercises.filter(e => e.done).length
 
 const stats = [
-  { icon: CalendarCheck, value: '12', label: 'Exercises Completed This Week', color: '#10b981' },
+  { icon: CalendarCheck, value: '2/12', label: 'Exercises Completed This Week', color: '#10b981' },
   { icon: Dumbbell, value: `${completedCount}/${exercises.length}`, label: 'Today', color: '#1a56db' },
 ]
 
