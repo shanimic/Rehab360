@@ -36,6 +36,7 @@ class UserRoutesTest(unittest.TestCase):
         expect(cursor, times=1).fetchone().thenReturn(
             async_return(
                 {
+                    "id": "route-user-id",
                     "email": "route@test.com",
                     "password": hashed,
                     "role": "PATIENT",
@@ -54,6 +55,7 @@ class UserRoutesTest(unittest.TestCase):
         # ASSERT
         assert response.status_code == 200
         assert response.json() == {
+            "id": "route-user-id",
             "email": "route@test.com",
             "role": "PATIENT",
             "first_name": "Route",
@@ -107,6 +109,7 @@ class UserRoutesTest(unittest.TestCase):
         expect(cursor, times=1).fetchone().thenReturn(
             async_return(
                 {
+                    "id": "badpw-user-id",
                     "email": "badpw@test.com",
                     "password": hashed,
                     "role": "PHYSIOTHERAPIST",
@@ -192,6 +195,7 @@ class UserRoutesTest(unittest.TestCase):
         expect(cursor, times=1).fetchone().thenReturn(
             async_return(
                 {
+                    "id": "dup-user-id",
                     "email": "dup@test.com",
                     "password": hashed,
                     "role": "PATIENT",

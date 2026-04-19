@@ -38,3 +38,33 @@ export interface PatientDetails {
   treatmentPlan: Plan
   trainingPlan: Plan
 }
+
+export enum VisitType {
+  PHYSIOTHERAPIST = 'physiotherapist',
+  FITNESS = 'fitness',
+}
+
+export interface DailyExerciseItem {
+  exerciseId: number
+  exerciseName: string
+  visitType: VisitType
+  reps: number
+  executionStatus: boolean
+}
+
+export interface WeeklyCompletion {
+  exeComp: number
+  exeTdw: number
+}
+
+export interface DailyCompletion {
+  completedSum: number
+  total: number
+}
+export interface PatientHomeData {
+  dailyExercises: DailyExerciseItem[]
+  weeklyCompletion: WeeklyCompletion
+  fitnessPercentage: number
+  physiotherapistPercentage: number
+  dailyCompletions: DailyCompletion
+}

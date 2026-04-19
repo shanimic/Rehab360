@@ -15,6 +15,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  id: string
   email: string
   role: ApiRole
   first_name: string
