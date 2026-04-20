@@ -29,9 +29,9 @@ export default function AiSearchPage() {
   const form = useForm({
     defaultValues: { query: '' } as SearchValues,
     validators: { onSubmit: searchSchema },
-    onSubmit: async ({ value }) => {
-      searchMutation.mutate(value.query)
-    },
+onSubmit: ({ value }) => {
+  searchMutation.mutate(value.query)
+},    
   })
 
   function handleRecentClick(queryContent: string) {
