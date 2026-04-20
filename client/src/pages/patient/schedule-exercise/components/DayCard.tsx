@@ -13,6 +13,7 @@ interface DayCardProps {
   onAddClick: () => void
   onRemove: (exerciseId: number) => void
   onUpdateSets: (exerciseId: number, sets: 1 | 2 | 3) => void
+  onUpdateTime: (exerciseId: number, timeOfDay: 'Morning' | 'Afternoon' | 'Evening') => void
   onUpdateReminderDate: (exerciseId: number, date: string) => void
   onUpdateReminderTime: (exerciseId: number, time: string) => void
   showValidation: boolean
@@ -26,6 +27,7 @@ export default function DayCard({
   onAddClick,
   onRemove,
   onUpdateSets,
+  onUpdateTime,
   onUpdateReminderDate,
   onUpdateReminderTime,
   showValidation,
@@ -87,6 +89,25 @@ export default function DayCard({
                         aria-label={`${n} set${n > 1 ? 's' : ''}`}
                       >
                         {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Time of Day */}
+                <div className="es-ex-row__setting">
+                  <span className="es-ex-row__setting-label">Time</span>
+                  <div className="es-pill-group" role="group" aria-label="Time of day">
+                    {TIMES.map(t => (
+                      <button
+                        key={t}
+                        type="button"
+                        className={`es-pill${entry.timeOfDay === t ? ' es-pill--active' : ''}`}
+                        onClick={() => onUpdateTime(entry.exerciseId, t)}
+                        aria-pressed={entry.timeOfDay === t}
+                        aria-label={t}
+                      >
+                        {t}
                       </button>
                     ))}
                   </div>

@@ -12,7 +12,6 @@ import PatientTopNav from '@/components/PatientTopNav'
 import { exercises, progressPercent, fitnessProgressPercent } from './patient.constants'
 import { useNavigate } from "react-router-dom";
 import { Exercise, Session } from "@/pages/patient/patient.types.ts";
-import { useGetPatientHome } from '@/hooks/paitent/useGetPatinetHome'
 
 
 // Sessions relative to today
@@ -144,7 +143,6 @@ const bottomNav = [
 export default function PatientHome() {
   const navigate = useNavigate()
   const user = useAtomValue(authAtom)
-  const { data, isLoading, error } = useGetPatientHome()
 
   return (
     <div className="ph-page pt-16">
