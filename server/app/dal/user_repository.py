@@ -19,10 +19,12 @@ class UserRepository:
         """
         await self.cursor.execute(
             query=f"""
-                    SELECT email,
+                    SELECT user_id AS id,
+                           email,
                            password_hash AS password,
                            user_role AS role,
-                           first_name
+                           first_name,
+                           user_id AS id
                     FROM {self.table_name}
                     WHERE email = %s AND
                           user_role = %s

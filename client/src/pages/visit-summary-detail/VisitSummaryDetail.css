@@ -1,0 +1,353 @@
+/* ── Page shell ──────────────────────────────────── */
+.vsd-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* ── Body ────────────────────────────────────────── */
+.vsd-body {
+  padding: 16px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .vsd-body {
+    padding: 20px 32px 48px;
+  }
+}
+
+/* ── Two-column content grid ─────────────────────── */
+.vsd-content-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 1024px) {
+  .vsd-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 0.54fr;
+    gap: 20px;
+    align-items: start;
+  }
+}
+
+/* Column containers */
+.vsd-col-main,
+.vsd-col-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Base card ───────────────────────────────────── */
+.vsd-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+  padding: 24px 28px;
+}
+
+.vsd-card--goal {
+  background-color: #f0f7ff;
+  border-color: #bfdbfe;
+}
+
+/* ── Card header ─────────────────────────────────── */
+.vsd-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.vsd-card--goal .vsd-card__header {
+  border-bottom-color: #bfdbfe;
+}
+
+.vsd-card__icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.vsd-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.2px;
+}
+
+/* ── Detail grid (label / value pairs) ──────────── */
+.vsd-detail-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 14px 28px;
+  align-items: center;
+}
+
+.vsd-detail-grid__label {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.vsd-detail-grid__value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.vsd-detail-grid__value--row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vsd-detail-grid__row-icon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Badges ──────────────────────────────────────── */
+.vsd-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  align-self: start;
+  justify-self: start;
+  width: fit-content;
+}
+
+.vsd-badge--pt {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.vsd-badge--training {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+/* ── Divider ─────────────────────────────────────── */
+.vsd-divider {
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  margin: 20px 0;
+}
+
+/* ── Therapist info row ──────────────────────────── */
+.vsd-therapist {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.vsd-therapist__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.vsd-therapist__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vsd-therapist__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.vsd-therapist__role {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+/* ── Field blocks (diagnosis / notes / recommendations) */
+.vsd-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vsd-field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vsd-field-block__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: #475569;
+}
+
+.vsd-field-block__text {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}
+
+/* Accent variant — used for notes and recommendations */
+.vsd-field-block--accent .vsd-field-block__text {
+  background-color: #f8fafc;
+  border-left: 3px solid var(--color-primary-light-hover);
+  border-radius: 8px;
+  padding: 14px 16px;
+  line-height: 1.65;
+}
+
+/* ── Rehab goal content ──────────────────────────── */
+.vsd-goal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vsd-goal-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.vsd-goal__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vsd-goal__progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.vsd-goal__progress-label {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.vsd-goal__progress-pct {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.vsd-goal__progress-track {
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.vsd-goal__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary) 0%, #60a5fa 100%);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.vsd-mock-chip {
+  align-self: flex-end;
+  font-size: 10px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--color-text-muted);
+  background-color: #f1f5f9;
+  border-radius: 20px;
+  padding: 3px 10px;
+  letter-spacing: 0.5px;
+}
+
+/* ── View Treatment Plan button ──────────────────── */
+.vsd-plan-btn {
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: var(--radius-button);
+  border: 1.5px solid var(--color-primary);
+  background-color: transparent;
+  color: var(--color-primary);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, transform 0.1s;
+  line-height: 1;
+}
+
+.vsd-plan-btn:hover {
+  background-color: var(--color-primary-light);
+}
+
+.vsd-plan-btn:active {
+  background-color: var(--color-primary-light-hover);
+  transform: scale(0.98);
+}
+
+/* Disabled variant — Training visit, fitness plan not yet implemented */
+.vsd-plan-btn--disabled {
+  border-color: #94a3b8;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.vsd-plan-btn--disabled:hover {
+  background-color: #f1f5f9;
+}
+
+/* Wrapper so the coming-soon notice sits below the button */
+.vsd-plan-btn-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Inline "Coming Soon" notice */
+.vsd-coming-soon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 12px;
+  animation: vsd-fade-in 0.2s ease;
+}
+
+@keyframes vsd-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

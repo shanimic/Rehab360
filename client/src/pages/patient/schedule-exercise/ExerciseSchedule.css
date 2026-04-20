@@ -1,0 +1,798 @@
+/* =========================================
+   Exercise Schedule Page  (prefix: es-)
+   ========================================= */
+@import '../../../styles/variables.css';
+
+/* ── Page shell ── */
+.es-page {
+  min-height: 100vh;
+  background: var(--color-background);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-family);
+}
+
+
+/* =========================================
+   Main container
+   ========================================= */
+.es-main {
+  flex: 1;
+  padding: 20px 16px 40px;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* =========================================
+   Section header
+   ========================================= */
+.es-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+
+.es-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.es-section-sub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+/* =========================================
+   Exercise Pool (horizontal scroll on mobile)
+   ========================================= */
+.es-pool {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  /* hide scrollbar on most browsers */
+  scrollbar-width: none;
+}
+
+.es-pool::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pool card */
+.es-pool-card {
+  flex-shrink: 0;
+  width: 140px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1.5px solid var(--color-border);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.es-pool-card:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.es-pool-card__thumb {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.es-pool-card__body {
+  padding: 10px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.es-pool-card__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.es-pool-card__badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.es-pool-card__badge--treatment {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.es-pool-card__badge--training {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.es-pool-card__desc {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+/* =========================================
+   Week grid
+   ========================================= */
+.es-week-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* =========================================
+   Day Card
+   ========================================= */
+.es-day-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1.5px solid var(--color-border);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.es-day-card--has-exercises {
+  border-color: var(--color-primary-light);
+}
+
+.es-day-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.es-day-card--has-exercises .es-day-card__header {
+  border-bottom-color: var(--color-primary-light);
+}
+
+.es-day-card__day-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.es-day-card__check {
+  color: var(--color-text-muted);
+}
+
+.es-day-card__check--done {
+  color: var(--color-success);
+}
+
+.es-day-card__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.es-day-card__add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-top: 1px dashed var(--color-border);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  transition: background 0.15s;
+}
+
+.es-day-card__add-btn:hover {
+  background: var(--color-primary-light);
+}
+
+/* =========================================
+   Exercise Row (inside DayCard)
+   ========================================= */
+.es-ex-row {
+  padding: 12px 16px 14px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.es-ex-row__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.es-ex-row__dot {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.es-ex-row__name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.es-ex-row__remove {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+.es-ex-row__remove:hover {
+  background: #fee2e2;
+  color: var(--color-error);
+}
+
+/* Setting row */
+.es-ex-row__setting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.es-ex-row__setting-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 32px;
+}
+
+/* =========================================
+   Pill group (sets & time-of-day selectors)
+   ========================================= */
+.es-pill-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.es-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.es-pill--wide {
+  padding: 4px 10px;
+}
+
+.es-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.es-pill--active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.es-pill--active:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: #fff;
+}
+
+/* =========================================
+   Reminder (per exercise)
+   ========================================= */
+.es-reminder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--color-input-bg);
+  border-radius: 10px;
+  transition: opacity 0.2s;
+}
+
+.es-reminder--disabled {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+.es-reminder__label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.es-reminder__fields {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.es-reminder__input {
+  flex: 1;
+  min-width: 120px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-input);
+  background: var(--color-surface);
+  font-family: var(--font-family);
+  font-size: 12px;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.es-reminder__input:focus {
+  border-color: var(--color-primary);
+}
+
+.es-reminder__warning {
+  font-size: 11px;
+  color: var(--color-warning);
+  margin: 0;
+  font-weight: 600;
+}
+
+/* =========================================
+   Reminder Toggle (bottom card)
+   ========================================= */
+.es-reminder-toggle {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1.5px solid var(--color-border);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.es-reminder-toggle__icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.es-reminder-toggle__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.es-reminder-toggle__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.es-reminder-toggle__sub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* ── Toggle switch ── */
+.es-toggle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.es-toggle__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.es-toggle__track {
+  display: block;
+  width: 48px;
+  height: 27px;
+  border-radius: 999px;
+  background: var(--color-border);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.es-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s;
+}
+
+.es-toggle__input:checked ~ .es-toggle__track {
+  background: var(--color-primary);
+}
+
+.es-toggle__input:checked ~ .es-toggle__track .es-toggle__thumb {
+  transform: translateX(21px);
+}
+
+.es-toggle__input:focus-visible ~ .es-toggle__track {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* =========================================
+   Save button
+   ========================================= */
+.es-save-btn {
+  width: 100%;
+  height: 52px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: var(--shadow-panel);
+}
+
+.es-save-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.es-save-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.es-save-btn:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* =========================================
+   Exercise Picker Modal
+   ========================================= */
+.es-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;         /* bottom sheet on mobile */
+  justify-content: center;
+  animation: es-overlay-in 0.18s ease;
+}
+
+@keyframes es-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.es-modal {
+  width: 100%;
+  max-width: 540px;
+  background: var(--color-surface);
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  animation: es-modal-up 0.22s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+@keyframes es-modal-up {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.es-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.es-modal__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.es-modal__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  min-width: 34px;
+  min-height: 34px;
+}
+
+.es-modal__close:hover {
+  background: var(--color-input-bg);
+  color: var(--color-text-primary);
+}
+
+.es-modal__list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.es-modal__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.es-modal__item:hover {
+  background: var(--color-input-bg);
+}
+
+.es-modal__item--checked {
+  background: var(--color-primary-light);
+}
+
+.es-modal__item--checked:hover {
+  background: var(--color-primary-light-hover);
+}
+
+.es-modal__checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.es-modal__dot {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+.es-modal__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.es-modal__ex-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.es-modal__ex-desc {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.es-modal__badge {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.es-modal__badge--treatment {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.es-modal__badge--training {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.es-modal__footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 18px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-border);
+}
+
+.es-modal__cancel,
+.es-modal__confirm {
+  flex: 1;
+  height: 46px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  border: none;
+}
+
+.es-modal__cancel {
+  background: var(--color-input-bg);
+  color: var(--color-text-secondary);
+}
+
+.es-modal__cancel:hover {
+  opacity: 0.8;
+}
+
+.es-modal__confirm {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.es-modal__confirm:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.es-modal__confirm:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* =========================================
+   Tablet (≥ 640px)
+   ========================================= */
+@media (min-width: 640px) {
+  .es-header__title {
+    font-size: 18px;
+  }
+
+  /* Pool: let cards grow a bit */
+  .es-pool-card {
+    width: 160px;
+  }
+
+  .es-pool-card__thumb {
+    height: 84px;
+  }
+
+  .es-section-title {
+    font-size: 17px;
+  }
+}
+
+/* =========================================
+   Desktop (≥ 900px)
+   ========================================= */
+@media (min-width: 900px) {
+  .es-header {
+    padding: 12px 48px;
+  }
+
+  .es-header__title {
+    font-size: 20px;
+  }
+
+  .es-main {
+    max-width: 1100px;
+    padding: 36px 48px 56px;
+    gap: 36px;
+  }
+
+  /* Pool wraps instead of scrolling */
+  .es-pool {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .es-pool-card {
+    width: 160px;
+  }
+
+  /* Two-column day grid */
+  .es-week-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .es-section-title {
+    font-size: 18px;
+  }
+
+  .es-section-sub {
+    font-size: 13px;
+  }
+
+  /* Modal centers on desktop */
+  .es-modal-overlay {
+    align-items: center;
+  }
+
+  .es-modal {
+    border-radius: 20px;
+    max-height: 70vh;
+  }
+}
+
+/* =========================================
+   Wide desktop (≥ 1280px)
+   ========================================= */
+@media (min-width: 1280px) {
+  .es-week-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

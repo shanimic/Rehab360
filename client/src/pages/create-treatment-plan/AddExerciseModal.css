@@ -1,0 +1,348 @@
+/* ── Overlay ─────────────────────────────────────────────────────────────────
+   Rendered via ReactDOM.createPortal directly into document.body so it is
+   never trapped inside PageTransition's CSS transform ancestor.
+   overflow-y-auto on the wrapper lets the user scroll if the form is
+   taller than the screen; pt-24/pb-12 keep it clear of the app header.
+──────────────────────────────────────────────────────────────────────────── */
+.aem-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;     /* never vertically centers — modal always starts from top */
+  padding-top: 96px;           /* pt-24: clears the fixed app header */
+  padding-bottom: 48px;        /* pb-12 */
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* ── Backdrop ─────────────────────────────────────────────────────────────── */
+.aem-backdrop {
+  position: fixed;             /* fixed so it stays pinned while overlay scrolls */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+/* ── Content box ─────────────────────────────────────────────────────────── */
+.aem-card {
+  position: relative;          /* above the backdrop */
+  width: 100%;
+  max-width: 448px;            /* max-w-md */
+  margin-left: auto;
+  margin-right: auto;
+  background-color: var(--color-surface);
+  border-radius: 24px;         /* rounded-3xl */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  height: auto;                /* grows naturally — no max-height clipping */
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.aem-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.aem-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.aem-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.aem-close:hover {
+  background-color: #f1f5f9;
+  color: var(--color-text-primary);
+}
+
+/* ── Body ────────────────────────────────────────────────────── */
+.aem-body {
+  padding: 20px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Field wrapper ───────────────────────────────────────────── */
+.aem-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Label ───────────────────────────────────────────────────── */
+.aem-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.aem-required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+/* ── Standard text / number input ───────────────────────────── */
+.aem-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--color-border);
+  background-color: #fff;
+  font-family: var(--font-family);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.aem-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+}
+
+.aem-input--error {
+  border-color: #ef4444;
+}
+
+.aem-input--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* ── Textarea ────────────────────────────────────────────────── */
+.aem-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--color-border);
+  background-color: #fff;
+  font-family: var(--font-family);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.55;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.aem-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+}
+
+/* ── Select ──────────────────────────────────────────────────── */
+.aem-select {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--color-border);
+  background-color: #fff;
+  font-family: var(--font-family);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+.aem-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+}
+
+/* ── Searchable name field ───────────────────────────────────── */
+.aem-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--color-border);
+  background-color: #fff;
+  cursor: text;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.aem-search-box:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+}
+
+.aem-search-box--error {
+  border-color: #ef4444;
+}
+
+.aem-search-icon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.aem-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--font-family);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: transparent;
+  min-width: 0;
+}
+
+.aem-search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.aem-chevron {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.aem-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown list ───────────────────────────────────────────── */
+.aem-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  overflow: hidden;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.aem-dropdown__empty {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.aem-dropdown__item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-family: var(--font-family);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.aem-dropdown__item:hover {
+  background-color: #eff6ff;
+  color: var(--color-primary);
+}
+
+/* ── Grid rows ───────────────────────────────────────────────── */
+.aem-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.aem-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── Error message ───────────────────────────────────────────── */
+.aem-error-msg {
+  font-size: 12px;
+  color: #ef4444;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Action buttons ──────────────────────────────────────────── */
+.aem-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.aem-btn-cancel,
+.aem-btn-add {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  border: none;
+}
+
+.aem-btn-cancel {
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.aem-btn-cancel:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.aem-btn-add {
+  background-color: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(26, 86, 219, 0.25);
+}
+
+.aem-btn-add:hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: 0 6px 20px rgba(26, 86, 219, 0.35);
+}
+
+.aem-btn-cancel:active,
+.aem-btn-add:active {
+  transform: scale(0.97);
+}

@@ -1,0 +1,36 @@
+/* ── Login page ── */
+
+.login-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.login-header__title {
+  margin-bottom: 0;
+}
+
+.login-header__badge {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: none;
+}
+
+.login-forgot {
+  text-align: right;
+  margin-top: -12px;
+  margin-bottom: 20px;
+}
+
+.login-forgot__link {
+  font-size: 13px;
+}
+
+.login-error {
+  margin-bottom: 12px;
+}
+
+.login-signup__btn {
+  font-size: inherit;
+}

@@ -7,12 +7,23 @@ import Login from './pages/auth/login/Login'
 import SignUp from './pages/auth/register/SignUp'
 import SetPassword from './pages/auth/login/SetPassword'
 import PatientDetails from './pages/patient-details/PatientDetails'
+import PatientHome from './pages/patient/PatientHome'
 import PhysiotherapistHome from './pages/physiotherapist/home/PhysiotherapistHome'
 import PlaceholderPage from './pages/PlaceholderPage'
 import AiSearchPage from './pages/search/AiSearchPage'
 import AiSearchResultsPage from './pages/search/AiSearchResultsPage'
 import SavedContentPage from './pages/search/SavedContentPage'
 import PageTransition from './components/PageTransition'
+import ExerciseReport from './pages/patient/ExerciseReport'
+import MyPlan from './pages/patient/MyPlan'
+import AllVisitSummaries from './pages/all-visit-summaries/AllVisitSummaries'
+import CreateVisitSummary from './pages/create-visit-summary/CreateVisitSummary'
+import VisitSummaryDetail from './pages/visit-summary-detail/VisitSummaryDetail'
+import CreateTreatmentPlan from './pages/create-treatment-plan/CreateTreatmentPlan'
+import ViewTreatmentPlan from './pages/view-treatment-plan/ViewTreatmentPlan'
+import ProfilePage from './pages/profile/ProfilePage'
+import ExerciseSchedule from './pages/patient/schedule-exercise/ExerciseSchedule'
+
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -23,12 +34,23 @@ function AnimatedRoutes() {
       <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
       <Route path="/signup" element={<PageTransition><SignUp /></PageTransition>} />
       <Route path="/set-password" element={<PageTransition><SetPassword /></PageTransition>} />
+      <Route path="/patient" element={<PageTransition><PatientHome /></PageTransition>} />
       <Route path="/physiotherapist" element={<PageTransition><PhysiotherapistHome /></PageTransition>} />
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
       <Route path="/ai-search" element={<PageTransition><AiSearchPage /></PageTransition>} />
       <Route path="/ai-search/results" element={<PageTransition><AiSearchResultsPage /></PageTransition>} />
       <Route path="/ai-search/saved" element={<PageTransition><SavedContentPage /></PageTransition>} />
       <Route path="/patient/:id" element={<PageTransition><PatientDetails /></PageTransition>} />
+      <Route path="/patient/exercise/:id" element={<PageTransition><ExerciseReport /></PageTransition>} />
+      <Route path="/patient/my-plan" element={<PageTransition><MyPlan /></PageTransition>} />
+      <Route path="/patient/schedule-exercise" element={<PageTransition><ExerciseSchedule /></PageTransition>} />
+      <Route path="/patient/:id/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
+      <Route path="/patient/:id/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
+      <Route path="/patient/:id/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
+      <Route path="/create-treatment-plan" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
+      <Route path="/patient/:id/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
+      <Route path="/patient/:id/treatment-plans" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
+      <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

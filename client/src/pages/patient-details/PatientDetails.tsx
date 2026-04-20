@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Phone, Mail, Calendar, User, Activity } from 'lucide-react'
 import TopNav from '@/components/TopNav'
@@ -80,6 +81,7 @@ function formatDate(iso: string): string {
 
 export default function PatientDetails() {
   const navigate = useNavigate()
+  const [showTrainingComingSoon, setShowTrainingComingSoon] = useState(false)
   const { patient, alerts, visitSummary, treatmentPlan, trainingPlan } = MOCK
 
   const patientAlerts = alerts.filter((a) => a.patientId === patient.id)
@@ -141,7 +143,7 @@ export default function PatientDetails() {
           {/* Three main cards */}
           <div className="patient-cards-grid">
             {/* Visit Summaries */}
-            <InfoCard title="Visit Summaries" actionLabel="View All Summaries" onAction={() => {}}>
+            <InfoCard title="Visit Summaries" actionLabel="View All Summaries" onAction={() => navigate(`/patient/${patient.id}/visit-summaries`)}>
               <div className="patient-visit__rows">
                 <div className="patient-visit__row">
                   <span className="patient-visit__label">
@@ -165,7 +167,11 @@ export default function PatientDetails() {
             </InfoCard>
 
             {/* Treatment Plan */}
-            <InfoCard title="Treatment Plan" actionLabel="Go to Current Treatment Plan" onAction={() => {}}>
+            <InfoCard
+              title="Treatment Plan"
+              actionLabel="Go to Current Treatment Plan"
+              onAction={() => navigate(`/patient/${patient.id}/treatment-plans`)}
+            >
               <div className="patient-plan__rows">
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
@@ -195,7 +201,14 @@ export default function PatientDetails() {
             </InfoCard>
 
             {/* Training Plan */}
-            <InfoCard title="Training Plan" actionLabel="Go to Current Training Plan" onAction={() => {}}>
+            <InfoCard
+              title="Training Plan"
+              actionLabel="Go to Current Training Plan"
+              onAction={() => {
+                setShowTrainingComingSoon(true)
+                setTimeout(() => setShowTrainingComingSoon(false), 3000)
+              }}
+            >
               <div className="patient-plan__rows">
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
@@ -223,6 +236,12 @@ export default function PatientDetails() {
                 <ProgressBar value={trainingPlan.progressPercent} showLabel />
               </div>
             </InfoCard>
+
+            {showTrainingComingSoon && (
+              <div className="patient-coming-soon">
+                Fitness Plan view is coming soon
+              </div>
+            )}
           </div>
         </div>
       </main>

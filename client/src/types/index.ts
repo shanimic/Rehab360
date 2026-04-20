@@ -15,6 +15,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  id: string
   email: string
   role: ApiRole
   first_name: string
@@ -64,6 +65,25 @@ export interface RoleOption {
 export interface LogoIconProps {
   size?: number
   color?: string
+}
+
+// ── Profile domain types ──────────────────────────────────────────────────────
+
+export interface ProfileData {
+  email: string
+  last_name: string
+  phone: string
+  birth_date: string
+  license_number?: string
+}
+
+export interface ActivePlan {
+  plan_id: number
+  goal: string
+  category: string
+  start_date: string
+  end_date: string
+  completion_percent: number
 }
 
 // ── Physiotherapist domain types ──────────────────────────────────────────────

@@ -160,7 +160,7 @@
 /* ── Stats ── */
 .ph-stats-strip {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -183,6 +183,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: color-mix(in srgb, var(--ph-stat-color) 9%, transparent);
+  color: var(--ph-stat-color);
 }
 
 .ph-stat-card__body {
@@ -196,6 +198,7 @@
   font-size: 20px;
   font-weight: 700;
   line-height: 1;
+  color: var(--ph-stat-color);
 }
 
 .ph-stat-card__label {
@@ -252,6 +255,26 @@
   font-size: 13px;
   color: var(--color-text-secondary);
   margin: 0;
+}
+
+/* ── Progress Grid (2-col on desktop) ── */
+.ph-progress-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Fitness color overrides */
+.ph-progress-card__percent--fitness {
+  color: #10b981;
+}
+
+.ph-progress-card__bar-track--fitness {
+  background: #d1fae5;
+}
+
+.ph-progress-card__bar-fill--fitness {
+  background: linear-gradient(90deg, #10b981, #34d399);
 }
 
 /* ── Mid grid (calendar + right col) – single col mobile ── */
@@ -608,7 +631,7 @@
   .ph-greeting { font-size: 26px; }
 
   .ph-stats-strip {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     max-width: 560px;
   }
 
@@ -627,6 +650,14 @@
     grid-template-columns: 1fr 1fr;
     gap: 24px;
     align-items: start;
+  }
+
+  .ph-progress-grid {
+    flex-direction: row;
+  }
+
+  .ph-progress-grid .ph-progress-card {
+    flex: 1;
   }
 
   .ph-bottom-nav {

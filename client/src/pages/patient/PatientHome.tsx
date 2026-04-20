@@ -1,38 +1,18 @@
 import { useState } from 'react'
 import {
-  Bell, Menu, CheckCircle2, Circle,
+  Circle,
   Home, Dumbbell, BarChart2, Sparkles, User,
-  Flame, CalendarCheck, ChevronRight,
+  CalendarCheck, ChevronRight,
   Video, MapPin,
 } from 'lucide-react'
 import './PatientHome.css'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
+import PatientTopNav from '@/components/PatientTopNav'
+import { exercises, progressPercent, fitnessProgressPercent } from './patient.constants'
+import { useNavigate } from "react-router-dom";
+import { Exercise, Session } from "@/pages/patient/patient.types.ts";
 
-/* ── Types ── */
-interface Exercise {
-  id: number
-  name: string
-  plan: 'Treatment Plan' | 'Training Plan'
-  desc: string
-  done: boolean
-}
-
-interface Session {
-  id: number
-  title: string
-  professional: string
-  date: Date
-  time: string
-  type: 'online' | 'clinic'
-  color: string
-}
-
-/* ── Static data ── */
-const exercises: Exercise[] = [
-  { id: 1, name: 'Push Up', plan: 'Treatment Plan', desc: '100 Push ups a day', done: true },
-  { id: 2, name: 'Sit Up', plan: 'Training Plan', desc: '20 Sit ups a day', done: false },
-  { id: 3, name: 'Knee Push Up', plan: 'Treatment Plan', desc: '20 Knee push ups a day', done: false },
-  { id: 4, name: 'Shoulder Stretch', plan: 'Treatment Plan', desc: '15 reps each side', done: false },
-]
 
 // Sessions relative to today
 function buildSessions(): Session[] {
@@ -51,11 +31,9 @@ function buildSessions(): Session[] {
 const sessions = buildSessions()
 
 const completedCount = exercises.filter(e => e.done).length
-const progressPercent = Math.round((completedCount / exercises.length) * 100)
 
 const stats = [
-  { icon: Flame, value: '5', label: 'Day Streak', color: '#f97316' },
-  { icon: CalendarCheck, value: '12', label: 'This Week', color: '#10b981' },
+  { icon: CalendarCheck, value: '2/12', label: 'Exercises Completed This Week', color: '#10b981' },
   { icon: Dumbbell, value: `${completedCount}/${exercises.length}`, label: 'Today', color: '#1a56db' },
 ]
 
@@ -83,9 +61,7 @@ function ExerciseItem({ exercise }: { exercise: Exercise }) {
   return (
     <div className="ph-exercise-item">
       <div className="ph-exercise-item__check">
-        {exercise.done
-          ? <CheckCircle2 size={24} className="ph-exercise-item__check--done" />
-          : <Circle size={24} className="ph-exercise-item__check--todo" />}
+        <Circle size={24} className="ph-exercise-item__check--todo" />
       </div>
       <div className="ph-exercise-item__info">
         <span className="ph-exercise-item__name">{exercise.name}</span>
@@ -163,44 +139,15 @@ const bottomNav = [
   { label: 'Profile', icon: User, active: false },
 ]
 
-const topNav = [
-  { label: 'Exercises', icon: Dumbbell },
-  { label: 'AI Search', icon: Sparkles },
-  { label: 'My Profile', icon: User },
-]
-
 /* ── Page ── */
 export default function PatientHome() {
+  const navigate = useNavigate()
+  const user = useAtomValue(authAtom)
+
   return (
-    <div className="ph-page">
+    <div className="ph-page pt-16">
 
-      {/* ── Header ── */}
-      <header className="ph-header">
-        <div className="ph-header__logo">
-          <img src="/logo.svg" alt="Rehab360" className="ph-header__logo-img" />
-          <span className="ph-header__brand">Rehab<span>360</span></span>
-        </div>
-
-        {/* Desktop nav links */}
-        <nav className="ph-header__nav">
-          {topNav.map(({ label, icon: Icon }) => (
-            <button key={label} className="ph-header__nav-link">
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="ph-header__actions">
-          <button className="ph-header__icon-btn" aria-label="Notifications">
-            <Bell size={20} />
-            <span className="ph-header__badge">3</span>
-          </button>
-          <button className="ph-header__icon-btn ph-header__menu-btn" aria-label="Menu">
-            <Menu size={20} />
-          </button>
-        </div>
-      </header>
+      <PatientTopNav patientName={user?.first_name} />
 
       {/* ── Main ── */}
       <main className="ph-main">
@@ -208,7 +155,7 @@ export default function PatientHome() {
         {/* Greeting */}
         <div className="ph-greeting-block">
           <div>
-            <h1 className="ph-greeting">Hello, Dana 👋</h1>
+            <h1 className="ph-greeting">Hello, {user?.first_name || 'Guest'}</h1>
             <p className="ph-greeting__sub">Let's keep up the good work today!</p>
           </div>
         </div>
@@ -216,12 +163,16 @@ export default function PatientHome() {
         {/* Stats */}
         <div className="ph-stats-strip">
           {stats.map(({ icon: Icon, value, label, color }) => (
-            <div className="ph-stat-card" key={label}>
-              <div className="ph-stat-card__icon" style={{ background: `${color}18`, color }}>
+            <div
+              className="ph-stat-card"
+              key={label}
+              style={{ '--ph-stat-color': color } as React.CSSProperties}
+            >
+              <div className="ph-stat-card__icon">
                 <Icon size={18} />
               </div>
               <div className="ph-stat-card__body">
-                <span className="ph-stat-card__value" style={{ color }}>{value}</span>
+                <span className="ph-stat-card__value">{value}</span>
                 <span className="ph-stat-card__label">{label}</span>
               </div>
             </div>
@@ -229,31 +180,44 @@ export default function PatientHome() {
         </div>
 
         {/* Progress */}
-        <div className="ph-progress-card">
-          <div className="ph-progress-card__header">
-            <span className="ph-progress-card__label">Today's Progress</span>
-            <span className="ph-progress-card__percent">{progressPercent}%</span>
+        <div className="ph-progress-grid">
+          <div className="ph-progress-card">
+            <div className="ph-progress-card__header">
+              <span className="ph-progress-card__label">Physiotherapy Progress</span>
+              <span className="ph-progress-card__percent">{progressPercent}%</span>
+            </div>
+            <div className="ph-progress-card__bar-track">
+              <div className="ph-progress-card__bar-fill" style={{ width: `${progressPercent}%` }} />
+            </div>
           </div>
-          <div className="ph-progress-card__bar-track">
-            <div className="ph-progress-card__bar-fill" style={{ width: `${progressPercent}%` }} />
+
+          <div className="ph-progress-card">
+            <div className="ph-progress-card__header">
+              <span className="ph-progress-card__label">Fitness Progress</span>
+              <span className="ph-progress-card__percent ph-progress-card__percent--fitness">
+                {fitnessProgressPercent}%
+              </span>
+            </div>
+            <div className="ph-progress-card__bar-track ph-progress-card__bar-track--fitness">
+              <div
+                className="ph-progress-card__bar-fill ph-progress-card__bar-fill--fitness"
+                style={{ width: `${fitnessProgressPercent}%` }}
+              />
+            </div>
           </div>
-          <p className="ph-progress-card__sub">{completedCount} of {exercises.length} exercises completed</p>
         </div>
 
         {/* Desktop two-col grid: Calendar + Quick Actions */}
         <div className="ph-mid-grid">
 
-          {/* Calendar */}
-          <CalendarCard />
-
-          {/* Quick Actions + Today Plan stacked */}
+          {/* Today Plan */}
           <div className="ph-right-col">
 
             {/* Today Plan */}
             <section className="ph-section">
               <div className="ph-section__header">
                 <h2 className="ph-section__title">Today Plan</h2>
-                <button className="ph-section__view-all">View All</button>
+                <button className="ph-section__view-all" onClick={() => navigate('/patient/my-plan')}>View All</button>
               </div>
               <div className="ph-exercise-list">
                 {exercises.map(ex => <ExerciseItem key={ex.id} exercise={ex} />)}
@@ -261,6 +225,10 @@ export default function PatientHome() {
             </section>
 
           </div>
+
+          {/* Calendar */}
+          <CalendarCard />
+
         </div>
 
       </main>
@@ -272,6 +240,7 @@ export default function PatientHome() {
             key={label}
             className={`ph-bottom-nav__item${active ? ' ph-bottom-nav__item--active' : ''}`}
             aria-label={label}
+            onClick={label === 'Profile' ? () => navigate('/profile') : undefined}
           >
             <Icon size={22} />
             <span>{label}</span>

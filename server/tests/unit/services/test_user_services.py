@@ -1,10 +1,10 @@
 import asyncio
 import unittest
 
-import app.services.user_services as user_services_module
 from fastapi import HTTPException
 from mockito import expect, mock
 
+import app.services.user_services as user_services_module
 from app.dal.user_repository import UserRepository
 from app.models.enums.role import Role
 from app.models.users.user import LoginRequest, LoginResponse, RegisterRequest, RegisterResponse
@@ -27,7 +27,13 @@ class UserServicesTest(unittest.TestCase):
         repo = mock(UserRepository)
         service = UserServices(repository=repo)
         request = LoginRequest(email="test@test.com", password="plain123", role=Role.PATIENT)
-        stored_user = LoginResponse(email="test@test.com", password="hashed123", role=Role.PATIENT, first_name="Test")
+        stored_user = LoginResponse(
+            id="svc-user-1",
+            email="test@test.com",
+            password="hashed123",
+            role=Role.PATIENT,
+            first_name="Test",
+        )
 
         # MOCK
         expect(repo, times=1).get_user_for_auth(request).thenReturn(stored_user)
@@ -37,6 +43,7 @@ class UserServicesTest(unittest.TestCase):
         result = asyncio.run(service.authenticate_user(request))
 
         # ASSERT
+        assert result.id == stored_user.id
         assert result.email == stored_user.email
         assert result.role == stored_user.role
 
@@ -69,7 +76,13 @@ class UserServicesTest(unittest.TestCase):
         repo = mock(UserRepository)
         service = UserServices(repository=repo)
         request = LoginRequest(email="test@test.com", password="wrong_pass", role=Role.PATIENT)
-        stored_user = LoginResponse(email="test@test.com", password="hashed123", role=Role.PATIENT, first_name="Test")
+        stored_user = LoginResponse(
+            id="svc-user-1",
+            email="test@test.com",
+            password="hashed123",
+            role=Role.PATIENT,
+            first_name="Test",
+        )
 
         # MOCK
         expect(repo, times=1).get_user_for_auth(request).thenReturn(stored_user)
@@ -145,7 +158,13 @@ class UserServicesTest(unittest.TestCase):
             role=Role.PATIENT,
         )
         auth_check = LoginRequest(email="dup@test.com", password="", role=Role.PATIENT)
-        existing = LoginResponse(email="dup@test.com", password="hashed", role=Role.PATIENT, first_name="Dup")
+        existing = LoginResponse(
+            id="dup-svc-id",
+            email="dup@test.com",
+            password="hashed",
+            role=Role.PATIENT,
+            first_name="Dup",
+        )
 
         # MOCK
         expect(repo, times=1).get_user_for_auth(auth_check).thenReturn(existing)
