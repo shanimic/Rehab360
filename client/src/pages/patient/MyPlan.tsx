@@ -158,7 +158,12 @@ function ExerciseCard({
           : <Dumbbell size={26} color={iconColor} strokeWidth={1.6} />}
       </div>
       <div className="mp-card__info">
-        <span className="mp-card__name">{exercise.name}</span>
+        <div className="mp-card__top-row">
+          <span className="mp-card__name">{exercise.name}</span>
+          <span className={`mp-card__badge mp-card__badge--${exercise.plan === 'Treatment Plan' ? 'physio' : 'fitness'}`}>
+            {exercise.plan === 'Treatment Plan' ? 'Physio' : 'Fitness'}
+          </span>
+        </div>
         <span className="mp-card__desc">{exercise.desc}</span>
       </div>
       {!completed && <ChevronRight size={18} className="mp-card__arrow" />}
@@ -206,7 +211,7 @@ export default function MyPlan() {
             </span>
           </div>
           <div className="mp-title-actions">
-            <button className="mp-new-btn" type="button">
+            <button className="mp-new-btn" type="button" onClick={() => navigate('/patient/schedule-exercise')}>
               <Plus size={15} />
               New
             </button>
@@ -262,7 +267,12 @@ export default function MyPlan() {
                     <Dumbbell size={26} color={ex.thumb.iconColor} strokeWidth={1.6} />
                   </div>
                   <div className="mp-card__info">
-                    <span className="mp-card__name">{ex.name}</span>
+                    <div className="mp-card__top-row">
+                      <span className="mp-card__name">{ex.name}</span>
+                      <span className={`mp-card__badge mp-card__badge--${ex.plan === 'Treatment Plan' ? 'physio' : 'fitness'}`}>
+                        {ex.plan === 'Treatment Plan' ? 'Physio' : 'Fitness'}
+                      </span>
+                    </div>
                     <span className="mp-card__desc">{ex.desc}</span>
                   </div>
                 </button>

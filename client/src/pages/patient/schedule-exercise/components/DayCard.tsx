@@ -94,7 +94,7 @@ export default function DayCard({
                   </div>
                 </div>
 
-                {/* Time of day */}
+                {/* Time of Day */}
                 <div className="es-ex-row__setting">
                   <span className="es-ex-row__setting-label">Time</span>
                   <div className="es-pill-group" role="group" aria-label="Time of day">
@@ -102,9 +102,10 @@ export default function DayCard({
                       <button
                         key={t}
                         type="button"
-                        className={`es-pill es-pill--wide${entry.timeOfDay === t ? ' es-pill--active' : ''}`}
+                        className={`es-pill${entry.timeOfDay === t ? ' es-pill--active' : ''}`}
                         onClick={() => onUpdateTime(entry.exerciseId, t)}
                         aria-pressed={entry.timeOfDay === t}
+                        aria-label={t}
                       >
                         {t}
                       </button>
