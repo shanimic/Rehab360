@@ -9,6 +9,7 @@ import { markReported } from '@/lib/reportedExercises'
 import type { PlanExercise } from './MyPlan'
 import './ExerciseReport.css'
 import PatientTopNav from '@/components/PatientTopNav'
+import { useSaveExerciseReport } from '@/hooks/paitent/useSaveExerciseReport'
 
 /* ── Nav items ── */
 const bottomNav = [
@@ -79,13 +80,12 @@ export default function ExerciseReport() {
   const exercise = (location.state as { exercise: PlanExercise; source?: string } | null)
     ?.exercise ?? null
 
+  const saveReport = useSaveExerciseReport()
   const [completionStatus, setCompletionStatus] = useState<'completed' | 'not-completed' | null>(null)
   const [pain, setPain] = useState(2)
   const [effort, setEffort] = useState(2)
   const [notCompletedReason, setNotCompletedReason] = useState('')
   const [changeRequest, setChangeRequest] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
 
   function isFormValid(): boolean {
     if (completionStatus === null) return false
@@ -95,26 +95,18 @@ export default function ExerciseReport() {
 
   function handleSave() {
     if (!exercise || !isFormValid()) return
-    setSaving(true)
 
-    // TODO: replace with API mutation
-    setTimeout(() => {
-      console.log({
-        exerciseId: exercise.id,
-        completed: completionStatus === 'completed',
-        pain,
-        effort,
-        notCompletedReason,
-        changeRequest,
-      })
-
-      markReported(exercise.id)
-
-      setSaving(false)
-      setSaved(true)
-
-      setTimeout(() => navigate('/patient/my-plan'), 800)
-    }, 600)
+    saveReport.mutate(
+      {
+        exercise_id: exercise.id,
+        execution_status: completionStatus === 'completed',
+        pain_level: pain,
+        effort_level: effort,
+        reason_for_non_performance: notCompletedReason,
+        request_for_change: changeRequest,
+      },
+      { onSuccess: () => markReported(exercise.id) },
+    )
   }
 
   // ── No exercise data guard ──
@@ -313,12 +305,12 @@ export default function ExerciseReport() {
 
             {/* Save */}
             <button
-              className={`er-save-btn${saved ? ' er-save-btn--saved' : ''}`}
+              className={`er-save-btn${saveReport.isSuccess ? ' er-save-btn--saved' : ''}`}
               onClick={handleSave}
-              disabled={saving || saved || !isFormValid()}
+              disabled={saveReport.isPending || saveReport.isSuccess || !isFormValid()}
               type="button"
             >
-              {saved ? 'Saved! Returning…' : saving ? 'Saving…' : 'Save'}
+              {saveReport.isSuccess ? 'Saved! Returning…' : saveReport.isPending ? 'Saving…' : 'Save'}
             </button>
 
           </div>
