@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, CheckCircle, Trash2, Bookmark } from 'lucide-react'
+import { useAtomValue } from 'jotai'
+import { CheckCircle, Trash2, Bookmark } from 'lucide-react'
+import { authAtom } from '@/store/authAtom'
 import { useSavedContent } from '@/hooks/useSavedContent'
 import { useUnsaveContent } from '@/hooks/useUnsaveContent'
+import PatientTopNav from '@/components/PatientTopNav'
 import type { SavedContent } from '@/types'
 import { cn } from '@/lib/utils'
 import { mockQueryHistory } from '@/mocks/aiSearchMocks'
@@ -13,10 +16,10 @@ type SortOption = 'recent' | 'relevant'
 
 function verificationBadge(verifiedBy: string[]) {
   const hasPhysio = verifiedBy.includes('THERAPIST')
-  const hasCoach = verifiedBy.includes('TRAINER')
-  if (hasPhysio && hasCoach) return { label: 'Verified by Physio & Coach', className: 'saved-card__verify-badge--both' }
+  const hasTrainer = verifiedBy.includes('TRAINER')
+  if (hasPhysio && hasTrainer) return { label: 'Verified by Physio & Trainer', className: 'saved-card__verify-badge--both' }
   if (hasPhysio) return { label: 'Verified by Physio', className: 'saved-card__verify-badge--physio' }
-  if (hasCoach) return { label: 'Verified by Coach', className: 'saved-card__verify-badge--coach' }
+  if (hasTrainer) return { label: 'Verified by Trainer', className: 'saved-card__verify-badge--trainer' }
   return null
 }
 
@@ -43,6 +46,7 @@ function applySortOption(items: SavedContent[], sort: SortOption): SavedContent[
 
 export default function SavedContentPage() {
   const navigate = useNavigate()
+  const auth = useAtomValue(authAtom)
   const initialContent = useSavedContent()
   const [localContent, setLocalContent] = useState<SavedContent[]>(initialContent)
   const [verifyFilter, setVerifyFilter] = useState<VerifyFilter>('all')
@@ -56,19 +60,8 @@ export default function SavedContentPage() {
   const sorted = applySortOption(filtered, sortOption)
 
   return (
-    <div className="ais-saved">
-      {/* Header */}
-      <header className="ais-saved__header">
-        <button
-          className="ais-saved__icon-btn"
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <span className="ais-saved__header-title">Saved Content</span>
-        <div className="ais-saved__header-spacer" />
-      </header>
+    <div className="ais-saved pt-16">
+      <PatientTopNav patientName={auth?.first_name} />
 
       <main className="ais-saved__main">
         {/* Filter + sort bar */}

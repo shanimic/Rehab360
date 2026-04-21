@@ -24,48 +24,6 @@
   text-decoration: underline;
 }
 
-/* ── Header ── */
-.ais-results__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  background: var(--color-primary);
-  color: var(--color-surface);
-  box-shadow: var(--shadow-panel);
-}
-
-.ais-results__header-title {
-  flex: 1;
-  text-align: center;
-  font-size: 17px;
-  font-weight: 600;
-  font-family: var(--font-family);
-}
-
-.ais-results__header-actions {
-  display: flex;
-  gap: 4px;
-}
-
-.ais-results__icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  border-radius: 50%;
-  color: var(--color-surface);
-  cursor: pointer;
-  transition: background 0.18s ease;
-}
-
-.ais-results__icon-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
 /* ── Main ── */
 .ais-results__main {
   flex: 1;
@@ -259,15 +217,15 @@
 }
 
 .source-card__badge--physio {
-  background: var(--color-verified-physio);
+  background: var(--color-verified);
 }
 
-.source-card__badge--coach {
-  background: var(--color-verified-coach);
+.source-card__badge--trainer {
+  background: var(--color-verified);
 }
 
 .source-card__badge--both {
-  background: var(--color-verified-both);
+  background: var(--color-verified);
 }
 
 .source-card__title {

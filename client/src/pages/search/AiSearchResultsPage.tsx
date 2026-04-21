@@ -1,23 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAtomValue } from 'jotai'
-import { ArrowLeft, Bookmark, Radio } from 'lucide-react'
+import { Radio } from 'lucide-react'
 import { searchResultsAtom } from '@/store/aiSearchAtom'
 import { authAtom } from '@/store/authAtom'
 import { useSaveContent } from '@/hooks/useSaveContent'
 import { useVerifyContent } from '@/hooks/useVerifyContent'
+import PatientTopNav from '@/components/PatientTopNav'
 import SourceCard from './components/SourceCard'
 import type { SavedContent } from '@/types'
 import { cn } from '@/lib/utils'
 import './AiSearchResultsPage.css'
 
-type FilterKey = 'all' | 'physio' | 'coach' | 'both'
+type FilterKey = 'all' | 'physio' | 'trainer' | 'both'
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'physio', label: 'Verified by Physio' },
-  { key: 'coach', label: 'Verified by Coach' },
-  { key: 'both', label: 'Verified by Both' },
+  { key: 'trainer', label: 'Verified by Trainer' },
+  { key: 'both', label: 'Verified by Physio & Trainer' },
 ]
 
 function verificationRank(source: SavedContent): number {
@@ -33,7 +34,7 @@ function applyFilter(sources: SavedContent[], filter: FilterKey): SavedContent[]
   switch (filter) {
     case 'physio':
       return sources.filter((s) => s.verifiedBy.includes('THERAPIST'))
-    case 'coach':
+    case 'trainer':
       return sources.filter((s) => s.verifiedBy.includes('TRAINER'))
     case 'both':
       return sources.filter(
@@ -74,23 +75,8 @@ export default function AiSearchResultsPage() {
   const filteredSources = applyFilter(sortedSources, activeFilter)
 
   return (
-    <div className="ais-results">
-      {/* Header */}
-      <header className="ais-results__header">
-        <button
-          className="ais-results__icon-btn"
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <span className="ais-results__header-title">Search Results</span>
-        <div className="ais-results__header-actions">
-          <button className="ais-results__icon-btn" aria-label="Bookmark">
-            <Bookmark size={20} />
-          </button>
-        </div>
-      </header>
+    <div className="ais-results pt-16">
+      <PatientTopNav patientName={auth?.first_name} />
 
       <main className="ais-results__main">
         {/* Original query */}

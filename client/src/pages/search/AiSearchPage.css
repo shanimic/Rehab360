@@ -5,46 +5,6 @@
   background: var(--color-background);
 }
 
-/* ── Header ── */
-.ais-home__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  background: var(--color-primary);
-  color: var(--color-surface);
-  box-shadow: var(--shadow-panel);
-}
-
-.ais-home__header-title {
-  font-size: 17px;
-  font-weight: 600;
-  font-family: var(--font-family);
-}
-
-.ais-home__header-actions {
-  display: flex;
-  gap: 4px;
-}
-
-.ais-home__icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  border-radius: 50%;
-  color: var(--color-surface);
-  cursor: pointer;
-  transition: background 0.18s ease;
-}
-
-.ais-home__icon-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
 /* ── Main ── */
 .ais-home__main {
   flex: 1;

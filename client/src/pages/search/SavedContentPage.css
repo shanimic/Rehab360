@@ -5,47 +5,6 @@
   background: var(--color-background);
 }
 
-/* ── Header ── */
-.ais-saved__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  background: var(--color-primary);
-  color: var(--color-surface);
-  box-shadow: var(--shadow-panel);
-}
-
-.ais-saved__header-title {
-  flex: 1;
-  text-align: center;
-  font-size: 17px;
-  font-weight: 600;
-  font-family: var(--font-family);
-}
-
-.ais-saved__header-spacer {
-  width: 36px;
-}
-
-.ais-saved__icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  border-radius: 50%;
-  color: var(--color-surface);
-  cursor: pointer;
-  transition: background 0.18s ease;
-}
-
-.ais-saved__icon-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
 /* ── Main ── */
 .ais-saved__main {
   flex: 1;
@@ -201,15 +160,15 @@
 }
 
 .saved-card__verify-badge--physio {
-  background: var(--color-verified-physio);
+  background: var(--color-verified);
 }
 
-.saved-card__verify-badge--coach {
-  background: var(--color-verified-coach);
+.saved-card__verify-badge--trainer {
+  background: var(--color-verified);
 }
 
 .saved-card__verify-badge--both {
-  background: var(--color-verified-both);
+  background: var(--color-verified);
 }
 
 .saved-card__title {

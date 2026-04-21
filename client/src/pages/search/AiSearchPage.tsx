@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
-import { Menu, Search, Clock, X, Trash2 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Search, Clock, X, Trash2 } from 'lucide-react'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
 import { useAiSearchMutation } from '@/hooks/useAiSearchMutation'
 import { useQueryHistory } from '@/hooks/useQueryHistory'
 import { useDeleteQuery } from '@/hooks/useDeleteQuery'
 import { errMsg } from '@/lib/utils'
+import PatientTopNav from '@/components/PatientTopNav'
 import type { AiQuery } from '@/types'
 import './AiSearchPage.css'
 
@@ -17,7 +19,7 @@ const searchSchema = z.object({
 type SearchValues = z.infer<typeof searchSchema>
 
 export default function AiSearchPage() {
-  const navigate = useNavigate()
+  const auth = useAtomValue(authAtom)
   const searchMutation = useAiSearchMutation()
   const queryHistory = useQueryHistory()
   const [localHistory, setLocalHistory] = useState<AiQuery[]>(queryHistory)
@@ -44,20 +46,8 @@ onSubmit: ({ value }) => {
   }
 
   return (
-    <div className="ais-home">
-      {/* Header */}
-      <header className="ais-home__header">
-        <span className="ais-home__header-title">AI Medical Search</span>
-        <div className="ais-home__header-actions">
-          <button
-            className="ais-home__icon-btn"
-            aria-label="Menu"
-            onClick={() => navigate('/placeholder')}
-          >
-            <Menu size={20} />
-          </button>
-        </div>
-      </header>
+    <div className="ais-home pt-16">
+      <PatientTopNav patientName={auth?.first_name} />
 
       <main className="ais-home__main">
         {/* Search icon + hero text */}

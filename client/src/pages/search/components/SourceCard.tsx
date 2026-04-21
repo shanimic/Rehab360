@@ -12,13 +12,13 @@ interface SourceCardProps {
 
 function verificationBadge(verifiedBy: string[]) {
   const hasPhysio = verifiedBy.includes('THERAPIST')
-  const hasCoach = verifiedBy.includes('TRAINER')
-  if (hasPhysio && hasCoach)
-    return { label: 'Verified by Physio & Coach', className: 'source-card__badge--both' }
+  const hasTrainer = verifiedBy.includes('TRAINER')
+  if (hasPhysio && hasTrainer)
+    return { label: 'Verified by Physio & Trainer', className: 'source-card__badge--both' }
   if (hasPhysio)
     return { label: 'Verified by Physio', className: 'source-card__badge--physio' }
-  if (hasCoach)
-    return { label: 'Verified by Coach', className: 'source-card__badge--coach' }
+  if (hasTrainer)
+    return { label: 'Verified by Trainer', className: 'source-card__badge--trainer' }
   return null
 }
 
