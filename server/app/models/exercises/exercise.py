@@ -51,3 +51,24 @@ class ExerciseData(BaseModel):
     execution_status: bool
     ex_video_url: str
     text_instructions: str
+
+
+class PatientPlanExercise(BaseModel):
+    """One exercise row from a patient's active daily plan."""
+
+    exercise_id: int
+    exercise_name: str
+    visit_type: VisitType
+    reps: int
+    execution_status: bool
+    ex_video_url: str
+    text_instructions: str
+    session_id: int
+    weekly_plan_id: int
+    plan_id: int
+
+    @field_validator("execution_status", mode="before")
+    @classmethod
+    def execution_status_to_bool(cls, value: object) -> bool:
+        """Coerce DB tinyint (0/1) to bool; only ``1`` is ``True``."""
+        return _execution_status_to_bool(value)

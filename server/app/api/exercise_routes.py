@@ -3,7 +3,7 @@
 from aiomysql import DictCursor
 from fastapi import APIRouter, Depends
 
-from app.models.exercises.exercise import ExerciseData
+from app.models.exercises.exercise import ExerciseData, PatientPlanExercise
 from app.dal.exercise_repository import ExerciseRepository
 from app.db.session import get_db
 from app.models.exercises.exercise import ExerciseReport
@@ -11,6 +11,21 @@ from app.services.exercise_services import ExerciseServices
 
 exercise_router = APIRouter()
 
+
+@exercise_router.get("/{patient_id}", tags=["Exercises"], response_model=list[PatientPlanExercise])
+async def get_petient_exercises(patient_id: str, db: DictCursor = Depends(get_db)) -> list[PatientPlanExercise]:
+    """Return all exercises in today's active plan for a patient.
+
+    Args:
+        patient_id: Identifier of the patient.
+
+    Returns:
+        List of exercises assigned to the patient's active session today.
+    """
+    exercise_repository = ExerciseRepository(db=db)
+    exercise_service = ExerciseServices(repository=exercise_repository)
+    return await exercise_service.get_patient_plan(patient_id=patient_id)
+21
 
 @exercise_router.get("/{exercise_id}/{patient_id}", tags=["Exercises"], response_model=ExerciseData)
 async def get_exercise(exercise_id: str, patient_id: str, db: DictCursor = Depends(get_db)) -> ExerciseData:

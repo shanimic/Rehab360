@@ -100,9 +100,9 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 INSERT INTO sessions ( visit_date, visit_time, visit_type, treatment_area, medical_diagnosis, description, recommendations, patient_id, patient_role, therapist_id, therapist_role,session_status)
 VALUES
-(101, '2024-01-10', '09:00:00', 'FITNESS', 'Knee', 'ACL Tear recovery', 'Patient reports mild pain.', 'Start with low-impact movements.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','ACTIVE'),
-(102, '2024-01-17', '10:30:00', 'PHYSIOTHERAPIST', 'Shoulder', 'Rotator Cuff strain', 'Improved range of motion.', 'Increase resistance band tension.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','ACTIVE'),
-(103, '2024-01-17', '10:30:00', 'PHYSIOTHERAPIST', 'Shoulder', 'Rotator Cuff strain', 'Improved range of motion.', 'Increase resistance band tension.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','NOT ACTIVE');
+('2024-01-10', '09:00:00', 'FITNESS', 'Knee', 'ACL Tear recovery', 'Patient reports mild pain.', 'Start with low-impact movements.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','ACTIVE'),
+('2024-01-17', '10:30:00', 'PHYSIOTHERAPIST', 'Shoulder', 'Rotator Cuff strain', 'Improved range of motion.', 'Increase resistance band tension.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','ACTIVE'),
+('2024-01-17', '10:30:00', 'PHYSIOTHERAPIST', 'Shoulder', 'Rotator Cuff strain', 'Improved range of motion.', 'Increase resistance band tension.', 'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST','NOT ACTIVE');
 
 
 -- 4. Plans Table

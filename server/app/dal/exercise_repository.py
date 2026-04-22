@@ -1,6 +1,6 @@
 from aiomysql import DictCursor
 
-from app.models.exercises.exercise import ExerciseReport, ExerciseReportMetadata
+from app.models.exercises.exercise import ExerciseReport, ExerciseReportMetadata, PatientPlanExercise
 
 
 class ExerciseRepository:
@@ -106,5 +106,24 @@ class ExerciseRepository:
             args=(exercise_id, patient_id),
         )
         row = await self.cursor.fetchone()
-        print(row)
         return ExerciseReportMetadata.model_validate(row) if row else None
+
+    async def get_patient_plan(self, patient_id: str):
+        await self.cursor.execute(query="""
+                select pe.exercise_id,e.exercise_name,e.visit_type,pe.reps,ec.execution_status,
+                e.ex_video_url,e.text_instructions,wp.session_id,wp.weekly_plan_id,wp.plan_id
+                from weekly_plans wp , plan_exercises pe, exercises e,exercise_completion ec
+                where wp.session_id = pe.session_id
+                and pe.exercise_id = e.exercise_id
+                and pe.session_id = ec.session_id
+                and wp.exercise_date= CURDATE()   
+                and pe.session_id in 
+                (select s.session_id
+                    from sessions s where s.patient_id = %s 
+                        and s.session_status = 'ACTIVE' );   
+                  """,
+            args=(patient_id,)
+        )
+
+        rows = await self.cursor.fetchall()
+        return [PatientPlanExercise.model_validate(row) for row in rows]
