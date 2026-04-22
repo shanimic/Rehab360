@@ -8,7 +8,6 @@ import {
 import { markReported } from '@/lib/reportedExercises'
 import type { PlanExercise } from './MyPlan'
 import './ExerciseReport.css'
-import PatientTopNav from '@/components/PatientTopNav'
 import { useSaveExerciseReport } from '@/hooks/paitent/useSaveExerciseReport'
 import { useGetPatientHome } from '@/hooks/paitent/useGetExercise'
 
@@ -21,11 +20,6 @@ const bottomNav = [
   { label: 'Profile', icon: User, active: false },
 ]
 
-const topNav = [
-  { label: 'Exercises', icon: Dumbbell },
-  { label: 'AI Search', icon: Sparkles },
-  { label: 'My Profile', icon: User },
-]
 
 /* ── Rating control ── */
 function RatingControl({
