@@ -25,7 +25,6 @@ async def get_petient_exercises(patient_id: str, db: DictCursor = Depends(get_db
     exercise_repository = ExerciseRepository(db=db)
     exercise_service = ExerciseServices(repository=exercise_repository)
     return await exercise_service.get_patient_plan(patient_id=patient_id)
-21
 
 @exercise_router.get("/{exercise_id}/{patient_id}", tags=["Exercises"], response_model=ExerciseData)
 async def get_exercise(exercise_id: str, patient_id: str, db: DictCursor = Depends(get_db)) -> ExerciseData:

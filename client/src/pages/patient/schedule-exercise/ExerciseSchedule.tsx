@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
-import type { PlanExercise } from '../MyPlan'
-import PatientNavbar from '@/components/PatientNavbar'
+import { VisitType, type MyPlan } from '@/types/patient'
 import ExerciseCard from './components/ExerciseCard'
 import DayCard from './components/DayCard'
 import ReminderToggle from './components/ReminderToggle'
@@ -21,76 +20,13 @@ export interface ScheduledExercise {
 }
 
 /* ── Static exercise pool (defined by healthcare professional) ── */
-const thumbs = {
-  pushUp: { from: '#ff9a9e', to: '#e84393', iconColor: '#fff' },
-  sitUp: { from: '#2d3436', to: '#636e72', iconColor: '#a78bfa' },
-  kneePush: { from: '#74b9ff', to: '#0984e3', iconColor: '#fff' },
-  shoulder: { from: '#a29bfe', to: '#6c5ce7', iconColor: '#fff' },
-  squat: { from: '#55efc4', to: '#00b894', iconColor: '#fff' },
-  plank: { from: '#fd79a8', to: '#e17055', iconColor: '#fff' },
-}
-
-const EXERCISE_POOL: PlanExercise[] = [
-  {
-    id: 1,
-    name: 'Push Up',
-    plan: 'Treatment Plan',
-    desc: '3 sets · 100 reps',
-    duration: '3 minutes',
-    imageUrl: '',
-    instructions: [],
-    thumb: thumbs.pushUp,
-  },
-  {
-    id: 2,
-    name: 'Sit Up',
-    plan: 'Training Plan',
-    desc: '2 sets · 20 reps',
-    duration: '5 minutes',
-    imageUrl: '',
-    instructions: [],
-    thumb: thumbs.sitUp,
-  },
-  {
-    id: 3,
-    name: 'Knee Push Up',
-    plan: 'Treatment Plan',
-    desc: '2 sets · 20 reps',
-    duration: '4 minutes',
-    imageUrl: '',
-    instructions: [],
-    thumb: thumbs.kneePush,
-  },
-  {
-    id: 4,
-    name: 'Shoulder Stretch',
-    plan: 'Treatment Plan',
-    desc: '3 sets · 15 reps each side',
-    duration: '3 minutes',
-    imageUrl: '',
-    instructions: [],
-    thumb: thumbs.shoulder,
-  },
-  {
-    id: 5,
-    name: 'Squat',
-    plan: 'Training Plan',
-    desc: '3 sets · 15 reps',
-    duration: '6 minutes',
-    imageUrl: '',
-    instructions: [],
-    thumb: thumbs.squat,
-  },
-  {
-    id: 6,
-    name: 'Plank',
-    plan: 'Treatment Plan',
-    desc: '3 sets · 30 seconds',
-    duration: '5 minutes',
-    imageUrl: '',
-    instructions: [],
-    thumb: thumbs.plank,
-  },
+const EXERCISE_POOL: MyPlan[] = [
+  { exercise_id: 1, exercise_name: 'Push Up',        visit_type: VisitType.PHYSIOTHERAPIST, reps: 100, execution_status: false, text_instructions: '3 sets · 100 reps' },
+  { exercise_id: 2, exercise_name: 'Sit Up',         visit_type: VisitType.FITNESS,         reps: 20,  execution_status: false, text_instructions: '2 sets · 20 reps' },
+  { exercise_id: 3, exercise_name: 'Knee Push Up',   visit_type: VisitType.PHYSIOTHERAPIST, reps: 20,  execution_status: false, text_instructions: '2 sets · 20 reps' },
+  { exercise_id: 4, exercise_name: 'Shoulder Stretch',visit_type: VisitType.PHYSIOTHERAPIST, reps: 15,  execution_status: false, text_instructions: '3 sets · 15 reps each side' },
+  { exercise_id: 5, exercise_name: 'Squat',          visit_type: VisitType.FITNESS,         reps: 15,  execution_status: false, text_instructions: '3 sets · 15 reps' },
+  { exercise_id: 6, exercise_name: 'Plank',          visit_type: VisitType.PHYSIOTHERAPIST, reps: 30,  execution_status: false, text_instructions: '3 sets · 30 seconds' },
 ]
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -211,7 +147,7 @@ export default function ExerciseSchedule() {
           </div>
           <div className="es-pool" role="list" aria-label="Available exercises">
             {EXERCISE_POOL.map(ex => (
-              <div key={ex.id} role="listitem">
+              <div key={ex.exercise_id} role="listitem">
                 <ExerciseCard exercise={ex} />
               </div>
             ))}
@@ -286,30 +222,31 @@ export default function ExerciseSchedule() {
 
             <ul className="es-modal__list" aria-label="Select exercises">
               {EXERCISE_POOL.map(ex => {
-                const checked = pickerSelected.has(ex.id)
+                const checked = pickerSelected.has(ex.exercise_id)
+                const isPhysio = ex.visit_type?.toLowerCase() === 'physiotherapist'
                 return (
-                  <li key={ex.id}>
+                  <li key={ex.exercise_id}>
                     <label className={`es-modal__item${checked ? ' es-modal__item--checked' : ''}`}>
                       <input
                         type="checkbox"
                         checked={checked}
-                        onChange={() => togglePickerExercise(ex.id)}
+                        onChange={() => togglePickerExercise(ex.exercise_id)}
                         className="es-modal__checkbox"
-                        aria-label={ex.name}
+                        aria-label={ex.exercise_name}
                       />
                       <div
                         className="es-modal__dot"
-                        style={{ background: `linear-gradient(135deg, ${ex.thumb.from}, ${ex.thumb.to})` }}
+                        style={{ background: isPhysio ? 'linear-gradient(135deg, #74b9ff, #0984e3)' : 'linear-gradient(135deg, #55efc4, #00b894)' }}
                         aria-hidden
                       />
                       <div className="es-modal__info">
-                        <span className="es-modal__ex-name">{ex.name}</span>
-                        <span className="es-modal__ex-desc">{ex.desc}</span>
+                        <span className="es-modal__ex-name">{ex.exercise_name}</span>
+                        <span className="es-modal__ex-desc">{ex.text_instructions}</span>
                       </div>
                       <span
-                        className={`es-modal__badge${ex.plan === 'Treatment Plan' ? ' es-modal__badge--treatment' : ' es-modal__badge--training'}`}
+                        className={`es-modal__badge${isPhysio ? ' es-modal__badge--treatment' : ' es-modal__badge--training'}`}
                       >
-                        {ex.plan === 'Treatment Plan' ? 'Physio' : 'Fitness'}
+                        {isPhysio ? 'Physio' : 'Fitness'}
                       </span>
                     </label>
                   </li>
