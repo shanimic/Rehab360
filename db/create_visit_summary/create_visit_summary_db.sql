@@ -29,5 +29,5 @@ WHERE u.user_id = ?
     session_status
 )
 VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, 'PATIENT', ?, ?, ?
+    %s, %s, %s, %s, %s, %s, %s, %s, 'PATIENT', %s, %s,'ACTIVE'
 );
