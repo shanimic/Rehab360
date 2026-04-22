@@ -141,3 +141,8 @@ export interface PatientDetails extends Patient {
   treatmentPlan: TreatmentPlan
   trainingPlan: TreatmentPlan
 }
+
+export const VisitType = {
+  PHYSIOTHERAPIST: "PHYSIOTHERAPIST",
+  FITNESS: "FITNESS"
+}
