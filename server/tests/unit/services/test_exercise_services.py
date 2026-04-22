@@ -4,9 +4,26 @@ import unittest
 from mockito import expect, mock
 
 from app.dal.exercise_repository import ExerciseRepository
-from app.models.exercises.exercise import ExerciseData, ExerciseReport, ExerciseReportMetadata
+from app.models.exercises.exercise import ExerciseData, ExerciseReport, ExerciseReportMetadata, PatientPlanExercise
 from app.models.patients.visit_type import VisitType
 from app.services.exercise_services import ExerciseServices
+
+
+def _make_plan_exercise(**overrides) -> PatientPlanExercise:
+    defaults = {
+        "exercise_id": 1,
+        "exercise_name": "Squat",
+        "visit_type": VisitType.PHYSIOTHERAPIST,
+        "reps": 10,
+        "execution_status": False,
+        "ex_video_url": "https://example.com/squat.mp4",
+        "text_instructions": "Keep back straight.",
+        "session_id": 5,
+        "weekly_plan_id": 12,
+        "plan_id": 3,
+    }
+    defaults.update(overrides)
+    return PatientPlanExercise(**defaults)
 
 
 def _make_metadata(**overrides) -> ExerciseReportMetadata:
@@ -94,3 +111,52 @@ class ExerciseServicesTest(unittest.TestCase):
 
         # ASSERT
         assert result is None
+
+    # ------------------------------------------------------------------ #
+    # get_patient_plan                                                     #
+    # ------------------------------------------------------------------ #
+
+    def test_get_patient_plan_returns_list_from_repository(self) -> None:
+        """
+        Given the repository returns two PatientPlanExercise rows,
+        When get_patient_plan is called,
+        Then a list of those two exercises is returned unchanged.
+        """
+        # PREPARE
+        repo = mock(ExerciseRepository)
+        service = ExerciseServices(repository=repo)
+        exercises = [
+            _make_plan_exercise(exercise_id=1, exercise_name="Squat"),
+            _make_plan_exercise(exercise_id=2, exercise_name="Lunge", visit_type=VisitType.FITNESS),
+        ]
+
+        # MOCK
+        expect(repo, times=1).get_patient_plan(patient_id="pat-1").thenReturn(exercises)
+
+        # ACT
+        result = asyncio.run(service.get_patient_plan(patient_id="pat-1"))
+
+        # ASSERT
+        assert result == exercises
+        assert len(result) == 2
+        assert result[0].exercise_name == "Squat"
+        assert result[1].visit_type == VisitType.FITNESS
+
+    def test_get_patient_plan_empty_returns_empty_list(self) -> None:
+        """
+        Given the repository returns no rows for the patient today,
+        When get_patient_plan is called,
+        Then an empty list is returned.
+        """
+        # PREPARE
+        repo = mock(ExerciseRepository)
+        service = ExerciseServices(repository=repo)
+
+        # MOCK
+        expect(repo, times=1).get_patient_plan(patient_id="pat-no-plan").thenReturn([])
+
+        # ACT
+        result = asyncio.run(service.get_patient_plan(patient_id="pat-no-plan"))
+
+        # ASSERT
+        assert result == []

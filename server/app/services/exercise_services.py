@@ -1,4 +1,4 @@
-from app.models.exercises.exercise import ExerciseData, ExerciseReport
+from app.models.exercises.exercise import ExerciseData, ExerciseReport, PatientPlanExercise
 from app.dal.exercise_repository import ExerciseRepository
 
 
@@ -13,6 +13,17 @@ class ExerciseServices:
             repository: Data access layer for exercise SQL operations.
         """
         self.repository = repository
+
+    async def get_patient_plan(self, patient_id: str) -> list[PatientPlanExercise]:
+        """Return all exercises in the patient's active plan for today.
+
+        Args:
+            patient_id: Patient identifier.
+
+        Returns:
+            List of ``PatientPlanExercise`` for today's active session.
+        """
+        return await self.repository.get_patient_plan(patient_id=patient_id)
 
     async def get_exercise(self, exercise_id: str, patient_id: str) -> ExerciseData:
         """Map persisted exercise metadata to the API-facing exercise payload.

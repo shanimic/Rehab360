@@ -6,7 +6,7 @@ import {
   Bell, Menu,
 } from 'lucide-react'
 import { markReported } from '@/lib/reportedExercises'
-import type { PlanExercise } from './MyPlan'
+import type { MyPlan } from '@/types/patient'
 import './ExerciseReport.css'
 import { useSaveExerciseReport } from '@/hooks/paitent/useSaveExerciseReport'
 import { useGetPatientHome } from '@/hooks/paitent/useGetExercise'
@@ -74,7 +74,7 @@ export default function ExerciseReport() {
   const { data } = useGetPatientHome(Number(id))
 
   // Exercise is passed via navigation state from MyPlan
-  const exercise = (location.state as { exercise: PlanExercise; source?: string } | null)
+  const exercise = (location.state as { exercise: MyPlan; source?: string } | null)
     ?.exercise ?? null
 
   const saveReport = useSaveExerciseReport()
@@ -95,14 +95,14 @@ export default function ExerciseReport() {
 
     saveReport.mutate(
       {
-        exercise_id: exercise.id,
+        exercise_id: exercise.exercise_id,
         execution_status: completionStatus === 'completed',
         pain_level: pain,
         effort_level: effort,
         reason_for_non_performance: notCompletedReason,
         request_for_change: changeRequest,
       },
-      { onSuccess: () => markReported(exercise.id) },
+      { onSuccess: () => markReported(exercise.exercise_id) },
     )
   }
 
