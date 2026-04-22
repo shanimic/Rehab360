@@ -9,13 +9,15 @@ def _execution_status_to_bool(value: object) -> bool:
     if value is None:
         return False
     return int(value) == 1
-    
+
+
 class ExerciseReportMetadata(BaseModel):
     """Exercise report metadata."""
 
     exercise_name: str
     visit_type: VisitType
     reps: int
+    num_sets: int
     execution_status: bool
     num_exe_completed: int
     ex_video_url: str
@@ -45,6 +47,7 @@ class ExerciseData(BaseModel):
     exercise_name: str
     visit_type: VisitType
     reps: int
+    num_sets: int
     execution_status: bool
     ex_video_url: str
     text_instructions: str

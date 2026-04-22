@@ -85,6 +85,7 @@ class ExerciseRepository:
                        ec.pain_level,
                        ec.effort_level,
                        ec.request_for_change,
+                       pe.num_sets,
                        pe.reps * pe.num_sets AS num_exe_completed,
                        e.ex_video_url, 
                        e.text_instructions,
@@ -105,4 +106,5 @@ class ExerciseRepository:
             args=(exercise_id, patient_id),
         )
         row = await self.cursor.fetchone()
+        print(row)
         return ExerciseReportMetadata.model_validate(row) if row else None

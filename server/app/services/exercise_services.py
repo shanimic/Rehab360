@@ -32,6 +32,7 @@ class ExerciseServices:
             exercise_name=metadata.exercise_name,
             visit_type=metadata.visit_type,
             reps=metadata.reps,
+            num_sets=metadata.num_sets,
             execution_status=metadata.execution_status,
             ex_video_url=metadata.ex_video_url,
             text_instructions=metadata.text_instructions,
