@@ -68,3 +68,13 @@ export interface PatientHomeData {
   physiotherapistPercentage: number
   dailyCompletions: DailyCompletion
 }
+
+export interface MyPlan {
+  exercise_id: number,
+  exercise_name: string,
+  visit_type: VisitType
+  reps: number,
+  execution_status: boolean,
+  ex_video_url?: string,
+  text_instructions: string,
+}
