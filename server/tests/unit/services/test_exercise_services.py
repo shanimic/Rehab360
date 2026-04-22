@@ -10,19 +10,20 @@ from app.services.exercise_services import ExerciseServices
 
 
 def _make_metadata(**overrides) -> ExerciseReportMetadata:
-    defaults = dict(
-        exercise_name="Squat",
-        visit_type=VisitType.PHYSIOTHERAPIST,
-        reps=10,
-        num_sets=3,
-        execution_status=True,
-        num_exe_completed=30,
-        ex_video_url="https://example.com/squat.mp4",
-        text_instructions="Keep back straight.",
-        session_id=1,
-        weekly_plan_id=2,
-        plan_id=3,
-    )
+    defaults = {
+        "exercise_name": "Squat",
+        "visit_type": VisitType.PHYSIOTHERAPIST,
+        "reps": 10,
+        "num_sets": 3,
+        "execution_status": True,
+        "num_exe_completed": 30,
+        "ex_video_url": "https://example.com/squat.mp4",
+        "text_instructions": "Keep back straight.",
+        "session_id": 1,
+        "weekly_plan_id": 2,
+        "plan_id": 3,
+    }
+
     defaults.update(overrides)
     return ExerciseReportMetadata(**defaults)
 
