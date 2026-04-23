@@ -158,15 +158,21 @@ export interface AiQuery {
 export interface SavedContent {
   recommendation_id: string
   query_id: string
-  professional_id: string | null
   content_text: string
   content_title: string
   content_type: ContentType
-  verifiedBy: string[]
+  source_url: string
+  verified_by_physio: boolean
+  verified_by_trainer: boolean
+  is_injected: boolean
   created_at: string
 }
 
-export interface AiSearchResult {
-  query: AiQuery
+export interface AiExchange {
+  query_id: string
+  query_content: string
+  ai_summary: string
   sources: SavedContent[]
 }
+
+export type AiConversation = AiExchange[]
