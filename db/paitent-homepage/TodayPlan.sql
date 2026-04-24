@@ -1,44 +1,59 @@
--- list of today exercies with status of execution 
+-- list of today exercies with status of execution - there is problem with exe that do not exists in exercise_completion
 select pe.exercise_id,e.exercise_name,  e.visit_type,pe.reps,ec.execution_status
     from weekly_plans wp , plan_exercises pe, exercises e,exercise_completion ec
 where wp.session_id = pe.session_id
   and pe.exercise_id = e.exercise_id
   and pe.session_id = ec.session_id
+  and wp.plan_id = pe.plan_id
+  and wp.plan_id = ec.plan_id
+  and wp.exercise_id = pe.exercise_id
+  and wp.exercise_id = ec.exercise_id
   and wp.exercise_date= CURDATE()
 and pe.session_id in 
 (select s.session_id
-    from sessions s where s.patient_id =?
+    from sessions s where s.patient_id ='P100'
          and s.session_status = 'ACTIVE' );
          
-select pe.exercise_id,e.exercise_name,e.visit_type,pe.reps,ec.execution_status,
-e.ex_video_url,e.text_instructions,wp.session_id,wp.weekly_plan_id,wp.plan_id
-from weekly_plans wp , plan_exercises pe, exercises e,exercise_completion ec
+                                                   
+                                                 
+ ----------------------------------------------------------------------------------
+ -- most updated select 
+ -- שאילתא להביא תרגילים שבוצעו וגם תרגילים שלא בוצעו                                                 
+  select pe.exercise_id,e.exercise_name,  e.visit_type,pe.reps,0 as "execution_status"
+    from weekly_plans wp , plan_exercises pe, exercises e
+where wp.session_id = pe.session_id
+  and pe.exercise_id = e.exercise_id
+  and wp.plan_id = pe.plan_id
+  and wp.exercise_id = pe.exercise_id
+  and wp.exercise_date= CURDATE()
+and pe.session_id in 
+(select s.session_id
+    from sessions s where s.patient_id ='P100'
+         and s.session_status = 'ACTIVE' )
+         and not exists
+         (select 1 from exercise_completion ec
+         where ec.execution_date = wp.exercise_date
+         and ec.execution_status = 1
+         and ec.exercise_id = e.exercise_id
+         and ec.session_id = wp.session_id)
+union
+select pe.exercise_id,e.exercise_name,  e.visit_type,pe.reps,1 as "execution_status"
+    from weekly_plans wp , plan_exercises pe, exercises e,exercise_completion ec
 where wp.session_id = pe.session_id
   and pe.exercise_id = e.exercise_id
   and pe.session_id = ec.session_id
-  and wp.exercise_date= CURDATE()   
+  and wp.plan_id = pe.plan_id
+  and wp.plan_id = ec.plan_id
+  and wp.exercise_id = pe.exercise_id
+  and wp.exercise_id = ec.exercise_id
+  and wp.exercise_date= CURDATE()
+  and ec.execution_status = 1
 and pe.session_id in 
 (select s.session_id
-    from sessions s where s.patient_id = 'P100'  
-         and s.session_status = 'ACTIVE' );   
+    from sessions s where s.patient_id ='P100'
+         and s.session_status = 'ACTIVE' );	
          
-         select * from exercise_completion t;
-         
-select e.exercise_name,e.visit_type,pe.reps,ec.execution_status,
-pe.reps*pe.num_sets as num_exe_completed,
-e.ex_video_url,e.text_instructions,wp.session_id,wp.weekly_plan_id,wp.plan_id
-from weekly_plans wp , plan_exercises pe, exercises e,exercise_completion ec
-where wp.session_id = pe.session_id
-  and pe.exercise_id = e.exercise_id
-  and e.exercise_id = 1
-  and pe.session_id = ec.session_id
-  and wp.exercise_date= CURDATE()   
-and pe.session_id in 
-(select s.session_id
-    from sessions s where s.patient_id = 'P100'  
-         and s.session_status = 'ACTIVE' );   
-         
-    INSERT INTO exercise_completion (
+          INSERT INTO exercise_completion (
     report_id,
     weekly_plan_id,
     plan_id,
@@ -67,24 +82,5 @@ VALUES (
     12
 );
 
-SELECT pe.exercise_id, 
-                           e.exercise_name,  
-                           e.visit_type,
-                           pe.reps,
-                           ec.execution_status,
-                           ec.execution_date
-                    FROM weekly_plans wp , 
-                         plan_exercises pe, 
-                         exercises e,
-                         sessions s,
-                         exercise_completion ec
-                    WHERE wp.session_id = pe.session_id AND 
-                          pe.exercise_id = e.exercise_id AND
-                          pe.session_id = s.session_id AND
-                          pe.session_id = ec.session_id AND
-                          wp.exercise_date= CURDATE() AND
-                          pe.session_id IN ( 
-                                           SELECT s.session_id
-                                           FROM sessions s 
-                                           WHERE s.patient_id = %s AND
-                                                 s.session_status = 'ACTIVE' );
+
+
