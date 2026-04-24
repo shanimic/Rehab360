@@ -45,7 +45,8 @@ class PatientRoutesTest(unittest.TestCase):
                 "visit_type": "FITNESS",
                 "reps": 10,
                 "execution_status": 1,
-                "execution_date": "2026-04-18",
+                "num_sets": 3,
+                "text_instructions": "Stand with feet shoulder-width apart.",
             },
             {
                 "exercise_id": 2,
@@ -53,7 +54,8 @@ class PatientRoutesTest(unittest.TestCase):
                 "visit_type": "PHYSIOTHERAPIST",
                 "reps": 5,
                 "execution_status": 0,
-                "execution_date": "2026-04-18",
+                "num_sets": 2,
+                "text_instructions": "Hold each stretch for 30 seconds.",
             },
         ]
         cursor = _PatientHomeStubCursor(
