@@ -118,8 +118,10 @@ CREATE TABLE IF NOT EXISTS plans (
 
 INSERT INTO plans (session_id, goal, start_date, end_date)
 VALUES
-( 101,'Increase knee stability', '2024-01-11', '2024-02-11' ),
-( 102, 'Improve shoulder mobility', '2024-01-18', '2024-02-18' );
+( 101,'Increase knee stability', '2024-01-11', '2027-02-11' ),
+( 102, 'Improve shoulder mobility', '2024-01-18', '2027-02-18' );
+
+
 
 -- 5. Plan Exercises Table
 CREATE TABLE IF NOT EXISTS plan_exercises (
@@ -156,9 +158,10 @@ CREATE TABLE IF NOT EXISTS weekly_plans (
     FOREIGN KEY (plan_id, session_id, exercise_id) REFERENCES plan_exercises(plan_id, session_id, exercise_id)
 )auto_increment = 501;
 
-INSERT INTO weekly_plans ( plan_id, session_id, exercise_id, reminder_time, notification_enabled,exercise_date )
+INSERT INTO weekly_plans (plan_id, session_id, exercise_id, reminder_time, notification_enabled,exercise_date )
 VALUES
 ( 1, 101, 1, '2024-01-12 08:00:00', TRUE, CURDATE()),
+( 1, 101, 3, '2024-01-12 08:00:00', TRUE, CURDATE()),
 ( 2, 102, 2, '2024-01-19 09:00:00', TRUE, CURDATE());
 
 -- 7. Exercise Execution Log
@@ -184,7 +187,7 @@ CREATE TABLE IF NOT EXISTS exercise_completion (
 INSERT INTO exercise_completion ( weekly_plan_id, plan_id, session_id, exercise_id, execution_date, execution_status, reason_for_non_performance, pain_level, effort_level, request_for_change,num_exe_completed)
 VALUES
 (501, 1, 101, 1, CURDATE(), TRUE, NULL, 2, 4, 'Feels a bit easy',12),
-(502, 2, 102, 2, CURDATE(), FALSE, 'Felt sharp pain', 8, 2, 'Need easier alternative',8);
+(502,1, 101, 3, CURDATE(), FALSE, 'Felt sharp pain', 8, 2, 'Need easier alternative',8);
 
 
 

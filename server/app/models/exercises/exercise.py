@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel, field_validator
 from app.models.patients.visit_type import VisitType
 
@@ -25,6 +27,11 @@ class ExerciseReportMetadata(BaseModel):
     session_id: int
     weekly_plan_id: int
     plan_id: int
+    execution_date: datetime.date | None = None
+    reason_for_non_performance: str | None = None
+    pain_level: int | None = None
+    effort_level: int | None = None
+    request_for_change: str | None = None
 
     @field_validator("execution_status", mode="before")
     @classmethod

@@ -28,11 +28,8 @@ def _make_exercise_row(**overrides) -> dict:
         "visit_type": "PHYSIOTHERAPIST",
         "reps": 10,
         "execution_status": 0,
-        "ex_video_url": "https://example.com/squat.mp4",
+        "num_sets": 3,
         "text_instructions": "Keep back straight.",
-        "session_id": 5,
-        "weekly_plan_id": 12,
-        "plan_id": 3,
     }
     defaults.update(overrides)
     return defaults
@@ -58,9 +55,7 @@ class ExerciseRoutesTest(unittest.TestCase):
                 visit_type="FITNESS",
                 reps=15,
                 execution_status=0,
-                session_id=6,
-                weekly_plan_id=13,
-                plan_id=4,
+                num_sets=5,
             ),
         ]
         cursor = _ExerciseStubCursor(fetchall_rows=rows)
@@ -85,11 +80,8 @@ class ExerciseRoutesTest(unittest.TestCase):
         assert first["visit_type"] == "PHYSIOTHERAPIST"
         assert first["reps"] == 10
         assert first["execution_status"] is True
-        assert first["ex_video_url"] == "https://example.com/squat.mp4"
+        assert first["num_sets"] == 3
         assert first["text_instructions"] == "Keep back straight."
-        assert first["session_id"] == 5
-        assert first["weekly_plan_id"] == 12
-        assert first["plan_id"] == 3
 
         second = body[1]
         assert second["exercise_id"] == 2
@@ -97,6 +89,7 @@ class ExerciseRoutesTest(unittest.TestCase):
         assert second["visit_type"] == "FITNESS"
         assert second["reps"] == 15
         assert second["execution_status"] is False
+        assert second["num_sets"] == 5
 
     def test_get_patient_plan_empty_plan_returns_empty_list(self) -> None:
         """

@@ -4,7 +4,7 @@ import { Exercise } from "@/types/exercise"
 import { useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 
-export function useGetPatientHome(exerciseId: number) {
+export function useGetExercise(exerciseId: number) {
     const user = useAtomValue(authAtom)
     const patientId = user?.id
 

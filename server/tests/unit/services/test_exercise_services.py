@@ -4,26 +4,24 @@ import unittest
 from mockito import expect, mock
 
 from app.dal.exercise_repository import ExerciseRepository
-from app.models.exercises.exercise import ExerciseData, ExerciseReport, ExerciseReportMetadata, PatientPlanExercise
+from app.models.exercises.exercise import ExerciseData, ExerciseReport, ExerciseReportMetadata
+from app.models.patients.patient_exercises import DailyExerciseItem
 from app.models.patients.visit_type import VisitType
 from app.services.exercise_services import ExerciseServices
 
 
-def _make_plan_exercise(**overrides) -> PatientPlanExercise:
+def _make_plan_exercise(**overrides) -> DailyExerciseItem:
     defaults = {
         "exercise_id": 1,
         "exercise_name": "Squat",
         "visit_type": VisitType.PHYSIOTHERAPIST,
         "reps": 10,
         "execution_status": False,
-        "ex_video_url": "https://example.com/squat.mp4",
+        "num_sets": 3,
         "text_instructions": "Keep back straight.",
-        "session_id": 5,
-        "weekly_plan_id": 12,
-        "plan_id": 3,
     }
     defaults.update(overrides)
-    return PatientPlanExercise(**defaults)
+    return DailyExerciseItem(**defaults)
 
 
 def _make_metadata(**overrides) -> ExerciseReportMetadata:

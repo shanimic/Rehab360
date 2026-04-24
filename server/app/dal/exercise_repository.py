@@ -1,6 +1,7 @@
 from aiomysql import DictCursor
 
-from app.models.exercises.exercise import ExerciseReport, ExerciseReportMetadata, PatientPlanExercise
+from app.models.exercises.exercise import ExerciseReport, ExerciseReportMetadata
+from app.models.patients.patient_exercises import DailyExerciseItem
 
 
 class ExerciseRepository:
@@ -87,43 +88,95 @@ class ExerciseRepository:
                        ec.request_for_change,
                        pe.num_sets,
                        pe.reps * pe.num_sets AS num_exe_completed,
-                       e.ex_video_url, 
+                       e.ex_video_url,
                        e.text_instructions,
                        wp.session_id,
                        wp.weekly_plan_id,
                        wp.plan_id
-                FROM weekly_plans wp , plan_exercises pe, exercises e,exercise_completion ec
-                WHERE wp.session_id = pe.session_id AND
-                      pe.exercise_id = e.exercise_id AND
-                      e.exercise_id = %s AND
-                      pe.session_id = ec.session_id AND
-                      wp.exercise_date= CURDATE() AND
-                      pe.session_id IN (
-                          SELECT s.session_id
-                          FROM sessions s WHERE s.patient_id = %s AND
-                                s.session_status = 'ACTIVE' );
+                FROM weekly_plans wp
+                JOIN plan_exercises pe
+                    ON wp.session_id = pe.session_id
+                    AND wp.plan_id = pe.plan_id
+                    AND wp.exercise_id = pe.exercise_id
+                JOIN exercises e ON pe.exercise_id = e.exercise_id
+                LEFT JOIN exercise_completion ec
+                    ON ec.session_id = pe.session_id
+                    AND ec.exercise_id = e.exercise_id
+                    AND ec.execution_date = wp.exercise_date
+                WHERE e.exercise_id = %s
+                  AND wp.exercise_date = CURDATE()
+                  AND pe.session_id IN (
+                      SELECT s.session_id
+                      FROM sessions s
+                      WHERE s.patient_id = %s
+                        AND s.session_status = 'ACTIVE'
+                  );
                  """,
             args=(exercise_id, patient_id),
         )
         row = await self.cursor.fetchone()
         return ExerciseReportMetadata.model_validate(row) if row else None
 
-    async def get_patient_plan(self, patient_id: str):
+    async def get_patient_plan(self, patient_id: str) -> list[DailyExerciseItem]:
         await self.cursor.execute(query="""
-                select pe.exercise_id,e.exercise_name,e.visit_type,pe.reps,ec.execution_status,
-                e.ex_video_url,e.text_instructions,wp.session_id,wp.weekly_plan_id,wp.plan_id
-                from weekly_plans wp , plan_exercises pe, exercises e,exercise_completion ec
-                where wp.session_id = pe.session_id
-                and pe.exercise_id = e.exercise_id
-                and pe.session_id = ec.session_id
-                and wp.exercise_date= CURDATE()   
-                and pe.session_id in 
-                (select s.session_id
-                    from sessions s where s.patient_id = %s 
-                        and s.session_status = 'ACTIVE' );   
-                  """,
-            args=(patient_id,)
+                    -- Part 1: Exercises scheduled for today that are NOT yet completed
+                    SELECT
+                        pe.exercise_id,
+                        e.exercise_name,
+                        e.visit_type,
+                        pe.reps,
+                        0 as execution_status,
+                        pe.num_sets,
+                        e.text_instructions
+                    FROM weekly_plans wp
+                    JOIN plan_exercises pe ON wp.session_id = pe.session_id
+                        AND wp.plan_id = pe.plan_id
+                        AND wp.exercise_id = pe.exercise_id
+                    JOIN exercises e ON pe.exercise_id = e.exercise_id
+                    WHERE wp.exercise_date = CURDATE()
+                    AND pe.session_id IN (
+                        SELECT s.session_id
+                        FROM sessions s
+                        WHERE s.patient_id = %s AND s.session_status = 'ACTIVE'
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM exercise_completion ec
+                        WHERE ec.exercise_id = e.exercise_id
+                        AND ec.session_id = wp.session_id
+                        AND ec.execution_date = wp.exercise_date
+                        AND ec.execution_status = 1
+                    )
+
+                    UNION
+
+                    -- Part 2: Exercises scheduled for today that ARE completed
+                    SELECT
+                        pe.exercise_id,
+                        e.exercise_name,
+                        e.visit_type,
+                        pe.reps,
+                        1 as execution_status,
+                        pe.num_sets,
+                        e.text_instructions
+                    FROM weekly_plans wp
+                    JOIN plan_exercises pe ON wp.session_id = pe.session_id
+                        AND wp.plan_id = pe.plan_id
+                        AND wp.exercise_id = pe.exercise_id
+                    JOIN exercises e ON pe.exercise_id = e.exercise_id
+                    JOIN exercise_completion ec ON ec.session_id = pe.session_id
+                        AND ec.exercise_id = pe.exercise_id
+                        AND ec.plan_id = wp.plan_id
+                    WHERE wp.exercise_date = CURDATE()
+                    AND ec.execution_status = 1
+                    AND pe.session_id IN (
+                        SELECT s.session_id
+                        FROM sessions s
+                        WHERE s.patient_id = %s AND s.session_status = 'ACTIVE'
+                    )
+                """,
+            args=(patient_id, patient_id),
         )
 
         rows = await self.cursor.fetchall()
-        return [PatientPlanExercise.model_validate(row) for row in rows]
+        return [DailyExerciseItem.model_validate(row) for row in rows]

@@ -1,4 +1,5 @@
-from app.models.exercises.exercise import ExerciseData, ExerciseReport, PatientPlanExercise
+from app.models.exercises.exercise import ExerciseData, ExerciseReport
+from app.models.patients.patient_exercises import DailyExerciseItem
 from app.dal.exercise_repository import ExerciseRepository
 
 
@@ -14,14 +15,14 @@ class ExerciseServices:
         """
         self.repository = repository
 
-    async def get_patient_plan(self, patient_id: str) -> list[PatientPlanExercise]:
+    async def get_patient_plan(self, patient_id: str) -> list[DailyExerciseItem]:
         """Return all exercises in the patient's active plan for today.
 
         Args:
             patient_id: Patient identifier.
 
         Returns:
-            List of ``PatientPlanExercise`` for today's active session.
+            List of ``DailyExerciseItem`` for today's active session.
         """
         return await self.repository.get_patient_plan(patient_id=patient_id)
 
