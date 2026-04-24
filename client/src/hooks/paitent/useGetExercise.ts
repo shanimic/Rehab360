@@ -12,7 +12,6 @@ export function useGetExercise(exerciseId: number) {
         queryKey: [exerciseId, patientId],
         queryFn: async (): Promise<Exercise> => {
             const res = await apiClient.get(`/exercise/${exerciseId}/${patientId}`)
-            console.log(res.data)
             return res.data
         }
     })
