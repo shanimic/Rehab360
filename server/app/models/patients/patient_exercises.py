@@ -11,6 +11,8 @@ class DailyExerciseItem(BaseModel):
     visit_type: VisitType
     reps: int
     execution_status: bool
+    num_sets: int
+    text_instructions: str
 
     
     @classmethod

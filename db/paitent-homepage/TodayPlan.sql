@@ -19,7 +19,7 @@ and pe.session_id in
  ----------------------------------------------------------------------------------
  -- most updated select 
  -- שאילתא להביא תרגילים שבוצעו וגם תרגילים שלא בוצעו                                                 
-  select pe.exercise_id,e.exercise_name,  e.visit_type,pe.reps,0 as "execution_status"
+  select pe.exercise_id,e.exercise_name,  e.visit_type,pe.reps,0 as "execution_status", num_sets
     from weekly_plans wp , plan_exercises pe, exercises e
 where wp.session_id = pe.session_id
   and pe.exercise_id = e.exercise_id
@@ -37,7 +37,7 @@ and pe.session_id in
          and ec.exercise_id = e.exercise_id
          and ec.session_id = wp.session_id)
 union
-select pe.exercise_id,e.exercise_name,  e.visit_type,pe.reps,1 as "execution_status"
+select pe.exercise_id,e.exercise_name,  e.visit_type,pe.reps,1 as "execution_status", num_sets
     from weekly_plans wp , plan_exercises pe, exercises e,exercise_completion ec
 where wp.session_id = pe.session_id
   and pe.exercise_id = e.exercise_id

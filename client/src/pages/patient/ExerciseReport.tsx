@@ -9,7 +9,7 @@ import { markReported } from '@/lib/reportedExercises'
 import type { MyPlan } from '@/types/patient'
 import './ExerciseReport.css'
 import { useSaveExerciseReport } from '@/hooks/paitent/useSaveExerciseReport'
-import { useGetPatientHome } from '@/hooks/paitent/useGetExercise'
+import { useGetExercise } from '@/hooks/paitent/useGetExercise'
 
 /* ── Nav items ── */
 const bottomNav = [
@@ -71,7 +71,7 @@ export default function ExerciseReport() {
   const navigate = useNavigate()
   const location = useLocation()
   const { id } = useParams();
-  const { data } = useGetPatientHome(Number(id))
+  const { data } = useGetExercise(Number(id))
 
   // Exercise is passed via navigation state from MyPlan
   const exercise = (location.state as { exercise: MyPlan; source?: string } | null)
