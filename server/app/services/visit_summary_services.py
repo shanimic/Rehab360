@@ -4,9 +4,12 @@ from app.dal.visit_summary_repository import VisitSummaryRepository
 from app.models.enums.role import Role
 from app.models.patients.visit_type import VisitType
 from app.models.visit_summary.visit_summary import (
+    CreatePlanRequest,
+    CreatePlanResponse,
     CreateVisitSummaryRequest,
     CreateVisitSummaryResponse,
     PatientDetails,
+    SessionListItem,
 )
 
 _ROLE_TO_VISIT_TYPE: dict[Role, VisitType] = {
@@ -62,3 +65,25 @@ class VisitSummaryServices:
                 detail="Invalid therapist role for creating a visit summary",
             )
         return await self.repository.create_visit_summary(request, visit_type)
+
+    async def get_sessions_by_patient(self, patient_id: str) -> list[SessionListItem]:
+        """Return all active sessions for a patient.
+
+        Args:
+            patient_id: The unique identifier of the patient.
+
+        Returns:
+            A list of SessionListItem instances.
+        """
+        return await self.repository.get_sessions_by_patient(patient_id)
+
+    async def create_plan(self, request: CreatePlanRequest) -> CreatePlanResponse:
+        """Persist a new treatment plan linked to the given session.
+
+        Args:
+            request: The plan payload including session_id, goal, and date range.
+
+        Returns:
+            A CreatePlanResponse with the new plan_id and linked session_id.
+        """
+        return await self.repository.create_plan(request)

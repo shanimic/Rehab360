@@ -146,3 +146,29 @@ export const VisitType = {
   PHYSIOTHERAPIST: "PHYSIOTHERAPIST",
   FITNESS: "FITNESS"
 }
+
+// ── Visit Summary domain types ────────────────────────────────────────────────
+
+export interface VisitSummaryPatientData {
+  patient_id: string
+  patient_first_name: string
+  patient_last_name: string
+  phone: string
+  birth_date: string
+  email: string
+  plan_id: number | null
+  visit_date: string
+  visit_time: string
+}
+
+export interface SessionListItem {
+  session_id: number
+  visit_date: string
+  visit_time: string
+  visit_type: string
+  treatment_area: string
+  medical_diagnosis: string
+  description: string
+  therapist_first_name: string
+  therapist_last_name: string
+}

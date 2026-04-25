@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Phone, Mail, Calendar, User, Activity } from 'lucide-react'
 import TopNav from '@/components/TopNav'
 import InfoCard from '@/components/InfoCard'
@@ -81,8 +81,11 @@ function formatDate(iso: string): string {
 
 export default function PatientDetails() {
   const navigate = useNavigate()
+  const { id: routePatientId } = useParams<{ id: string }>()
   const [showTrainingComingSoon, setShowTrainingComingSoon] = useState(false)
   const { patient, alerts, visitSummary, treatmentPlan, trainingPlan } = MOCK
+
+  console.log('[DEBUG] PatientDetails route param id:', routePatientId)
 
   const patientAlerts = alerts.filter((a) => a.patientId === patient.id)
   const age = calculateAge(patient.birthDate)
@@ -143,7 +146,7 @@ export default function PatientDetails() {
           {/* Three main cards */}
           <div className="patient-cards-grid">
             {/* Visit Summaries */}
-            <InfoCard title="Visit Summaries" actionLabel="View All Summaries" onAction={() => navigate(`/patient/${patient.id}/visit-summaries`)}>
+            <InfoCard title="Visit Summaries" actionLabel="View All Summaries" onAction={() => navigate(`/patient/${routePatientId}/visit-summaries`)}>
               <div className="patient-visit__rows">
                 <div className="patient-visit__row">
                   <span className="patient-visit__label">
@@ -170,7 +173,7 @@ export default function PatientDetails() {
             <InfoCard
               title="Treatment Plan"
               actionLabel="Go to Current Treatment Plan"
-              onAction={() => navigate(`/patient/${patient.id}/treatment-plans`)}
+              onAction={() => navigate(`/patient/${routePatientId}/treatment-plans`)}
             >
               <div className="patient-plan__rows">
                 <div className="patient-plan__row">
