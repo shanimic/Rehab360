@@ -2,9 +2,12 @@ from aiomysql import DictCursor
 
 from app.models.patients.visit_type import VisitType
 from app.models.visit_summary.visit_summary import (
+    CreatePlanRequest,
+    CreatePlanResponse,
     CreateVisitSummaryRequest,
     CreateVisitSummaryResponse,
     PatientDetails,
+    SessionListItem,
 )
 
 
@@ -97,3 +100,65 @@ class VisitSummaryRepository:
         await self.cursor.execute("SELECT LAST_INSERT_ID() AS session_id")
         row = await self.cursor.fetchone()
         return CreateVisitSummaryResponse.model_validate(row)
+
+    async def get_sessions_by_patient(self, patient_id: str) -> list[SessionListItem]:
+        """Fetch all active sessions for a patient, newest first.
+
+        Args:
+            patient_id: The unique identifier of the patient.
+
+        Returns:
+            A list of SessionListItem instances ordered by date descending.
+        """
+        await self.cursor.execute(
+            query="""
+                SELECT
+                    s.session_id,
+                    s.visit_date,
+                    s.visit_time,
+                    s.visit_type,
+                    s.treatment_area,
+                    s.medical_diagnosis,
+                    s.description,
+                    u_therapist.first_name AS therapist_first_name,
+                    u_therapist.last_name  AS therapist_last_name
+                FROM sessions s
+                JOIN registered_users u_therapist
+                    ON s.therapist_id   = u_therapist.user_id
+                   AND s.therapist_role = u_therapist.user_role
+                WHERE s.patient_id     = %s
+                  AND s.session_status = 'ACTIVE'
+                ORDER BY s.visit_date DESC, s.visit_time DESC
+            """,
+            args=(patient_id,),
+        )
+        rows = await self.cursor.fetchall()
+        return [SessionListItem.model_validate(row) for row in rows]
+
+    async def create_plan(self, request: CreatePlanRequest) -> CreatePlanResponse:
+        """Insert a new treatment plan linked to a session and return its generated plan_id.
+
+        Args:
+            request: The plan data including the session_id that links it to a visit summary.
+
+        Returns:
+            A CreatePlanResponse containing the new plan_id and the linked session_id.
+        """
+        await self.cursor.execute(
+            query="""
+                INSERT INTO plans (session_id, goal, start_date, end_date)
+                VALUES (%s, %s, %s, %s)
+            """,
+            args=(
+                request.session_id,
+                request.goal,
+                request.start_date,
+                request.end_date,
+            ),
+        )
+        await self.cursor.execute(
+            "SELECT LAST_INSERT_ID() AS plan_id, %s AS session_id",
+            args=(request.session_id,),
+        )
+        row = await self.cursor.fetchone()
+        return CreatePlanResponse.model_validate(row)
