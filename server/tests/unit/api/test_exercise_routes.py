@@ -9,16 +9,19 @@ from app.main import app
 
 
 class _ExerciseStubCursor:
-    """Minimal async cursor that returns a fixed fetchall result."""
+    """Minimal async cursor that returns fixed fetchall results across sequential calls."""
 
-    def __init__(self, fetchall_rows: list) -> None:
-        self._fetchall_rows = fetchall_rows
+    def __init__(self, today_rows: list, tomorrow_rows: list | None = None) -> None:
+        self._responses = [today_rows, tomorrow_rows if tomorrow_rows is not None else []]
+        self._call_count = 0
 
     async def execute(self, **_kwargs) -> None:
         return None
 
     async def fetchall(self) -> list:
-        return self._fetchall_rows
+        result = self._responses[self._call_count % len(self._responses)]
+        self._call_count += 1
+        return result
 
 
 def _make_exercise_row(**overrides) -> dict:
@@ -58,7 +61,7 @@ class ExerciseRoutesTest(unittest.TestCase):
                 num_sets=5,
             ),
         ]
-        cursor = _ExerciseStubCursor(fetchall_rows=rows)
+        cursor = _ExerciseStubCursor(today_rows=rows)
 
         async def override_get_db():
             yield cursor
@@ -72,9 +75,10 @@ class ExerciseRoutesTest(unittest.TestCase):
         # ASSERT
         assert response.status_code == 200
         body = response.json()
-        assert len(body) == 2
+        today = body["today_exercises"]
+        assert len(today) == 2
 
-        first = body[0]
+        first = today[0]
         assert first["exercise_id"] == 1
         assert first["exercise_name"] == "Squat"
         assert first["visit_type"] == "PHYSIOTHERAPIST"
@@ -83,7 +87,7 @@ class ExerciseRoutesTest(unittest.TestCase):
         assert first["num_sets"] == 3
         assert first["text_instructions"] == "Keep back straight."
 
-        second = body[1]
+        second = today[1]
         assert second["exercise_id"] == 2
         assert second["exercise_name"] == "Lunge"
         assert second["visit_type"] == "FITNESS"
@@ -99,7 +103,7 @@ class ExerciseRoutesTest(unittest.TestCase):
         """
         # PREPARE
         patient_id = "patient-no-plan"
-        cursor = _ExerciseStubCursor(fetchall_rows=[])
+        cursor = _ExerciseStubCursor(today_rows=[])
 
         async def override_get_db():
             yield cursor
@@ -112,7 +116,7 @@ class ExerciseRoutesTest(unittest.TestCase):
 
         # ASSERT
         assert response.status_code == 200
-        assert response.json() == []
+        assert response.json() == {"today_exercises": [], "tomorrow_exercises": []}
 
     def test_get_patient_plan_execution_status_tinyint_coerced_to_bool(self) -> None:
         """
@@ -123,7 +127,7 @@ class ExerciseRoutesTest(unittest.TestCase):
         # PREPARE
         patient_id = "patient-002"
         cursor = _ExerciseStubCursor(
-            fetchall_rows=[_make_exercise_row(execution_status=1)]
+            today_rows=[_make_exercise_row(execution_status=1)]
         )
 
         async def override_get_db():
@@ -137,4 +141,4 @@ class ExerciseRoutesTest(unittest.TestCase):
 
         # ASSERT
         assert response.status_code == 200
-        assert response.json()[0]["execution_status"] is True
+        assert response.json()["today_exercises"][0]["execution_status"] is True

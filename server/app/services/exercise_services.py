@@ -1,5 +1,5 @@
-from app.models.exercises.exercise import ExerciseData, ExerciseReport
-from app.models.patients.patient_exercises import DailyExerciseItem
+from fastapi import HTTPException
+from app.models.exercises.exercise import ExerciseData, ExerciseReport, MyPlanResponse
 from app.dal.exercise_repository import ExerciseRepository
 
 
@@ -15,7 +15,7 @@ class ExerciseServices:
         """
         self.repository = repository
 
-    async def get_patient_plan(self, patient_id: str) -> list[DailyExerciseItem]:
+    async def get_patient_plan(self, patient_id: str) -> MyPlanResponse:
         """Return all exercises in the patient's active plan for today.
 
         Args:
@@ -24,7 +24,9 @@ class ExerciseServices:
         Returns:
             List of ``DailyExerciseItem`` for today's active session.
         """
-        return await self.repository.get_patient_plan(patient_id=patient_id)
+        today_plan = await self.repository.get_patient_plan(patient_id=patient_id)
+        tommorow_plan = await self.repository.get_tommorow_exercises(patient_id=patient_id)
+        return MyPlanResponse(today_exercises=today_plan, tomorrow_exercises=tommorow_plan)
 
     async def get_exercise(self, exercise_id: str, patient_id: str) -> ExerciseData:
         """Map persisted exercise metadata to the API-facing exercise payload.
@@ -40,6 +42,8 @@ class ExerciseServices:
             AttributeError: If metadata lookup returns ``None`` (caller should handle or validate).
         """
         metadata = await self.repository.get_exercise_report_metadata(exercise_id=exercise_id, patient_id=patient_id)
+        if metadata is None:
+            raise HTTPException(status_code=404, detail="Exercise not found for this patient today")
         return ExerciseData(
             exercise_name=metadata.exercise_name,
             visit_type=metadata.visit_type,
