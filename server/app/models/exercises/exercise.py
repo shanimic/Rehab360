@@ -2,6 +2,7 @@ import datetime
 
 from pydantic import BaseModel, field_validator
 from app.models.patients.visit_type import VisitType
+from app.models.patients.patient_exercises import DailyExerciseItem
 
 
 def _execution_status_to_bool(value: object) -> bool:
@@ -79,3 +80,9 @@ class PatientPlanExercise(BaseModel):
     def execution_status_to_bool(cls, value: object) -> bool:
         """Coerce DB tinyint (0/1) to bool; only ``1`` is ``True``."""
         return _execution_status_to_bool(value)
+
+class MyPlanResponse(BaseModel):
+    """Response model for patient's active plan, including today's and tomorrow's exercises."""
+
+    today_exercises: list[DailyExerciseItem] = []
+    tomorrow_exercises: list[DailyExerciseItem] = []

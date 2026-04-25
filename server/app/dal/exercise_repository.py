@@ -32,6 +32,8 @@ class ExerciseRepository:
             None
         """
         metadata = await self.get_exercise_report_metadata(exercise_id, patient_id)
+        if metadata is None:
+            raise ValueError(f"Exercise {exercise_id} not scheduled for patient {patient_id} today")
 
         await self.cursor.execute(
             query="""
@@ -59,7 +61,7 @@ class ExerciseRepository:
                 report.pain_level,
                 report.effort_level,
                 report.request_for_change,
-                metadata.num_exe_completed,
+                metadata.num_exe_completed if report.execution_status else 0,
             )
         )
 
@@ -117,7 +119,7 @@ class ExerciseRepository:
         row = await self.cursor.fetchone()
         return ExerciseReportMetadata.model_validate(row) if row else None
 
-    async def get_patient_plan(self, patient_id: str) -> list[DailyExerciseItem]:
+    async def get_patient_plan(self, patient_id: str) -> list[DailyExerciseItem] | list:
         await self.cursor.execute(query="""
                     -- Part 1: Exercises scheduled for today that are NOT yet completed
                     SELECT
@@ -167,6 +169,7 @@ class ExerciseRepository:
                     JOIN exercise_completion ec ON ec.session_id = pe.session_id
                         AND ec.exercise_id = pe.exercise_id
                         AND ec.plan_id = wp.plan_id
+                        AND ec.execution_date = wp.exercise_date
                     WHERE wp.exercise_date = CURDATE()
                     AND ec.execution_status = 1
                     AND pe.session_id IN (
@@ -179,4 +182,72 @@ class ExerciseRepository:
         )
 
         rows = await self.cursor.fetchall()
+        if not rows:
+            return []
+        return [DailyExerciseItem.model_validate(row) for row in rows]
+
+    async def get_tommorow_exercises(self, patient_id: str) -> list[DailyExerciseItem] | list:
+        await self.cursor.execute(query="""
+                    -- Part 1: Exercises scheduled for TOMORROW that are NOT yet completed
+                        SELECT
+                            pe.exercise_id,
+                            e.exercise_name,
+                            e.visit_type,
+                            pe.reps,
+                            0 as execution_status,
+                            pe.num_sets,
+                            e.text_instructions
+                        FROM weekly_plans wp
+                        JOIN plan_exercises pe ON wp.session_id = pe.session_id
+                            AND wp.plan_id = pe.plan_id
+                            AND wp.exercise_id = pe.exercise_id
+                        JOIN exercises e ON pe.exercise_id = e.exercise_id
+                        WHERE wp.exercise_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY) -- שינוי כאן
+                        AND pe.session_id IN (
+                            SELECT s.session_id
+                            FROM sessions s
+                            WHERE s.patient_id = %s AND s.session_status = 'ACTIVE'
+                        )
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM exercise_completion ec
+                            WHERE ec.exercise_id = e.exercise_id
+                            AND ec.session_id = wp.session_id
+                            AND ec.execution_date = wp.exercise_date
+                            AND ec.execution_status = 1
+                        )
+
+                        UNION
+
+                        -- Part 2: Exercises scheduled for TOMORROW that ARE completed
+                        SELECT
+                            pe.exercise_id,
+                            e.exercise_name,
+                            e.visit_type,
+                            pe.reps,
+                            1 as execution_status,
+                            pe.num_sets,
+                            e.text_instructions
+                        FROM weekly_plans wp
+                        JOIN plan_exercises pe ON wp.session_id = pe.session_id
+                            AND wp.plan_id = pe.plan_id
+                            AND wp.exercise_id = pe.exercise_id
+                        JOIN exercises e ON pe.exercise_id = e.exercise_id
+                        JOIN exercise_completion ec ON ec.session_id = pe.session_id
+                            AND ec.exercise_id = pe.exercise_id
+                            AND ec.plan_id = wp.plan_id
+                            AND ec.execution_date = wp.exercise_date
+                        WHERE wp.exercise_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+                        AND ec.execution_status = 1
+                        AND pe.session_id IN (
+                            SELECT s.session_id
+                            FROM sessions s
+                            WHERE s.patient_id = %s AND s.session_status = 'ACTIVE'
+                        )
+                                  """,
+            args=(patient_id, patient_id),
+        )
+        rows = await self.cursor.fetchall()
+        if not rows:
+            return []
         return [DailyExerciseItem.model_validate(row) for row in rows]

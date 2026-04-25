@@ -73,11 +73,17 @@ export interface PatientHomeData {
 }
 
 export interface MyPlan {
-  exercise_id: number,
-  exercise_name: string,
+  exercise_id: number
+  exercise_name: string
   visit_type: VisitType
-  reps: number,
-  execution_status: boolean,
-  ex_video_url?: string,
-  text_instructions: string,
+  reps: number
+  num_sets: number
+  execution_status: boolean
+  ex_video_url?: string
+  text_instructions: string
+}
+
+export interface MyPlanResponse {
+  today_exercises: MyPlan[]
+  tomorrow_exercises: MyPlan[]
 }

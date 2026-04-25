@@ -1,10 +1,9 @@
 """HTTP routes for single-exercise read and report submission."""
 
 from aiomysql import DictCursor
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
-from app.models.exercises.exercise import ExerciseData
-from app.models.patients.patient_exercises import DailyExerciseItem
+from app.models.exercises.exercise import ExerciseData, MyPlanResponse
 from app.dal.exercise_repository import ExerciseRepository
 from app.db.session import get_db
 from app.models.exercises.exercise import ExerciseReport
@@ -13,8 +12,8 @@ from app.services.exercise_services import ExerciseServices
 exercise_router = APIRouter()
 
 
-@exercise_router.get("/{patient_id}", tags=["Exercises"], response_model=list[DailyExerciseItem])
-async def get_petient_exercises(patient_id: str, db: DictCursor = Depends(get_db)) -> list[DailyExerciseItem]:
+@exercise_router.get("/{patient_id}", tags=["Exercises"], response_model=MyPlanResponse)
+async def get_petient_exercises(patient_id: str, db: DictCursor = Depends(get_db)) -> MyPlanResponse:
     """Return all exercises in today's active plan for a patient.
 
     Args:
@@ -60,4 +59,7 @@ async def post_exercise_report(exercise_id: str, patient_id: str, report: Exerci
     """
     exercise_repository = ExerciseRepository(db=db)
     exercise_service = ExerciseServices(repository=exercise_repository)
-    await exercise_service.post_exercise_report(exercise_id=exercise_id, patient_id=patient_id, report=report)
+    try:
+        await exercise_service.post_exercise_report(exercise_id=exercise_id, patient_id=patient_id, report=report)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc

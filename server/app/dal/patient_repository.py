@@ -119,6 +119,7 @@ class PatientRepository:
                     WHERE ec.session_id = s.session_id AND 
                           s.patient_id = %s AND
                           s.session_status = 'ACTIVE' AND
+                          ec.execution_status = 1 AND
                           s.visit_type = 'FITNESS') as EXE_COMPLETED ;
                 """,
             args=(patient_id, patient_id, patient_id),
@@ -153,6 +154,7 @@ class PatientRepository:
                 and s.visit_type = 'PHYSIOTHERAPIST') as NUM_WEEKS,
                 (select sum(ec.num_exe_completed) as EXECOMP from exercise_completion ec,sessions s
                 where ec.session_id = s.session_id and s.patient_id = %s
+                and ec.execution_status = 1
                 and s.session_status = 'ACTIVE'
                 and s.visit_type = 'PHYSIOTHERAPIST') as EXE_COMPLETED  ;
                 """,
