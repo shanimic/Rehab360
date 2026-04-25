@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import {
-  ArrowLeft, CheckCircle2, XCircle, Play, Minus, Plus,
+  ArrowLeft, CheckCircle2, XCircle, Minus, Plus,
   Home, Dumbbell, BarChart2, Sparkles, User,
   Bell, Menu,
 } from 'lucide-react'
@@ -64,6 +64,12 @@ function RatingControl({
       </div>
     </div>
   )
+}
+
+/* ── Helpers ── */
+function getYouTubeEmbedUrl(url: string): string {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/)
+  return match ? `https://www.youtube.com/embed/${match[1]}` : url
 }
 
 /* ── Page ── */
@@ -174,12 +180,15 @@ export default function ExerciseReport() {
 
             {/* Media card */}
             <div className="er-media-card">
-              <video controls className="er-media-card__img">
-                <source src={data?.ex_video_url} type='video/mp4' />
-              </video>
-              <button className="er-media-card__play" aria-label="Play video" type="button">
-                <Play size={24} fill="white" />
-              </button>
+              {data?.ex_video_url && (
+                <iframe
+                  className="er-media-card__img"
+                  src={getYouTubeEmbedUrl(data.ex_video_url)}
+                  title={data.exercise_name}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              )}
             </div>
 
             {/* Instructions */}

@@ -13,8 +13,8 @@ where p.session_id = s.session_id and s.patient_id ='P100'
 and s.session_status = 'ACTIVE'
 and s.visit_type = 'FITNESS') as NUM_WEEKS,
 (select sum(ec.num_exe_completed) as EXECOMP from exercise_completion ec,sessions s
-where ec.session_id = s.session_id and s.patient_id ='P100'
-and s.session_status = 'ACTIVE'
+where ec.session_id = s.session_id and s.patient_id ='P100' 
+and s.session_status = 'ACTIVE' and ec.execution_status = 1
 and s.visit_type = 'FITNESS') as EXE_COMPLETED 
 ;
 
