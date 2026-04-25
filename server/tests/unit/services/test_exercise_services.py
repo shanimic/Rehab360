@@ -4,7 +4,7 @@ import unittest
 from mockito import expect, mock
 
 from app.dal.exercise_repository import ExerciseRepository
-from app.models.exercises.exercise import ExerciseData, ExerciseReport, ExerciseReportMetadata
+from app.models.exercises.exercise import ExerciseData, ExerciseReport, ExerciseReportMetadata, MyPlanResponse
 from app.models.patients.patient_exercises import DailyExerciseItem
 from app.models.patients.visit_type import VisitType
 from app.services.exercise_services import ExerciseServices
@@ -116,9 +116,9 @@ class ExerciseServicesTest(unittest.TestCase):
 
     def test_get_patient_plan_returns_list_from_repository(self) -> None:
         """
-        Given the repository returns two PatientPlanExercise rows,
+        Given the repository returns two exercises for today and none for tomorrow,
         When get_patient_plan is called,
-        Then a list of those two exercises is returned unchanged.
+        Then a MyPlanResponse with today_exercises populated is returned.
         """
         # PREPARE
         repo = mock(ExerciseRepository)
@@ -130,21 +130,23 @@ class ExerciseServicesTest(unittest.TestCase):
 
         # MOCK
         expect(repo, times=1).get_patient_plan(patient_id="pat-1").thenReturn(exercises)
+        expect(repo, times=1).get_tommorow_exercises(patient_id="pat-1").thenReturn([])
 
         # ACT
         result = asyncio.run(service.get_patient_plan(patient_id="pat-1"))
 
         # ASSERT
-        assert result == exercises
-        assert len(result) == 2
-        assert result[0].exercise_name == "Squat"
-        assert result[1].visit_type == VisitType.FITNESS
+        assert isinstance(result, MyPlanResponse)
+        assert len(result.today_exercises) == 2
+        assert result.today_exercises[0].exercise_name == "Squat"
+        assert result.today_exercises[1].visit_type == VisitType.FITNESS
+        assert result.tomorrow_exercises == []
 
     def test_get_patient_plan_empty_returns_empty_list(self) -> None:
         """
-        Given the repository returns no rows for the patient today,
+        Given the repository returns no rows for the patient today or tomorrow,
         When get_patient_plan is called,
-        Then an empty list is returned.
+        Then a MyPlanResponse with empty today and tomorrow lists is returned.
         """
         # PREPARE
         repo = mock(ExerciseRepository)
@@ -152,9 +154,12 @@ class ExerciseServicesTest(unittest.TestCase):
 
         # MOCK
         expect(repo, times=1).get_patient_plan(patient_id="pat-no-plan").thenReturn([])
+        expect(repo, times=1).get_tommorow_exercises(patient_id="pat-no-plan").thenReturn([])
 
         # ACT
         result = asyncio.run(service.get_patient_plan(patient_id="pat-no-plan"))
 
         # ASSERT
-        assert result == []
+        assert isinstance(result, MyPlanResponse)
+        assert result.today_exercises == []
+        assert result.tomorrow_exercises == []
