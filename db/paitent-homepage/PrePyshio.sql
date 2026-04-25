@@ -14,6 +14,7 @@ and s.session_status = 'ACTIVE'
 and s.visit_type = 'PHYSIOTHERAPIST') as NUM_WEEKS,
 (select sum(ec.num_exe_completed) as EXECOMP from exercise_completion ec,sessions s
 where ec.session_id = s.session_id and s.patient_id ='P100'
+and ec.execution_status = 1
 and s.session_status = 'ACTIVE'
 and s.visit_type = 'PHYSIOTHERAPIST') as EXE_COMPLETED 
 ;
