@@ -34,6 +34,24 @@ class CreateVisitSummaryRequest(BaseModel):
     therapist_id: str
     therapist_role: Role
 
+    @field_validator("medical_diagnosis")
+    @classmethod
+    def medical_diagnosis_not_blank(cls, value: str) -> str:
+        """Reject empty or whitespace-only medical diagnosis.
+
+        Args:
+            value: The raw medical_diagnosis string from the request.
+
+        Returns:
+            The stripped value if non-empty.
+
+        Raises:
+            ValueError: If value is blank or whitespace only.
+        """
+        if not value.strip():
+            raise ValueError("medical_diagnosis must not be empty or whitespace")
+        return value
+
 
 class CreateVisitSummaryResponse(BaseModel):
     """Response returned after a visit summary is created."""

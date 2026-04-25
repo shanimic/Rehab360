@@ -58,6 +58,7 @@ interface FormErrors {
   date?: string
   time?: string
   treatmentArea?: string
+  medicalDiagnosis?: string
   visitNotes?: string
 }
 
@@ -122,6 +123,7 @@ export default function CreateVisitSummary() {
     if (!form.date) newErrors.date = 'Date is required'
     if (!form.time) newErrors.time = 'Time is required'
     if (!form.treatmentArea.trim()) newErrors.treatmentArea = 'Treatment area is required'
+    if (!form.medicalDiagnosis.trim()) newErrors.medicalDiagnosis = 'Medical Diagnosis is required'
     if (!form.visitNotes.trim()) newErrors.visitNotes = 'Visit notes are required'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -324,16 +326,19 @@ export default function CreateVisitSummary() {
 
             <div className="cvs-field">
               <label className="cvs-label" htmlFor="cvs-diagnosis">
-                Medical Diagnosis
+                Medical Diagnosis <span className="cvs-required">*</span>
               </label>
               <input
                 id="cvs-diagnosis"
                 type="text"
-                className="cvs-input"
+                className={`cvs-input${errors.medicalDiagnosis ? ' cvs-input--error' : ''}`}
                 placeholder="e.g. Rotator Cuff Tear"
                 value={form.medicalDiagnosis}
                 onChange={(e) => handleChange('medicalDiagnosis', e.target.value)}
               />
+              {errors.medicalDiagnosis && (
+                <p className="cvs-error-msg">{errors.medicalDiagnosis}</p>
+              )}
             </div>
           </div>
 
