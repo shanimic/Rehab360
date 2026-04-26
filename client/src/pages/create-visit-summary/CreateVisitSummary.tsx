@@ -248,22 +248,6 @@ export default function CreateVisitSummary() {
             )}
           </div>
 
-          {/* 🛠 TEMP DEBUG — remove once real data is verified */}
-          {patientApiData && (
-            <pre style={{
-              background: '#1e1e2e',
-              color: '#cdd6f4',
-              fontSize: '0.75rem',
-              padding: '0.75rem 1rem',
-              borderRadius: '8px',
-              overflowX: 'auto',
-              border: '1px solid #45475a',
-            }}>
-              <strong style={{ color: '#a6e3a1' }}>[DEBUG] Backend response:</strong>
-              {'\n'}{JSON.stringify(patientApiData, null, 2)}
-            </pre>
-          )}
-
           {/* Session type badge — role-derived, single badge shown */}
           <div className="cvs-session-row">
             <span

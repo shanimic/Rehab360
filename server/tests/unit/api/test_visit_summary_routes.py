@@ -37,7 +37,7 @@ class VisitSummaryRoutesTest(unittest.TestCase):
         """
         Given a patient row exists in the DB,
         When GET /visit-summary/patient/{patient_id} is called,
-        Then 200 is returned with patient details including plan_id, visit_date and visit_time.
+        Then 200 is returned with the six patient fields and no plan_id.
         """
         # PREPARE
         patient_id = "P100"
@@ -50,7 +50,6 @@ class VisitSummaryRoutesTest(unittest.TestCase):
                     "phone": "050-1234567",
                     "birth_date": datetime.date(1990, 5, 15),
                     "email": "alice@example.com",
-                    "plan_id": 3,
                 }
             ]
         )
@@ -72,43 +71,7 @@ class VisitSummaryRoutesTest(unittest.TestCase):
         assert body["patient_last_name"] == "Smith"
         assert body["phone"] == "050-1234567"
         assert body["email"] == "alice@example.com"
-        assert body["plan_id"] == 3
-        assert "visit_date" in body
-        assert "visit_time" in body
-
-    def test_get_patient_details_no_plan_returns_null_plan_id(self) -> None:
-        """
-        Given a patient row with no active plan,
-        When GET /visit-summary/patient/{patient_id} is called,
-        Then 200 is returned and plan_id is null.
-        """
-        # PREPARE
-        cursor = _VisitSummaryStubCursor(
-            fetchone_rows=[
-                {
-                    "patient_id": "P101",
-                    "patient_first_name": "Bob",
-                    "patient_last_name": "Jones",
-                    "phone": "052-9999999",
-                    "birth_date": datetime.date(1985, 3, 20),
-                    "email": "bob@example.com",
-                    "plan_id": None,
-                }
-            ]
-        )
-
-        async def override_get_db():
-            yield cursor
-
-        app.dependency_overrides[get_db] = override_get_db
-
-        # ACT
-        client = TestClient(app)
-        response = client.get("/visit-summary/patient/P101")
-
-        # ASSERT
-        assert response.status_code == 200
-        assert response.json()["plan_id"] is None
+        assert "plan_id" not in body
 
     def test_get_patient_details_not_found_returns_404(self) -> None:
         """

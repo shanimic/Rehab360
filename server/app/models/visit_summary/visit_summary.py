@@ -14,7 +14,6 @@ class PatientDetails(BaseModel):
     phone: str
     birth_date: datetime.date
     email: str
-    plan_id: int | None = None
     visit_date: datetime.date = Field(default_factory=datetime.date.today)
     visit_time: datetime.time = Field(
         default_factory=lambda: datetime.datetime.now().time().replace(microsecond=0)
