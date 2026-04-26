@@ -156,7 +156,6 @@ export interface VisitSummaryPatientData {
   phone: string
   birth_date: string
   email: string
-  plan_id: number | null
   visit_date: string
   visit_time: string
 }

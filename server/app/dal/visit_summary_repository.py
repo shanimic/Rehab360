@@ -29,23 +29,15 @@ class VisitSummaryRepository:
         await self.cursor.execute(
             query="""
                 SELECT
-                    u.user_id AS patient_id,
-                    u.first_name AS patient_first_name,
-                    u.last_name AS patient_last_name,
+                    u.user_id          AS patient_id,
+                    u.first_name       AS patient_first_name,
+                    u.last_name        AS patient_last_name,
                     u.phone,
                     u.birth_date,
-                    u.email,
-                    p.plan_id
+                    u.email
                 FROM registered_users u
-                LEFT JOIN sessions s
-                    ON s.patient_id = u.user_id
-                    AND s.session_status = 'ACTIVE'
-                LEFT JOIN plans p
-                    ON p.session_id = s.session_id
-                WHERE u.user_id = %s
+                WHERE u.user_id   = %s
                   AND u.user_role = 'PATIENT'
-                ORDER BY p.plan_id DESC
-                LIMIT 1
             """,
             args=(patient_id,),
         )
