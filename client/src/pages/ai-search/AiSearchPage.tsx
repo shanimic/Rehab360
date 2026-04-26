@@ -1,5 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
+import { Send, Loader2 } from 'lucide-react'
 import { useAtom, useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import { currentQueryAtom } from '@/store/aiSearchAtom'
@@ -9,6 +10,7 @@ import { useDeleteQuery } from '@/hooks/useDeleteQuery'
 import { useRestoreQuery } from '@/hooks/useRestoreQuery'
 import { useSavedContent } from '@/hooks/useSavedContent'
 import { errMsg } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import PatientTopNav from '@/components/PatientTopNav'
 import QueryChips from './components/QueryChips'
 import HistoryPanel from './components/HistoryPanel'
@@ -57,11 +59,7 @@ export default function AiSearchPage() {
           {/* ─── Left column ─── */}
           <div className="ais-page__left">
             <div className="ais-page__hero">
-              <div className="ais-page__eyebrow">
-                <span className="ais-page__pulse-dot" aria-hidden="true" />
-                <span className="ais-page__eyebrow-text">AI-Powered Medical Search</span>
-              </div>
-              <h1 className="ais-page__headline">Ask anything about your rehabilitation</h1>
+              <h1 className="ais-page__headline">AI Search</h1>
               <p className="ais-page__subtagline">
                 Get answers powered by Gemini AI, enriched with content your clinic&apos;s professionals have already reviewed and approved.
               </p>
@@ -75,7 +73,6 @@ export default function AiSearchPage() {
                   {(field) => (
                     <div className="ais-page__field">
                       <div className="ais-page__textarea-wrap">
-                        <span className="ais-page__stethoscope" aria-hidden="true">🩺</span>
                         <textarea
                           className="ais-page__textarea"
                           placeholder="E.g. Is it normal to feel pain after knee exercises?"
@@ -96,17 +93,17 @@ export default function AiSearchPage() {
                   <span className="ais-page__disclaimer hidden sm:block">
                     Results are AI-generated. Always consult a professional.
                   </span>
-                  <button
+                  <Button
                     type="submit"
-                    className="ais-page__search-btn"
                     disabled={searchMutation.isPending}
+                    className="rounded-xl min-h-[44px] bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] shadow-none disabled:cursor-not-allowed disabled:pointer-events-auto"
                   >
                     {searchMutation.isPending ? (
-                      <><span className="ais-page__spinner" aria-hidden="true" /> Searching…</>
+                      <><Loader2 size={16} className="animate-spin" />Asking…</>
                     ) : (
-                      '🔍 Search'
+                      <><Send size={16} />Ask</>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>

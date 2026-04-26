@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import type { ComponentType } from 'react'
+import { FileText, ClipboardList, Activity, Check, ShieldCheck, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import VerificationBadge from './VerificationBadge'
 import type { SavedContent, ApiRole } from '@/types'
@@ -13,10 +15,10 @@ interface SourceCardProps {
   savedIds?: Set<string>
 }
 
-const CONTENT_TYPE_EMOJI: Record<string, string> = {
-  Article: '📄',
-  'Clinical Guideline': '📋',
-  'Exercise Guide': '🏋️',
+const CONTENT_TYPE_ICON: Record<string, ComponentType<{ size?: number; className?: string }>> = {
+  Article: FileText,
+  'Clinical Guideline': ClipboardList,
+  'Exercise Guide': Activity,
 }
 
 export default function SourceCard({
@@ -32,7 +34,7 @@ export default function SourceCard({
   const isSaved = localSaved || (savedIds?.has(source.recommendation_id) ?? false)
   const isVerified = source.verified_by_physio || source.verified_by_trainer
   const canVerify = userRole === 'PHYSIOTHERAPIST' || userRole === 'FITNESS_TRAINER'
-  const emoji = CONTENT_TYPE_EMOJI[source.content_type] ?? '📄'
+  const ContentIcon = CONTENT_TYPE_ICON[source.content_type] ?? FileText
 
   function handleSave() {
     if (isSaved || !onSave) return
@@ -56,7 +58,7 @@ export default function SourceCard({
     >
       <div className="flex flex-col gap-2">
         <div className="flex items-start gap-2 flex-wrap">
-          <span className="text-xl flex-shrink-0" aria-hidden="true">{emoji}</span>
+          <ContentIcon size={20} className="text-gray-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="flex flex-wrap gap-1.5 items-center min-w-0">
             <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-600">
               {source.content_type}
@@ -99,7 +101,7 @@ export default function SourceCard({
                 : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600',
             )}
           >
-            {isSaved ? 'Saved ✓' : 'Save'}
+            {isSaved ? <span className="inline-flex items-center gap-1"><Check size={16} />Saved</span> : 'Save'}
           </button>
           {canVerify && (
             <button
@@ -109,7 +111,7 @@ export default function SourceCard({
                 'bg-white text-purple-600 border-purple-200 hover:bg-purple-50',
               )}
             >
-              Verify ✦
+              <span className="inline-flex items-center gap-1"><ShieldCheck size={16} />Verify</span>
             </button>
           )}
         </div>
@@ -137,7 +139,7 @@ export default function SourceCard({
               'lg:opacity-0 lg:group-hover:opacity-100',
             )}
           >
-            ✕ Remove
+            <span className="inline-flex items-center gap-1"><X size={16} />Remove</span>
           </button>
         </div>
       )}

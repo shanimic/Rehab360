@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { MessageCircle, Send, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import type { AiConversation } from '@/types'
 
 interface FollowUpInputProps {
@@ -27,8 +29,8 @@ export default function FollowUpInput({ conversation, onSubmit, isPending }: Fol
       )}
     >
       <form onSubmit={handleSubmit} className="p-4">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          💬 Ask a follow-up
+        <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+          <MessageCircle size={16} />Ask a follow-up
         </label>
         <textarea
           value={text}
@@ -46,17 +48,17 @@ export default function FollowUpInput({ conversation, onSubmit, isPending }: Fol
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" aria-hidden="true" />
             Session active · {conversation.length} {conversation.length === 1 ? 'exchange' : 'exchanges'}
           </span>
-          <button
+          <Button
             type="submit"
             disabled={isPending || !text.trim()}
-            className={cn(
-              'text-sm font-medium px-4 py-2 rounded-xl bg-blue-600 text-white',
-              'hover:bg-blue-700 transition-colors min-h-[44px]',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-            )}
+            className="rounded-xl min-h-[44px] bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] shadow-none disabled:cursor-not-allowed disabled:pointer-events-auto"
           >
-            {isPending ? 'Asking…' : 'Ask'}
-          </button>
+            {isPending ? (
+              <><Loader2 size={16} className="animate-spin" />Asking…</>
+            ) : (
+              <><Send size={16} />Ask</>
+            )}
+          </Button>
         </div>
       </form>
     </div>

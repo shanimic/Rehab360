@@ -23,60 +23,75 @@
   }
 }
 
-/* ─── Breadcrumb ─── */
-.ais-results__breadcrumb {
-  margin-bottom: 1.25rem;
-}
-
-.ais-results__back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.8rem;
-  color: var(--color-primary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem 0;
-  min-height: 44px;
-  font-weight: 500;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.ais-results__back-link:hover {
-  color: var(--color-primary-hover);
-}
-
-/* ─── Exchanges ─── */
+/* ─── Main content column ─── */
 .ais-results__content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
-.ais-results__exchanges {
+/* ─── Chat container ─── */
+.ais-results__chat {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.ais-results__separator {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0.75rem 0;
-  color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  font-weight: 500;
+/* ─── Follow-up bubble (user, right-aligned) ─── */
+.ais-bubble {
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-card);
+  border-bottom-right-radius: 4px;
+  max-width: 75%;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
-.ais-results__separator::before,
-.ais-results__separator::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--color-border);
+/* ─── Exchange wrapper (AI answer, left-aligned) ─── */
+.ais-exchange-wrapper {
+  position: relative;
+  padding-top: 14px;
+  padding-left: 14px;
+  align-self: flex-start;
+  max-width: 95%;
+  width: 100%;
+}
+
+/* Gemini avatar — sits at top-left corner of the card */
+.ais-exchange-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+/* ─── Exchange card ─── */
+.ais-exchange-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .ais-exchange-card {
+    padding: 1.5rem;
+  }
 }
 
 /* ─── Sidebar ─── */
@@ -107,27 +122,4 @@
   letter-spacing: 0.06em;
   color: var(--color-text-secondary);
   margin-bottom: 0.75rem;
-}
-
-.ais-results__sidebar-stats {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-}
-
-.ais-results__progress-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: var(--color-border);
-  overflow: hidden;
-}
-
-.ais-results__progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--color-primary);
-  transition: width 0.4s ease;
 }

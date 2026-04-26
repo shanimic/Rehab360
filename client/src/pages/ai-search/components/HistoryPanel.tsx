@@ -1,3 +1,4 @@
+import { Clock, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { AiQuery } from '@/types'
 
@@ -58,7 +59,7 @@ export default function HistoryPanel({
               className="flex-1 text-left flex items-start gap-2 min-w-0"
               onClick={() => onRestore(q.query_id)}
             >
-              <span className="text-base mt-0.5 flex-shrink-0" aria-hidden="true">🔍</span>
+              <Clock size={16} className="text-gray-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
               <div className="min-w-0">
                 <p className="text-sm text-gray-700 truncate">{q.query_content}</p>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -78,7 +79,7 @@ export default function HistoryPanel({
                 'lg:opacity-0 lg:group-hover:opacity-100',
               )}
             >
-              ✕
+              <X size={16} />
             </button>
           </li>
         ))}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Sparkles } from 'lucide-react'
 import AiSummaryCard from './AiSummaryCard'
 import FilterBar from './FilterBar'
 import SourceCard from './SourceCard'
@@ -7,7 +8,6 @@ import type { AiExchange, SavedContent, ApiRole } from '@/types'
 
 interface ExchangeBlockProps {
   exchange: AiExchange
-  isLast: boolean
   userRole: ApiRole
   onSave: (item: SavedContent) => void
   onVerify: (recommendationId: string, role: 'PHYSIOTHERAPIST' | 'FITNESS_TRAINER') => void
@@ -22,7 +22,6 @@ function applyFilter(sources: SavedContent[], filter: FilterKey): SavedContent[]
 
 export default function ExchangeBlock({
   exchange,
-  isLast,
   userRole,
   onSave,
   onVerify,
@@ -32,31 +31,39 @@ export default function ExchangeBlock({
   const filtered = applyFilter(exchange.sources, filter)
 
   return (
-    <div className="flex flex-col gap-4">
-      <AiSummaryCard exchange={exchange} defaultCollapsed={!isLast} />
+    <div className="ais-exchange-wrapper">
+      <div className="ais-exchange-avatar" aria-hidden="true">
+        <Sparkles size={14} />
+      </div>
 
-      <FilterBar filter={filter} onChange={setFilter} count={filtered.length} />
+      <div className="ais-exchange-card">
+        <div className="flex flex-col gap-4">
+          <AiSummaryCard exchange={exchange} />
 
-      <div className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-          Sources
-        </h2>
-        {filtered.map((source) => (
-          <SourceCard
-            key={source.recommendation_id}
-            source={source}
-            userRole={userRole}
-            mode="results"
-            onSave={onSave}
-            onVerify={onVerify}
-            savedIds={savedIds}
-          />
-        ))}
-        {filtered.length === 0 && (
-          <p className="text-sm text-gray-400 italic py-4 text-center">
-            No sources match this filter.
-          </p>
-        )}
+          <FilterBar filter={filter} onChange={setFilter} sources={exchange.sources} />
+
+          <div className="flex flex-col gap-3">
+            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+              Sources
+            </h2>
+            {filtered.map((source) => (
+              <SourceCard
+                key={source.recommendation_id}
+                source={source}
+                userRole={userRole}
+                mode="results"
+                onSave={onSave}
+                onVerify={onVerify}
+                savedIds={savedIds}
+              />
+            ))}
+            {filtered.length === 0 && (
+              <p className="text-sm text-gray-400 italic py-4 text-center">
+                No sources match this filter.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

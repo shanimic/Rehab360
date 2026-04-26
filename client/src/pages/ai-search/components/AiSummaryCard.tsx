@@ -1,54 +1,49 @@
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
+import { Sparkles, Hospital } from 'lucide-react'
 import type { AiExchange } from '@/types'
 
 interface AiSummaryCardProps {
   exchange: AiExchange
-  defaultCollapsed?: boolean
 }
 
-export default function AiSummaryCard({ exchange, defaultCollapsed = false }: AiSummaryCardProps) {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed)
+const GEMINI_LOGO_URL = 'https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg'
+
+export default function AiSummaryCard({ exchange }: AiSummaryCardProps) {
+  const [geminiLogoError, setGeminiLogoError] = useState(false)
   const injectedCount = exchange.sources.filter((s) => s.is_injected).length
 
   return (
     <div className="rounded-2xl overflow-hidden shadow-md">
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-white animate-pulse" aria-hidden="true" />
-          <span className="text-sm font-semibold text-white">AI Summary</span>
+          {geminiLogoError ? (
+            <Sparkles size={20} className="text-white" aria-hidden="true" />
+          ) : (
+            <img
+              src={GEMINI_LOGO_URL}
+              alt="Gemini"
+              width={20}
+              height={20}
+              onError={() => setGeminiLogoError(true)}
+            />
+          )}
+          <span className="text-sm font-semibold text-white">Powered by Gemini AI</span>
         </div>
-        <span className="text-xs text-blue-200 hidden sm:block">
-          Always consult your healthcare professional
-        </span>
+        <div className="flex items-center gap-3">
+          {injectedCount > 0 && (
+            <span className="text-xs text-blue-200 hidden sm:flex items-center gap-1">
+              <Hospital size={14} aria-hidden="true" />
+              {injectedCount} clinic-verified {injectedCount === 1 ? 'source' : 'sources'}
+            </span>
+          )}
+          <span className="text-xs text-blue-200 hidden sm:block">
+            Always consult your healthcare professional
+          </span>
+        </div>
       </div>
 
-      {!collapsed && (
-        <div className="px-4 py-4 bg-gradient-to-br from-blue-50 to-purple-50">
-          <p className="text-sm text-gray-700 leading-relaxed">{exchange.ai_summary}</p>
-        </div>
-      )}
-
-      <div
-        className={cn(
-          'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 py-3',
-          collapsed ? 'bg-gradient-to-r from-blue-600 to-blue-700' : 'bg-blue-50',
-        )}
-      >
-        <button
-          onClick={() => setCollapsed((c) => !c)}
-          className={cn(
-            'text-xs font-medium underline-offset-2 hover:underline min-h-[44px] text-left',
-            collapsed ? 'text-white' : 'text-blue-600',
-          )}
-        >
-          {collapsed ? '▶ Expand summary' : '▲ Collapse summary'}
-        </button>
-        {injectedCount > 0 && (
-          <span className={cn('text-xs', collapsed ? 'text-blue-200' : 'text-blue-500')}>
-            🏥 {injectedCount} clinic-verified {injectedCount === 1 ? 'source' : 'sources'} included
-          </span>
-        )}
+      <div className="px-4 py-4 bg-gray-100">
+        <p className="text-sm text-gray-700 leading-relaxed">{exchange.ai_summary}</p>
       </div>
     </div>
   )

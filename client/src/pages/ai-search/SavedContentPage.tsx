@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Bookmark, BookmarkCheck } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import { useSavedContent } from '@/hooks/useSavedContent'
@@ -67,8 +68,7 @@ export default function SavedContentPage() {
       <main className="ais-saved__main">
         {/* ─── Hero ─── */}
         <div className="ais-saved__hero">
-          <p className="ais-saved__eyebrow">Personal Library</p>
-          <h1 className="ais-saved__title">Your Rehabilitation Library</h1>
+          <h1 className="ais-saved__title">My Saved Content</h1>
           <p className="ais-saved__subtitle">Articles and guides saved across all your searches</p>
           <div className="ais-saved__stats">
             <div className="ais-saved__stat"><span className="ais-saved__stat-num">{localContent.length}</span><span>Saved</span></div>
@@ -81,7 +81,7 @@ export default function SavedContentPage() {
 
         {/* ─── Controls ─── */}
         <div className="ais-saved__controls">
-          <FilterBar filter={filter} onChange={setFilter} count={sorted.length} />
+          <FilterBar filter={filter} onChange={setFilter} sources={localContent} />
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
@@ -95,7 +95,7 @@ export default function SavedContentPage() {
         {/* ─── Loading skeleton ─── */}
         {localContent.length === 0 && filter === 'all' && (
           <div className="ais-saved__empty">
-            <span className="ais-saved__empty-emoji" aria-hidden="true">🔖</span>
+            <Bookmark size={48} className="text-blue-400 mx-auto mb-4" aria-hidden="true" />
             <h2 className="ais-saved__empty-title">No saved content yet</h2>
             <p className="ais-saved__empty-sub">Save articles and guides from your search results to find them here.</p>
             <button className="ais-saved__empty-cta" onClick={() => navigate('/ai-search')}>
@@ -110,7 +110,7 @@ export default function SavedContentPage() {
             {sorted.map((item) => (
               <li key={item.recommendation_id}>
                 <p className="ais-saved__attribution">
-                  📎 Saved from: &ldquo;<span className="ais-saved__attribution-query">{queryLabel(item.query_id)}</span>&rdquo; · {relativeDate(item.created_at)}
+                  <BookmarkCheck size={14} className="inline-block align-middle mr-1" aria-hidden="true" />Saved from: &ldquo;<span className="ais-saved__attribution-query">{queryLabel(item.query_id)}</span>&rdquo; · {relativeDate(item.created_at)}
                 </p>
                 <SourceCard
                   source={item}
