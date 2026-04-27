@@ -1,31 +1,30 @@
 import { Dumbbell } from 'lucide-react'
-import type { PlanExercise } from '../../MyPlan'
+import type { MyPlan } from '@/types/patient'
 
 interface ExerciseCardProps {
-  exercise: PlanExercise
+  exercise: MyPlan
 }
 
 export default function ExerciseCard({ exercise }: ExerciseCardProps) {
-  const { from, to, iconColor } = exercise.thumb
-  const isTreatment = exercise.plan === 'Treatment Plan'
+  const isPhysio = exercise.visit_type?.toLowerCase() === 'physiotherapist'
 
   return (
-    <article className="es-pool-card" aria-label={exercise.name}>
+    <article className="es-pool-card" aria-label={exercise.exercise_name}>
       <div
         className="es-pool-card__thumb"
-        style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+        style={{ background: isPhysio ? 'linear-gradient(135deg, #74b9ff, #0984e3)' : 'linear-gradient(135deg, #55efc4, #00b894)' }}
         aria-hidden
       >
-        <Dumbbell size={22} color={iconColor} strokeWidth={1.6} />
+        <Dumbbell size={22} color="#fff" strokeWidth={1.6} />
       </div>
       <div className="es-pool-card__body">
-        <span className="es-pool-card__name">{exercise.name}</span>
+        <span className="es-pool-card__name">{exercise.exercise_name}</span>
         <span
-          className={`es-pool-card__badge${isTreatment ? ' es-pool-card__badge--treatment' : ' es-pool-card__badge--training'}`}
+          className={`es-pool-card__badge${isPhysio ? ' es-pool-card__badge--treatment' : ' es-pool-card__badge--training'}`}
         >
-          {isTreatment ? 'Treatment' : 'Training'}
+          {isPhysio ? 'Physio' : 'Fitness'}
         </span>
-        <span className="es-pool-card__desc">{exercise.desc}</span>
+        <span className="es-pool-card__desc">{exercise.text_instructions}</span>
       </div>
     </article>
   )

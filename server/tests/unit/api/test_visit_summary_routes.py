@@ -1,0 +1,384 @@
+"""Unit tests for visit summary HTTP routes (DB dependency overridden with stub cursor)."""
+
+import datetime
+import unittest
+from collections import deque
+
+from fastapi.testclient import TestClient
+
+from app.db.session import get_db
+from app.main import app
+
+
+class _VisitSummaryStubCursor:
+    """Minimal async cursor stub for visit summary tests."""
+
+    def __init__(self, fetchone_rows: list, fetchall_rows: list | None = None) -> None:
+        self._fetchone_queue: deque = deque(fetchone_rows)
+        self._fetchall_rows: list = fetchall_rows if fetchall_rows is not None else []
+
+    async def execute(self, *_args, **_kwargs) -> None:
+        return None
+
+    async def fetchone(self):
+        return self._fetchone_queue.popleft() if self._fetchone_queue else None
+
+    async def fetchall(self) -> list:
+        return self._fetchall_rows
+
+
+class VisitSummaryRoutesTest(unittest.TestCase):
+    def tearDown(self) -> None:
+        app.dependency_overrides.clear()
+
+    # ── GET /visit-summary/patient/{patient_id} ──────────────────────────────
+
+    def test_get_patient_details_found_returns_200(self) -> None:
+        """
+        Given a patient row exists in the DB,
+        When GET /visit-summary/patient/{patient_id} is called,
+        Then 200 is returned with the six patient fields and no plan_id.
+        """
+        # PREPARE
+        patient_id = "P100"
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[
+                {
+                    "patient_id": "P100",
+                    "patient_first_name": "Alice",
+                    "patient_last_name": "Smith",
+                    "phone": "050-1234567",
+                    "birth_date": datetime.date(1990, 5, 15),
+                    "email": "alice@example.com",
+                }
+            ]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get(f"/visit-summary/patient/{patient_id}")
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert body["patient_id"] == "P100"
+        assert body["patient_first_name"] == "Alice"
+        assert body["patient_last_name"] == "Smith"
+        assert body["phone"] == "050-1234567"
+        assert body["email"] == "alice@example.com"
+        assert "plan_id" not in body
+
+    def test_get_patient_details_not_found_returns_404(self) -> None:
+        """
+        Given no matching patient row in the DB,
+        When GET /visit-summary/patient/{patient_id} is called,
+        Then 404 Not Found is returned.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[None])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/visit-summary/patient/UNKNOWN")
+
+        # ASSERT
+        assert response.status_code == 404
+
+    # ── GET /visit-summary/sessions/{patient_id} ─────────────────────────────
+
+    def test_get_sessions_by_patient_returns_list(self) -> None:
+        """
+        Given two active session rows for a patient,
+        When GET /visit-summary/sessions/{patient_id} is called,
+        Then 200 is returned with both sessions in the response list.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[],
+            fetchall_rows=[
+                {
+                    "session_id": 10,
+                    "visit_date": datetime.date(2026, 4, 20),
+                    "visit_time": datetime.time(10, 0, 0),
+                    "visit_type": "PHYSIOTHERAPIST",
+                    "treatment_area": "Knee",
+                    "medical_diagnosis": "ACL tear",
+                    "description": "Initial assessment",
+                    "therapist_first_name": "Bob",
+                    "therapist_last_name": "Cohen",
+                },
+                {
+                    "session_id": 11,
+                    "visit_date": datetime.date(2026, 4, 10),
+                    "visit_time": datetime.time(14, 30, 0),
+                    "visit_type": "FITNESS",
+                    "treatment_area": "Shoulder",
+                    "medical_diagnosis": "Rotator cuff",
+                    "description": "Strength work",
+                    "therapist_first_name": "Dana",
+                    "therapist_last_name": "Levi",
+                },
+            ],
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/visit-summary/sessions/P100")
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert len(body) == 2
+        assert body[0]["session_id"] == 10
+        assert body[0]["visit_type"] == "PHYSIOTHERAPIST"
+        assert body[0]["therapist_first_name"] == "Bob"
+        assert body[1]["session_id"] == 11
+        assert body[1]["visit_type"] == "FITNESS"
+
+    def test_get_sessions_by_patient_empty_returns_empty_list(self) -> None:
+        """
+        Given no active sessions for a patient,
+        When GET /visit-summary/sessions/{patient_id} is called,
+        Then 200 is returned with an empty list.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[], fetchall_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/visit-summary/sessions/P999")
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == []
+
+    # ── POST /visit-summary ───────────────────────────────────────────────────
+
+    def test_create_visit_summary_physiotherapist_returns_session_id(self) -> None:
+        """
+        Given a PHYSIOTHERAPIST therapist_role,
+        When POST /visit-summary is called with valid fields,
+        Then 200 is returned with the new session_id.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 201}])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/visit-summary",
+            json={
+                "treatment_area": "Knee",
+                "medical_diagnosis": "ACL tear",
+                "description": "Initial assessment",
+                "patient_id": "P100",
+                "therapist_id": "T001",
+                "therapist_role": "PHYSIOTHERAPIST",
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == {"session_id": 201}
+
+    def test_create_visit_summary_fitness_trainer_returns_session_id(self) -> None:
+        """
+        Given a FITNESS_TRAINER therapist_role,
+        When POST /visit-summary is called with valid fields,
+        Then 200 is returned with the new session_id.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 202}])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/visit-summary",
+            json={
+                "treatment_area": "Shoulder",
+                "medical_diagnosis": "Rotator cuff",
+                "description": "Strength training plan",
+                "patient_id": "P101",
+                "therapist_id": "T002",
+                "therapist_role": "FITNESS_TRAINER",
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == {"session_id": 202}
+
+    def test_create_visit_summary_with_optional_recommendations(self) -> None:
+        """
+        Given a request that includes the optional recommendations field,
+        When POST /visit-summary is called,
+        Then 200 is returned with the new session_id.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 203}])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/visit-summary",
+            json={
+                "treatment_area": "Back",
+                "medical_diagnosis": "Herniated disc",
+                "description": "Post-op recovery",
+                "recommendations": "Rest and ice daily",
+                "patient_id": "P102",
+                "therapist_id": "T001",
+                "therapist_role": "PHYSIOTHERAPIST",
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == {"session_id": 203}
+
+    def test_create_visit_summary_invalid_therapist_role_returns_400(self) -> None:
+        """
+        Given a PATIENT therapist_role in the request body,
+        When POST /visit-summary is called,
+        Then 400 Bad Request is returned.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/visit-summary",
+            json={
+                "treatment_area": "Back",
+                "medical_diagnosis": "Herniated disc",
+                "description": "Recovery",
+                "patient_id": "P102",
+                "therapist_id": "P102",
+                "therapist_role": "PATIENT",
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 400
+
+    def test_create_visit_summary_missing_required_fields_returns_422(self) -> None:
+        """
+        Given a request body missing required fields,
+        When POST /visit-summary is called,
+        Then 422 Unprocessable Entity is returned.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post("/visit-summary", json={"treatment_area": "Knee"})
+
+        # ASSERT
+        assert response.status_code == 422
+
+    # ── POST /visit-summary/plan ──────────────────────────────────────────────
+
+    def test_create_plan_returns_plan_id_and_session_id(self) -> None:
+        """
+        Given a valid plan request with an existing session_id,
+        When POST /visit-summary/plan is called,
+        Then 200 is returned with the new plan_id and the linked session_id.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[{"plan_id": 5, "session_id": 10}]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/visit-summary/plan",
+            json={
+                "session_id": 10,
+                "goal": "Restore full range of motion in shoulder",
+                "start_date": "2026-05-01",
+                "end_date": "2026-07-01",
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert body["plan_id"] == 5
+        assert body["session_id"] == 10
+
+    def test_create_plan_missing_required_fields_returns_422(self) -> None:
+        """
+        Given a plan request missing the required goal field,
+        When POST /visit-summary/plan is called,
+        Then 422 Unprocessable Entity is returned.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/visit-summary/plan",
+            json={"session_id": 10},
+        )
+
+        # ASSERT
+        assert response.status_code == 422

@@ -6,6 +6,7 @@ import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
 import AddExerciseModal from './AddExerciseModal'
 import type { ExerciseEntry } from './AddExerciseModal'
+import { useCreatePlan } from '@/hooks/useCreatePlan'
 
 import '../patient-details/PatientDetails.css'
 import './CreateTreatmentPlan.css'
@@ -23,6 +24,7 @@ export interface PlanFormState {
 interface LocationState {
   medical_diagnosis?: string
   patient_id?: string
+  session_id?: number
   plan_data?: PlanFormState
 }
 
@@ -41,6 +43,7 @@ export default function CreateTreatmentPlan() {
   const state = (location.state ?? {}) as Partial<LocationState>
   const medicalDiagnosis = state.medical_diagnosis ?? ''
   const patientId = state.patient_id ?? '1'
+  const sessionId = state.session_id ?? null
 
   // Restore any previously entered draft so data survives back-and-forth navigation
   const draft = state.plan_data
@@ -51,8 +54,11 @@ export default function CreateTreatmentPlan() {
     end_date: draft?.end_date ?? '',
     notes: draft?.notes ?? '',
   })
+  const createPlan = useCreatePlan()
+  const isSaving = createPlan.isPending
+
   const [errors, setErrors] = useState<FormErrors>({})
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [exercises, setExercises] = useState<ExerciseEntry[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -94,27 +100,29 @@ export default function CreateTreatmentPlan() {
     setExercises((prev) => prev.filter((ex) => ex.id !== id))
   }
 
-  // Save: 800 ms simulation → return to CreateVisitSummary with the saved plan
+  // Save: POST to /visit-summary/plan with session_id linking the plan to the visit summary
   function handleSave(): void {
     if (!validate()) return
-    setIsSaving(true)
-    setTimeout(() => {
-      setIsSaving(false)
-      navigate(`/patient/${patientId}/visit-summaries/new`, {
-        state: {
-          saved_plan: form,
-          medical_diagnosis: medicalDiagnosis,
-        },
-      })
-    }, 800)
-  }
-
-  // Back: carry the current draft so CreateVisitSummary can restore it on return
-  function handleBack(): void {
-    navigate(`/patient/${patientId}/visit-summaries/new`, {
-      state: {
-        plan_data: form,
-        medical_diagnosis: medicalDiagnosis,
+    if (sessionId === null) {
+      setSaveError('No session linked. Please save a visit summary first.')
+      return
+    }
+    setSaveError(null)
+    const payload = {
+      session_id: sessionId,
+      goal: form.goal,
+      start_date: form.start_date,
+      end_date: form.end_date,
+    }
+    console.log('[DEBUG] POST /visit-summary/plan payload:', payload)
+    createPlan.mutate(payload, {
+      onSuccess: (data) => {
+        console.log('[DEBUG] Plan created, plan_id:', data.plan_id, 'session_id:', data.session_id)
+        navigate(`/patient/${patientId}/visit-summaries`)
+      },
+      onError: (err) => {
+        console.error('[DEBUG] Plan save failed:', err)
+        setSaveError('Failed to save treatment plan. Please try again.')
       },
     })
   }
@@ -126,7 +134,11 @@ export default function CreateTreatmentPlan() {
       <main className="pt-16">
         {/* ── Back navigation ── */}
         <div className="patient-nav">
-          <button type="button" className="patient-nav__back" onClick={handleBack}>
+          <button
+            type="button"
+            className="patient-nav__back"
+            onClick={() => navigate(`/patient/${patientId}/visit-summaries`)}
+          >
             <ChevronLeft size={20} />
           </button>
           <h1 className="patient-nav__title">New Treatment Plan</h1>
@@ -268,15 +280,12 @@ export default function CreateTreatmentPlan() {
           </div>
 
           {/* ── Actions ── */}
+          {saveError && (
+            <p className="ctp-error-msg" style={{ textAlign: 'right', marginBottom: '0.5rem' }}>
+              {saveError}
+            </p>
+          )}
           <div className="ctp-actions">
-            <button
-              type="button"
-              className="ctp-btn-back"
-              onClick={handleBack}
-              disabled={isSaving}
-            >
-              Back
-            </button>
             <button
               type="button"
               className="ctp-btn-save"

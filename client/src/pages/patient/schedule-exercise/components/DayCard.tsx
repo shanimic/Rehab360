@@ -1,5 +1,5 @@
 import { Plus, CheckCircle2, Circle, X, Bell } from 'lucide-react'
-import type { PlanExercise } from '../../MyPlan'
+import type { MyPlan } from '@/types/patient'
 import type { ScheduledExercise } from '../ExerciseSchedule'
 
 const SETS: Array<1 | 2 | 3> = [1, 2, 3]
@@ -8,7 +8,7 @@ const TIMES = ['Morning', 'Afternoon', 'Evening'] as const
 interface DayCardProps {
   dayName: string
   exercises: ScheduledExercise[]
-  allExercises: PlanExercise[]
+  allExercises: MyPlan[]
   remindersEnabled: boolean
   onAddClick: () => void
   onRemove: (exerciseId: number) => void
@@ -35,7 +35,7 @@ export default function DayCard({
   const hasExercises = exercises.length > 0
 
   function getExercise(id: number) {
-    return allExercises.find(e => e.id === id)
+    return allExercises.find(e => e.exercise_id === id)
   }
 
   return (
@@ -61,14 +61,14 @@ export default function DayCard({
                 <div className="es-ex-row__top">
                   <div
                     className="es-ex-row__dot"
-                    style={{ background: `linear-gradient(135deg, ${ex.thumb.from}, ${ex.thumb.to})` }}
+                    style={{ background: ex.visit_type?.toLowerCase() === 'physiotherapist' ? 'linear-gradient(135deg, #74b9ff, #0984e3)' : 'linear-gradient(135deg, #55efc4, #00b894)' }}
                     aria-hidden
                   />
-                  <span className="es-ex-row__name">{ex.name}</span>
+                  <span className="es-ex-row__name">{ex.exercise_name}</span>
                   <button
                     className="es-ex-row__remove"
                     onClick={() => onRemove(entry.exerciseId)}
-                    aria-label={`Remove ${ex.name} from ${dayName}`}
+                    aria-label={`Remove ${ex.exercise_name} from ${dayName}`}
                     type="button"
                   >
                     <X size={14} />
@@ -94,7 +94,7 @@ export default function DayCard({
                   </div>
                 </div>
 
-                {/* Time of day */}
+                {/* Time of Day */}
                 <div className="es-ex-row__setting">
                   <span className="es-ex-row__setting-label">Time</span>
                   <div className="es-pill-group" role="group" aria-label="Time of day">
@@ -102,9 +102,10 @@ export default function DayCard({
                       <button
                         key={t}
                         type="button"
-                        className={`es-pill es-pill--wide${entry.timeOfDay === t ? ' es-pill--active' : ''}`}
+                        className={`es-pill${entry.timeOfDay === t ? ' es-pill--active' : ''}`}
                         onClick={() => onUpdateTime(entry.exerciseId, t)}
                         aria-pressed={entry.timeOfDay === t}
+                        aria-label={t}
                       >
                         {t}
                       </button>
@@ -125,7 +126,7 @@ export default function DayCard({
                       value={entry.reminderDate}
                       onChange={e => onUpdateReminderDate(entry.exerciseId, e.target.value)}
                       disabled={!remindersEnabled}
-                      aria-label={`Reminder date for ${ex.name}`}
+                      aria-label={`Reminder date for ${ex.exercise_name}`}
                     />
                     <input
                       type="time"
@@ -133,7 +134,7 @@ export default function DayCard({
                       value={entry.reminderTime}
                       onChange={e => onUpdateReminderTime(entry.exerciseId, e.target.value)}
                       disabled={!remindersEnabled}
-                      aria-label={`Reminder time for ${ex.name}`}
+                      aria-label={`Reminder time for ${ex.exercise_name}`}
                     />
                   </div>
                   {reminderMissing && (

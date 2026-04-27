@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import {
-  Circle,
   Home, Dumbbell, BarChart2, Sparkles, User,
   CalendarCheck, ChevronRight,
   Video, MapPin,
@@ -9,10 +8,10 @@ import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import PatientTopNav from '@/components/PatientTopNav'
-import { exercises, progressPercent, fitnessProgressPercent } from './patient.constants'
-import { useNavigate } from "react-router-dom";
-import { Exercise, Session } from "@/pages/patient/patient.types.ts";
-
+import type { Session } from "@/pages/patient/patient.types.ts"
+import { useNavigate } from "react-router-dom"
+import { useGetPatientHome } from '@/hooks/paitent/useGetPatinetHome'
+import ExerciseItem from './components/ExerciseItem'
 
 // Sessions relative to today
 function buildSessions(): Session[] {
@@ -29,13 +28,6 @@ function buildSessions(): Session[] {
   ]
 }
 const sessions = buildSessions()
-
-const completedCount = exercises.filter(e => e.done).length
-
-const stats = [
-  { icon: CalendarCheck, value: '2/12', label: 'Exercises Completed This Week', color: '#10b981' },
-  { icon: Dumbbell, value: `${completedCount}/${exercises.length}`, label: 'Today', color: '#1a56db' },
-]
 
 /* ── Helpers ── */
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -57,23 +49,6 @@ function fmtSession(d: Date) {
 }
 
 /* ── Sub-components ── */
-function ExerciseItem({ exercise }: { exercise: Exercise }) {
-  return (
-    <div className="ph-exercise-item">
-      <div className="ph-exercise-item__check">
-        <Circle size={24} className="ph-exercise-item__check--todo" />
-      </div>
-      <div className="ph-exercise-item__info">
-        <span className="ph-exercise-item__name">{exercise.name}</span>
-        <span className={`ph-exercise-item__badge ph-exercise-item__badge--${exercise.plan === 'Treatment Plan' ? 'treatment' : 'training'}`}>
-          {exercise.plan}
-        </span>
-        <span className="ph-exercise-item__desc">{exercise.desc}</span>
-      </div>
-    </div>
-  )
-}
-
 function CalendarCard() {
   const week = buildWeek()
   const today = new Date()
@@ -143,6 +118,26 @@ const bottomNav = [
 export default function PatientHome() {
   const navigate = useNavigate()
   const user = useAtomValue(authAtom)
+  const { data, isLoading } = useGetPatientHome()
+
+  const stats = [
+    {
+      icon: CalendarCheck,
+      value: `${data?.weekly_completion.EXECOMP ?? 0}/${data?.weekly_completion.EXETDW ?? 0}`,
+      label: 'Exercises Completed This Week',
+      color: '#10b981',
+    },
+    {
+      icon: Dumbbell,
+      value: `${data?.daily_completions.completed_sum ?? 0}/${data?.daily_completions.total ?? 0}`,
+      label: 'Today',
+      color: '#1a56db',
+    },
+  ]
+
+  const physioPercent = data?.physiotherapist_percentage ?? 0
+  const fitnessPercent = data?.fitness_percentage ?? 0
+  const dailyExercises = data?.daily_exercises ?? []
 
   return (
     <div className="ph-page pt-16">
@@ -184,10 +179,10 @@ export default function PatientHome() {
           <div className="ph-progress-card">
             <div className="ph-progress-card__header">
               <span className="ph-progress-card__label">Physiotherapy Progress</span>
-              <span className="ph-progress-card__percent">{progressPercent}%</span>
+              <span className="ph-progress-card__percent">{data?.physiotherapist_percentage ?? 0}%</span>
             </div>
             <div className="ph-progress-card__bar-track">
-              <div className="ph-progress-card__bar-fill" style={{ width: `${progressPercent}%` }} />
+              <div className="ph-progress-card__bar-fill" style={{ width: `${physioPercent}%` }} />
             </div>
           </div>
 
@@ -195,13 +190,13 @@ export default function PatientHome() {
             <div className="ph-progress-card__header">
               <span className="ph-progress-card__label">Fitness Progress</span>
               <span className="ph-progress-card__percent ph-progress-card__percent--fitness">
-                {fitnessProgressPercent}%
+                {data?.fitness_percentage ?? 0}%
               </span>
             </div>
             <div className="ph-progress-card__bar-track ph-progress-card__bar-track--fitness">
               <div
                 className="ph-progress-card__bar-fill ph-progress-card__bar-fill--fitness"
-                style={{ width: `${fitnessProgressPercent}%` }}
+                style={{ width: `${fitnessPercent}%` }}
               />
             </div>
           </div>
@@ -212,18 +207,18 @@ export default function PatientHome() {
 
           {/* Today Plan */}
           <div className="ph-right-col">
-
-            {/* Today Plan */}
             <section className="ph-section">
               <div className="ph-section__header">
                 <h2 className="ph-section__title">Today Plan</h2>
                 <button className="ph-section__view-all" onClick={() => navigate('/patient/my-plan')}>View All</button>
               </div>
               <div className="ph-exercise-list">
-                {exercises.map(ex => <ExerciseItem key={ex.id} exercise={ex} />)}
+                {isLoading
+                  ? <p className="ph-loading">Loading exercises…</p>
+                  : dailyExercises.map(ex => <ExerciseItem key={ex.exercise_id} exercise={ex} />)
+                }
               </div>
             </section>
-
           </div>
 
           {/* Calendar */}

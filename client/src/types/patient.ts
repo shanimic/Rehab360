@@ -40,31 +40,50 @@ export interface PatientDetails {
 }
 
 export enum VisitType {
-  PHYSIOTHERAPIST = 'physiotherapist',
-  FITNESS = 'fitness',
+  PHYSIOTHERAPIST = 'PHYSIOTHERAPIST',
+  FITNESS = 'FITNESS',
 }
 
 export interface DailyExerciseItem {
-  exerciseId: number
-  exerciseName: string
-  visitType: VisitType
+  exercise_id: number
+  exercise_name: string
+  visit_type: VisitType
   reps: number
-  executionStatus: boolean
+  execution_status: boolean
+  num_sets: number
+  text_instructions: string
 }
 
 export interface WeeklyCompletion {
-  exeComp: number
-  exeTdw: number
+  EXECOMP: number
+  EXETDW: number
 }
 
 export interface DailyCompletion {
-  completedSum: number
+  completed_sum: number
   total: number
 }
+
 export interface PatientHomeData {
-  dailyExercises: DailyExerciseItem[]
-  weeklyCompletion: WeeklyCompletion
-  fitnessPercentage: number
-  physiotherapistPercentage: number
-  dailyCompletions: DailyCompletion
+  daily_exercises: DailyExerciseItem[]
+  weekly_completion: WeeklyCompletion
+  fitness_percentage: number
+  physiotherapist_percentage: number
+  daily_completions: DailyCompletion
+}
+
+export interface MyPlan {
+  exercise_id: number
+  exercise_name: string
+  visit_type: VisitType
+  reps: number
+  num_sets: number
+  execution_status: boolean
+  ex_video_url?: string
+  text_instructions: string
+}
+
+export interface MyPlanResponse {
+  today_exercises: MyPlan[]
+  tomorrow_exercises: MyPlan[]
 }

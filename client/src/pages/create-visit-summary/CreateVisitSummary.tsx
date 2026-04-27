@@ -1,9 +1,11 @@
-import { useState } from 'react'
-import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { ChevronLeft, Phone, Mail, Target, ClipboardList, CheckCircle2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { ChevronLeft, Phone, Mail, ClipboardList } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
+import { useVisitSummary } from '@/hooks/useVisitSummaries'
+import { useCreateVisitSummary } from '@/hooks/useCreateVisitSummary'
 
 import '../patient-details/PatientDetails.css'
 import './CreateVisitSummary.css'
@@ -16,12 +18,6 @@ const PATIENT = {
   birthDate: '1981-03-15',
   phone: '+972-50-000-0001',
   email: 'john.smith@example.com',
-}
-
-// ── Mock rehabilitation goal ─────────────────────────────────────────────────
-const REHAB_GOAL = {
-  title: 'Full shoulder range of motion recovery',
-  progressPercent: 42,
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -62,6 +58,7 @@ interface FormErrors {
   date?: string
   time?: string
   treatmentArea?: string
+  medicalDiagnosis?: string
   visitNotes?: string
 }
 
@@ -69,20 +66,35 @@ interface FormErrors {
 export default function CreateVisitSummary() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const location = useLocation()
   const auth = useAtomValue(authAtom)
 
-  // Plan data returned from CreateTreatmentPlan (draft = "Back" clicked, saved = "Save" clicked)
-  type PlanState = { goal: string; start_date: string; end_date: string; notes: string }
-  const locationState = location.state as { plan_data?: PlanState; saved_plan?: PlanState } | null
-  const planDraft = locationState?.plan_data ?? null
-  const savedPlan = locationState?.saved_plan ?? null
+  // ── Real API data (API-first, mock fallback) ─────────────────────────────
+  const { data: patientApiData, isLoading: isLoadingPatient } = useVisitSummary(id)
+
+  useEffect(() => {
+    console.log('[DEBUG] Route param id (patient_id sent to API):', id)
+  }, [id])
+
+  useEffect(() => {
+    if (patientApiData) {
+      console.log('[DEBUG] useVisitSummary response:', patientApiData)
+    }
+  }, [patientApiData])
+
+  const displayPatient = {
+    id:        patientApiData?.patient_id        ?? PATIENT.id,
+    firstName: patientApiData?.patient_first_name ?? PATIENT.firstName,
+    lastName:  patientApiData?.patient_last_name  ?? PATIENT.lastName,
+    birthDate: patientApiData?.birth_date         ?? PATIENT.birthDate,
+    phone:     patientApiData?.phone              ?? PATIENT.phone,
+    email:     patientApiData?.email              ?? PATIENT.email,
+  }
 
   // Derive session type from user role — not editable
   const isPhysicalTherapy = auth?.role !== 'FITNESS_TRAINER'
   const sessionType = isPhysicalTherapy ? 'Physical Therapy' : 'Training'
 
-  const age = calculateAge(PATIENT.birthDate)
+  const age = calculateAge(displayPatient.birthDate)
 
   const [form, setForm] = useState<FormState>({
     date: getTodayString(),
@@ -93,8 +105,11 @@ export default function CreateVisitSummary() {
     recommendations: '',
   })
 
+  const createVisitSummary = useCreateVisitSummary()
+  const isSaving = createVisitSummary.isPending
+
   const [errors, setErrors] = useState<FormErrors>({})
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   function handleChange(field: keyof FormState, value: string): void {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -108,51 +123,78 @@ export default function CreateVisitSummary() {
     if (!form.date) newErrors.date = 'Date is required'
     if (!form.time) newErrors.time = 'Time is required'
     if (!form.treatmentArea.trim()) newErrors.treatmentArea = 'Treatment area is required'
+    if (!form.medicalDiagnosis.trim()) newErrors.medicalDiagnosis = 'Medical Diagnosis is required'
     if (!form.visitNotes.trim()) newErrors.visitNotes = 'Visit notes are required'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
+  function buildPayload() {
+    const patientId = id ?? displayPatient.id
+    return {
+      patientId,
+      payload: {
+        visit_date: form.date,
+        visit_time: form.time,
+        treatment_area: form.treatmentArea,
+        medical_diagnosis: form.medicalDiagnosis,
+        description: form.visitNotes,
+        recommendations: form.recommendations || undefined,
+        patient_id: patientId,
+        therapist_id: auth?.id ?? '',
+        therapist_role: auth?.role ?? '',
+      },
+    }
+  }
+
+  // Save summary only — navigate to the list on success
   function handleSave(): void {
+    if (!auth) { setSaveError('Session expired. Please log in again.'); return }
     if (!validate()) return
-    setIsSaving(true)
-    // Simulate async API call
-    setTimeout(() => {
-      setIsSaving(false)
-      navigate(`/patient/${id ?? PATIENT.id}/visit-summaries`)
-    }, 800)
+    setSaveError(null)
+    const { patientId, payload } = buildPayload()
+    console.log('[DEBUG] POST /visit-summary payload:', payload)
+    createVisitSummary.mutate(payload, {
+      onSuccess: (data) => {
+        console.log('[DEBUG] Visit summary created, session_id:', data.session_id)
+        console.log('[DEBUG] Navigating to:', `/patient/${patientId}/visit-summaries`)
+        navigate(`/patient/${patientId}/visit-summaries`)
+      },
+      onError: (err) => {
+        console.error('[DEBUG] Save failed:', err)
+        setSaveError('Failed to save visit summary. Please try again.')
+      },
+    })
+  }
+
+  // Save summary first, then navigate to Create Treatment Plan with session_id
+  function handleSaveAndCreatePlan(): void {
+    if (!auth) { setSaveError('Session expired. Please log in again.'); return }
+    if (!validate()) return
+    setSaveError(null)
+    const { patientId, payload } = buildPayload()
+    console.log('[DEBUG] POST /visit-summary (save & plan) payload:', payload)
+    createVisitSummary.mutate(payload, {
+      onSuccess: (data) => {
+        console.log('[DEBUG] Visit summary created, session_id:', data.session_id)
+        console.log('[DEBUG] Navigating to /create-treatment-plan with session_id:', data.session_id)
+        navigate('/create-treatment-plan', {
+          state: {
+            patient_id: patientId,
+            session_id: data.session_id,
+            medical_diagnosis: form.medicalDiagnosis,
+          },
+        })
+      },
+      onError: (err) => {
+        console.error('[DEBUG] Save & create plan failed:', err)
+        setSaveError('Failed to save visit summary. Please try again.')
+      },
+    })
   }
 
   function handleCancel(): void {
-    navigate(`/patient/${id ?? PATIENT.id}/visit-summaries`)
-  }
-
-  // True once the user has saved a treatment plan in this session.
-  // In production this would come from an API call (patient already has a plan record).
-  const hasExistingPlan = savedPlan !== null
-
-  // Case A — no existing plan: open a blank form
-  function handleCreateNewPlan(): void {
-    navigate('/create-treatment-plan', {
-      state: {
-        medical_diagnosis: form.medicalDiagnosis,
-        patient_id: id ?? PATIENT.id,
-        isUpdate: false,
-        plan_data: undefined,
-      },
-    })
-  }
-
-  // Case B — plan exists: pre-fill with the saved data for editing
-  function handleUpdatePlan(): void {
-    navigate('/create-treatment-plan', {
-      state: {
-        medical_diagnosis: form.medicalDiagnosis,
-        patient_id: id ?? PATIENT.id,
-        isUpdate: true,
-        plan_data: savedPlan ?? planDraft,
-      },
-    })
+    navigate(`/patient/${id ?? displayPatient.id}/visit-summaries`)
   }
 
   return (
@@ -173,29 +215,37 @@ export default function CreateVisitSummary() {
 
           {/* 1. Patient Profile Card */}
           <div className="patient-profile-card">
-            <div className="patient-profile-card__avatar">
-              {getInitials(PATIENT.firstName, PATIENT.lastName)}
-            </div>
-            <div className="patient-profile-card__info">
-              <p className="patient-profile-card__name">
-                {PATIENT.firstName} {PATIENT.lastName}
+            {isLoadingPatient ? (
+              <p style={{ padding: '0.5rem', color: 'var(--color-primary)' }}>
+                Loading patient data…
               </p>
-              <div className="patient-profile-card__meta-row">
-                <span>ID: #{PATIENT.id}</span>
-                <span className="patient-profile-card__sep">|</span>
-                <span>{age} years old</span>
-                <span className="patient-profile-card__sep">|</span>
-                <a href={`tel:${PATIENT.phone}`} className="patient-profile-card__contact">
-                  <Phone size={13} className="patient-profile-card__contact-icon" />
-                  {PATIENT.phone}
-                </a>
-                <span className="patient-profile-card__sep">|</span>
-                <a href={`mailto:${PATIENT.email}`} className="patient-profile-card__contact">
-                  <Mail size={13} className="patient-profile-card__contact-icon" />
-                  {PATIENT.email}
-                </a>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="patient-profile-card__avatar">
+                  {getInitials(displayPatient.firstName, displayPatient.lastName)}
+                </div>
+                <div className="patient-profile-card__info">
+                  <p className="patient-profile-card__name">
+                    {displayPatient.firstName} {displayPatient.lastName}
+                  </p>
+                  <div className="patient-profile-card__meta-row">
+                    <span>ID: #{displayPatient.id}</span>
+                    <span className="patient-profile-card__sep">|</span>
+                    <span>{age} years old</span>
+                    <span className="patient-profile-card__sep">|</span>
+                    <a href={`tel:${displayPatient.phone}`} className="patient-profile-card__contact">
+                      <Phone size={13} className="patient-profile-card__contact-icon" />
+                      {displayPatient.phone}
+                    </a>
+                    <span className="patient-profile-card__sep">|</span>
+                    <a href={`mailto:${displayPatient.email}`} className="patient-profile-card__contact">
+                      <Mail size={13} className="patient-profile-card__contact-icon" />
+                      {displayPatient.email}
+                    </a>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Session type badge — role-derived, single badge shown */}
@@ -260,16 +310,19 @@ export default function CreateVisitSummary() {
 
             <div className="cvs-field">
               <label className="cvs-label" htmlFor="cvs-diagnosis">
-                Medical Diagnosis
+                Medical Diagnosis <span className="cvs-required">*</span>
               </label>
               <input
                 id="cvs-diagnosis"
                 type="text"
-                className="cvs-input"
+                className={`cvs-input${errors.medicalDiagnosis ? ' cvs-input--error' : ''}`}
                 placeholder="e.g. Rotator Cuff Tear"
                 value={form.medicalDiagnosis}
                 onChange={(e) => handleChange('medicalDiagnosis', e.target.value)}
               />
+              {errors.medicalDiagnosis && (
+                <p className="cvs-error-msg">{errors.medicalDiagnosis}</p>
+              )}
             </div>
           </div>
 
@@ -309,46 +362,7 @@ export default function CreateVisitSummary() {
             </div>
           </div>
 
-          {/* 4. Rehabilitation Goal — shows saved treatment plan goal if available */}
-          <div className="cvs-card cvs-card--goal">
-            <div className="cvs-card__title-row">
-              <Target size={16} className="cvs-card__title-icon" />
-              <h2 className="cvs-card__title">
-                {savedPlan ? 'Treatment Plan Goal' : 'Current Rehabilitation Goal'}
-              </h2>
-              {savedPlan && (
-                <span className="cvs-plan-saved-badge">
-                  <CheckCircle2 size={12} />
-                  Plan Saved
-                </span>
-              )}
-            </div>
-
-            <p className="cvs-goal__text">
-              {savedPlan ? savedPlan.goal : REHAB_GOAL.title}
-            </p>
-
-            {savedPlan ? (
-              <p className="cvs-plan-dates">
-                {savedPlan.start_date} &mdash; {savedPlan.end_date}
-              </p>
-            ) : (
-              <div className="cvs-goal__progress">
-                <div className="cvs-goal__progress-header">
-                  <span className="cvs-goal__progress-label">Overall Progress</span>
-                  <span className="cvs-goal__progress-pct">{REHAB_GOAL.progressPercent}%</span>
-                </div>
-                <div className="cvs-goal__progress-track">
-                  <div
-                    className="cvs-goal__progress-fill"
-                    style={{ width: `${REHAB_GOAL.progressPercent}%` }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 5. Action Buttons */}
+          {/* 4. Action Buttons */}
           <div className="cvs-actions">
             {/* Far left — tertiary */}
             <button
@@ -360,40 +374,20 @@ export default function CreateVisitSummary() {
               Cancel
             </button>
 
-            {/* Far right — plan button(s) + primary save */}
+            {/* Far right — plan button + primary save */}
             <div className="cvs-actions__right">
-              {hasExistingPlan ? (
-                <>
-                  <button
-                    type="button"
-                    className="cvs-btn-plan"
-                    disabled={isSaving}
-                    onClick={handleCreateNewPlan}
-                  >
-                    <ClipboardList size={15} className="cvs-btn-plan__icon" />
-                    Create New Plan
-                  </button>
-                  <button
-                    type="button"
-                    className="cvs-btn-plan"
-                    disabled={isSaving}
-                    onClick={handleUpdatePlan}
-                  >
-                    <ClipboardList size={15} className="cvs-btn-plan__icon" />
-                    Update Current Plan
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  className="cvs-btn-plan"
-                  disabled={isSaving}
-                  onClick={handleCreateNewPlan}
-                >
-                  <ClipboardList size={15} className="cvs-btn-plan__icon" />
-                  Create Treatment Plan
-                </button>
+              {saveError && (
+                <p className="cvs-error-msg" style={{ alignSelf: 'center' }}>{saveError}</p>
               )}
+              <button
+                type="button"
+                className="cvs-btn-plan"
+                disabled={isSaving}
+                onClick={handleSaveAndCreatePlan}
+              >
+                <ClipboardList size={15} className="cvs-btn-plan__icon" />
+                {isSaving ? 'Saving…' : 'Save & Create Treatment Plan'}
+              </button>
               <button
                 type="button"
                 className="cvs-btn-save"

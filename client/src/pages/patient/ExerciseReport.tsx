@@ -1,14 +1,15 @@
 import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import {
-  ArrowLeft, CheckCircle2, XCircle, Play, Minus, Plus,
+  ArrowLeft, CheckCircle2, XCircle, Minus, Plus,
   Home, Dumbbell, BarChart2, Sparkles, User,
   Bell, Menu,
 } from 'lucide-react'
 import { markReported } from '@/lib/reportedExercises'
-import type { PlanExercise } from './MyPlan'
+import type { MyPlan } from '@/types/patient'
 import './ExerciseReport.css'
-import PatientTopNav from '@/components/PatientTopNav'
+import { useSaveExerciseReport } from '@/hooks/paitent/useSaveExerciseReport'
+import { useGetExercise } from '@/hooks/paitent/useGetExercise'
 
 /* ── Nav items ── */
 const bottomNav = [
@@ -19,11 +20,6 @@ const bottomNav = [
   { label: 'Profile', icon: User, active: false },
 ]
 
-const topNav = [
-  { label: 'Exercises', icon: Dumbbell },
-  { label: 'AI Search', icon: Sparkles },
-  { label: 'My Profile', icon: User },
-]
 
 /* ── Rating control ── */
 function RatingControl({
@@ -70,22 +66,29 @@ function RatingControl({
   )
 }
 
+/* ── Helpers ── */
+function getYouTubeEmbedUrl(url: string): string {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/)
+  return match ? `https://www.youtube.com/embed/${match[1]}` : url
+}
+
 /* ── Page ── */
 export default function ExerciseReport() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { id } = useParams();
+  const { data } = useGetExercise(Number(id))
 
   // Exercise is passed via navigation state from MyPlan
-  const exercise = (location.state as { exercise: PlanExercise; source?: string } | null)
+  const exercise = (location.state as { exercise: MyPlan; source?: string } | null)
     ?.exercise ?? null
 
+  const saveReport = useSaveExerciseReport()
   const [completionStatus, setCompletionStatus] = useState<'completed' | 'not-completed' | null>(null)
   const [pain, setPain] = useState(2)
   const [effort, setEffort] = useState(2)
   const [notCompletedReason, setNotCompletedReason] = useState('')
   const [changeRequest, setChangeRequest] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
 
   function isFormValid(): boolean {
     if (completionStatus === null) return false
@@ -95,26 +98,18 @@ export default function ExerciseReport() {
 
   function handleSave() {
     if (!exercise || !isFormValid()) return
-    setSaving(true)
 
-    // TODO: replace with API mutation
-    setTimeout(() => {
-      console.log({
-        exerciseId: exercise.id,
-        completed: completionStatus === 'completed',
-        pain,
-        effort,
-        notCompletedReason,
-        changeRequest,
-      })
-
-      markReported(exercise.id)
-
-      setSaving(false)
-      setSaved(true)
-
-      setTimeout(() => navigate('/patient/my-plan'), 800)
-    }, 600)
+    saveReport.mutate(
+      {
+        exercise_id: exercise.exercise_id,
+        execution_status: completionStatus === 'completed',
+        pain_level: pain,
+        effort_level: effort,
+        reason_for_non_performance: notCompletedReason,
+        request_for_change: changeRequest,
+      },
+      { onSuccess: () => markReported(exercise.exercise_id) },
+    )
   }
 
   // ── No exercise data guard ──
@@ -146,20 +141,6 @@ export default function ExerciseReport() {
           <span className="er-header__brand">Rehab<span>360</span></span>
         </div>
 
-        <nav className="er-header__nav">
-          {topNav.map(({ label, icon: Icon }) => (
-            <button
-              key={label}
-              className="er-header__nav-link"
-              type="button"
-              onClick={label === 'My Profile' ? () => navigate('/profile') : undefined}
-            >
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
-        </nav>
-
         <div className="er-header__actions">
           <button className="er-header__icon-btn" aria-label="Notifications" type="button">
             <Bell size={20} />
@@ -185,9 +166,9 @@ export default function ExerciseReport() {
             <ArrowLeft size={18} />
           </button>
           <div className="er-page-title__info">
-            <h1 className="er-page-title__name">{exercise.name}</h1>
+            <h1 className="er-page-title__name">{data?.exercise_name}</h1>
             <span className="er-page-title__meta">
-              {exercise.desc}&nbsp;|&nbsp;{exercise.duration}
+              {data?.reps} Reps | {data?.num_sets} Sets | {data?.visit_type}
             </span>
           </div>
         </div>
@@ -199,23 +180,22 @@ export default function ExerciseReport() {
 
             {/* Media card */}
             <div className="er-media-card">
-              <img
-                src={exercise.imageUrl}
-                alt={exercise.name}
-                className="er-media-card__img"
-              />
-              <button className="er-media-card__play" aria-label="Play video" type="button">
-                <Play size={24} fill="white" />
-              </button>
+              {data?.ex_video_url && (
+                <iframe
+                  className="er-media-card__img"
+                  src={getYouTubeEmbedUrl(data.ex_video_url)}
+                  title={data.exercise_name}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              )}
             </div>
 
             {/* Instructions */}
             <div className="er-instructions">
               <h3 className="er-instructions__title">Instructions</h3>
               <ol className="er-instructions__list">
-                {exercise.instructions.map(({ step, text }) => (
-                  <li key={step} className="er-instructions__item">{text}</li>
-                ))}
+                <li>{data?.text_instructions}</li>
               </ol>
             </div>
 
@@ -313,12 +293,12 @@ export default function ExerciseReport() {
 
             {/* Save */}
             <button
-              className={`er-save-btn${saved ? ' er-save-btn--saved' : ''}`}
+              className={`er-save-btn${saveReport.isSuccess ? ' er-save-btn--saved' : ''}`}
               onClick={handleSave}
-              disabled={saving || saved || !isFormValid()}
+              disabled={saveReport.isPending || saveReport.isSuccess || !isFormValid()}
               type="button"
             >
-              {saved ? 'Saved! Returning…' : saving ? 'Saving…' : 'Save'}
+              {saveReport.isSuccess ? 'Saved! Returning…' : saveReport.isPending ? 'Saving…' : 'Save'}
             </button>
 
           </div>
