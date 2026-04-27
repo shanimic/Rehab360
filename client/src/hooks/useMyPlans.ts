@@ -1,30 +1,19 @@
-// TODO: replace with real API call once GET /api/patients/me/plans endpoint is available
 import { useQuery } from '@tanstack/react-query'
+import { useAtomValue } from 'jotai'
 
+import apiClient from '@/lib/apiClient'
+import { authAtom } from '@/store/authAtom'
 import type { ActivePlan } from '@/types'
 
-const MOCK_PLANS: ActivePlan[] = [
-  {
-    plan_id: 1,
-    goal: 'Increase knee stability',
-    category: 'Treatment Plan',
-    start_date: '2024-01-11',
-    end_date: '2024-02-11',
-    completion_percent: 60,
-  },
-  {
-    plan_id: 2,
-    goal: 'Improve shoulder mobility',
-    category: 'Training Plan',
-    start_date: '2024-01-18',
-    end_date: '2024-02-18',
-    completion_percent: 40,
-  },
-]
-
 export function useMyPlans() {
+  const user = useAtomValue(authAtom)
+
   return useQuery<ActivePlan[]>({
     queryKey: ['profile', 'plans'],
-    queryFn: () => Promise.resolve(MOCK_PLANS),
+    queryFn: async () => {
+      const res = await apiClient.get(`/profile/${user!.id}/plans`)
+      return res.data as ActivePlan[]
+    },
+    enabled: !!user?.id,
   })
 }
