@@ -1,4 +1,5 @@
-import { Clock, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Clock, X, Bookmark, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { AiQuery } from '@/types'
 
@@ -27,6 +28,8 @@ export default function HistoryPanel({
   totalSearches,
   savedCount,
 }: HistoryPanelProps) {
+  const navigate = useNavigate()
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -40,6 +43,22 @@ export default function HistoryPanel({
           </button>
         )}
       </div>
+
+      <button
+        onClick={() => navigate('/ai-search/saved')}
+        className={cn(
+          'w-full flex items-center gap-2 px-3 rounded-xl min-h-[44px]',
+          'border border-gray-200 text-sm text-gray-600',
+          'hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 transition-all',
+        )}
+      >
+        <Bookmark size={14} className="flex-shrink-0" />
+        <span className="flex-1 text-left font-medium">My Saved Content</span>
+        {savedCount > 0 && (
+          <span className="text-xs text-gray-400">({savedCount})</span>
+        )}
+        <ChevronRight size={14} className="flex-shrink-0 text-gray-400" />
+      </button>
 
       {history.length === 0 && (
         <p className="text-sm text-gray-400 italic">No recent searches yet.</p>

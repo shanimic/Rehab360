@@ -1,4 +1,4 @@
-import { ChevronLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import './BackButton.css'
 
 interface BackButtonProps {
@@ -9,7 +9,7 @@ interface BackButtonProps {
 export default function BackButton({ onClick, 'aria-label': ariaLabel = 'Go back' }: BackButtonProps) {
   return (
     <button type="button" onClick={onClick} aria-label={ariaLabel} className="back-btn">
-      <ChevronLeft size={20} />
+      <ArrowLeft size={18} />
     </button>
   )
 }

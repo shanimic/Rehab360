@@ -6,14 +6,13 @@ import { authAtom } from '@/store/authAtom'
 import { useSavedContent } from '@/hooks/useSavedContent'
 import { useUnsaveContent } from '@/hooks/useUnsaveContent'
 import PatientTopNav from '@/components/PatientTopNav'
+import BackButton from '@/components/ui/BackButton'
 import FilterBar from './components/FilterBar'
 import SourceCard from './components/SourceCard'
 import type { FilterKey } from './components/FilterBar'
 import type { SavedContent } from '@/types'
 import { mockQueryHistory } from '@/mocks/aiSearchMocks'
 import './SavedContentPage.css'
-
-type SortOption = 'recent' | 'trusted'
 
 function queryLabel(queryId: string): string {
   return mockQueryHistory.find((h) => h.query_id === queryId)?.query_content ?? 'Unknown query'
@@ -33,31 +32,18 @@ function applyFilter(items: SavedContent[], filter: FilterKey): SavedContent[] {
   return items
 }
 
-function applySort(items: SavedContent[], sort: SortOption): SavedContent[] {
-  if (sort === 'recent') {
-    return [...items].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-  }
-  return [...items].sort((a, b) => {
-    const bScore = (b.verified_by_physio ? 1 : 0) + (b.verified_by_trainer ? 1 : 0)
-    const aScore = (a.verified_by_physio ? 1 : 0) + (a.verified_by_trainer ? 1 : 0)
-    return bScore - aScore
-  })
-}
-
 export default function SavedContentPage() {
   const navigate = useNavigate()
   const auth = useAtomValue(authAtom)
   const initialContent = useSavedContent()
   const [localContent, setLocalContent] = useState<SavedContent[]>(initialContent)
   const [filter, setFilter] = useState<FilterKey>('all')
-  const [sort, setSort] = useState<SortOption>('recent')
 
   const unsave = useUnsaveContent((id) => {
     setLocalContent((prev) => prev.filter((i) => i.recommendation_id !== id))
   })
 
   const filtered = applyFilter(localContent, filter)
-  const sorted = applySort(filtered, sort)
   const verifiedCount = localContent.filter((i) => i.verified_by_physio || i.verified_by_trainer).length
   const userRole = auth?.role ?? 'PATIENT'
 
@@ -66,9 +52,14 @@ export default function SavedContentPage() {
       <PatientTopNav patientName={auth?.first_name} />
 
       <main className="ais-saved__main">
+        {/* ─── Page title ─── */}
+        <div className="ais-saved__page-title">
+          <BackButton onClick={() => navigate('/ai-search')} aria-label="Back to AI Search" />
+          <h1 className="ais-saved__title">My Saved Content</h1>
+        </div>
+
         {/* ─── Hero ─── */}
         <div className="ais-saved__hero">
-          <h1 className="ais-saved__title">My Saved Content</h1>
           <p className="ais-saved__subtitle">Articles and guides saved across all your searches</p>
           <div className="ais-saved__stats">
             <div className="ais-saved__stat"><span className="ais-saved__stat-num">{localContent.length}</span><span>Saved</span></div>
@@ -82,14 +73,6 @@ export default function SavedContentPage() {
         {/* ─── Controls ─── */}
         <div className="ais-saved__controls">
           <FilterBar filter={filter} onChange={setFilter} sources={localContent} />
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortOption)}
-            className="ais-saved__sort-select"
-          >
-            <option value="recent">Sort: Most Recent</option>
-            <option value="trusted">Sort: Most Trusted</option>
-          </select>
         </div>
 
         {/* ─── Loading skeleton ─── */}
@@ -105,9 +88,9 @@ export default function SavedContentPage() {
         )}
 
         {/* ─── Card list ─── */}
-        {sorted.length > 0 && (
+        {filtered.length > 0 && (
           <ul className="ais-saved__list">
-            {sorted.map((item) => (
+            {filtered.map((item) => (
               <li key={item.recommendation_id}>
                 <p className="ais-saved__attribution">
                   <BookmarkCheck size={14} className="inline-block align-middle mr-1" aria-hidden="true" />Saved from: &ldquo;<span className="ais-saved__attribution-query">{queryLabel(item.query_id)}</span>&rdquo; · {relativeDate(item.created_at)}
