@@ -323,6 +323,221 @@ class VisitSummaryRoutesTest(unittest.TestCase):
         # ASSERT
         assert response.status_code == 422
 
+    # ── GET /visit-summary/{session_id} ──────────────────────────────────────
+
+    def test_get_visit_summary_by_session_id_found_returns_200(self) -> None:
+        """
+        Given a full session row exists in the DB,
+        When GET /visit-summary/{session_id} is called with a valid integer,
+        Then 200 is returned with the complete visit summary payload.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[
+                {
+                    "patient_id": "P100",
+                    "patient_first_name": "Alice",
+                    "patient_last_name": "Smith",
+                    "phone": "050-1234567",
+                    "birth_date": datetime.date(1990, 5, 15),
+                    "email": "alice@example.com",
+                    "session_id": 42,
+                    "visit_date": datetime.date(2026, 1, 10),
+                    "visit_time": datetime.time(10, 0, 0),
+                    "visit_type": "PHYSIOTHERAPIST",
+                    "treatment_area": "Knee",
+                    "medical_diagnosis": "ACL tear",
+                    "description": "Initial assessment",
+                    "recommendations": "Rest and ice",
+                    "therapist_first_name": "Liran",
+                    "therapist_last_name": "Cohen",
+                    "therapist_role": "PHYSIOTHERAPIST",
+                    "plan_id": 5,
+                }
+            ]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/visit-summary/42")
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert body["patient_id"] == "P100"
+        assert body["patient_first_name"] == "Alice"
+        assert body["session_id"] == 42
+        assert body["visit_type"] == "PHYSIOTHERAPIST"
+        assert body["treatment_area"] == "Knee"
+        assert body["therapist_first_name"] == "Liran"
+        assert body["therapist_last_name"] == "Cohen"
+        assert body["plan_id"] == 5
+
+    def test_get_visit_summary_by_session_id_not_found_returns_404(self) -> None:
+        """
+        Given no session row matches the given session_id,
+        When GET /visit-summary/{session_id} is called,
+        Then 404 Not Found is returned.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[None])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/visit-summary/9999")
+
+        # ASSERT
+        assert response.status_code == 404
+
+    def test_get_visit_summary_by_session_id_with_plan_returns_plan_id(self) -> None:
+        """
+        Given a session row where a plan is linked,
+        When GET /visit-summary/{session_id} is called,
+        Then 200 is returned and plan_id is present in the response.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[
+                {
+                    "patient_id": "P200",
+                    "patient_first_name": "Dana",
+                    "patient_last_name": "Levi",
+                    "phone": None,
+                    "birth_date": datetime.date(1985, 8, 20),
+                    "email": None,
+                    "session_id": 7,
+                    "visit_date": datetime.date(2026, 3, 1),
+                    "visit_time": datetime.time(9, 30, 0),
+                    "visit_type": "FITNESS",
+                    "treatment_area": "Shoulder",
+                    "medical_diagnosis": "Rotator cuff strain",
+                    "description": "Strength work",
+                    "recommendations": None,
+                    "therapist_first_name": "Yael",
+                    "therapist_last_name": "Bar",
+                    "therapist_role": "FITNESS_TRAINER",
+                    "plan_id": 12,
+                }
+            ]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/visit-summary/7")
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json()["plan_id"] == 12
+
+    def test_get_visit_summary_by_session_id_without_plan_returns_null_plan_id(
+        self,
+    ) -> None:
+        """
+        Given a session row where no plan is linked (LEFT JOIN returns NULL),
+        When GET /visit-summary/{session_id} is called,
+        Then 200 is returned and plan_id is null.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[
+                {
+                    "patient_id": "P300",
+                    "patient_first_name": "Oren",
+                    "patient_last_name": "Katz",
+                    "phone": "052-0000000",
+                    "birth_date": datetime.date(1992, 1, 1),
+                    "email": "oren@example.com",
+                    "session_id": 15,
+                    "visit_date": datetime.date(2026, 2, 14),
+                    "visit_time": datetime.time(11, 0, 0),
+                    "visit_type": "PHYSIOTHERAPIST",
+                    "treatment_area": "Back",
+                    "medical_diagnosis": "Herniated disc",
+                    "description": "Follow-up session",
+                    "recommendations": "Continue exercises",
+                    "therapist_first_name": "Noa",
+                    "therapist_last_name": "Shamir",
+                    "therapist_role": "PHYSIOTHERAPIST",
+                    "plan_id": None,
+                }
+            ]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/visit-summary/15")
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json()["plan_id"] is None
+
+    def test_get_visit_summary_by_session_id_visit_time_as_timedelta_converts(
+        self,
+    ) -> None:
+        """
+        Given the DB returns visit_time as a timedelta (aiomysql behavior),
+        When GET /visit-summary/{session_id} is called,
+        Then 200 is returned and visit_time is serialized as HH:MM:SS string.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[
+                {
+                    "patient_id": "P400",
+                    "patient_first_name": "Maya",
+                    "patient_last_name": "Gross",
+                    "phone": None,
+                    "birth_date": None,
+                    "email": None,
+                    "session_id": 20,
+                    "visit_date": datetime.date(2026, 4, 1),
+                    "visit_time": datetime.timedelta(seconds=36000),
+                    "visit_type": "PHYSIOTHERAPIST",
+                    "treatment_area": "Hip",
+                    "medical_diagnosis": "Labral tear",
+                    "description": "Post-surgery rehab",
+                    "recommendations": None,
+                    "therapist_first_name": "Ron",
+                    "therapist_last_name": "Avi",
+                    "therapist_role": "PHYSIOTHERAPIST",
+                    "plan_id": None,
+                }
+            ]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/visit-summary/20")
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json()["visit_time"] == "10:00:00"
+
     # ── POST /visit-summary/plan ──────────────────────────────────────────────
 
     def test_create_plan_returns_plan_id_and_session_id(self) -> None:

@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 1280px;
+  max-width: 900px;
   margin: 0 auto;
   width: 100%;
 }
@@ -289,65 +289,44 @@
   letter-spacing: 0.5px;
 }
 
-/* ── View Treatment Plan button ──────────────────── */
-.vsd-plan-btn {
-  width: 100%;
-  padding: 13px 20px;
-  border-radius: var(--radius-button);
-  border: 1.5px solid var(--color-primary);
-  background-color: transparent;
-  color: var(--color-primary);
-  font-family: var(--font-family);
+/* ── State messages (loading / error) ───────────── */
+.vsd-state-text {
   font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s, color 0.15s, transform 0.1s;
-  line-height: 1;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 40px 0;
 }
 
-.vsd-plan-btn:hover {
-  background-color: var(--color-primary-light);
+.vsd-state-text--error {
+  color: #dc2626;
 }
 
-.vsd-plan-btn:active {
-  background-color: var(--color-primary-light-hover);
-  transform: scale(0.98);
+/* ── Open Treatment Plan action ──────────────────── */
+.vsd-plan-action {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
 }
 
-/* Disabled variant — Training visit, fitness plan not yet implemented */
-.vsd-plan-btn--disabled {
-  border-color: #94a3b8;
-  color: #94a3b8;
-  cursor: pointer;
-}
-
-.vsd-plan-btn--disabled:hover {
-  background-color: #f1f5f9;
-}
-
-/* Wrapper so the coming-soon notice sits below the button */
-.vsd-plan-btn-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* Inline "Coming Soon" notice */
-.vsd-coming-soon {
-  display: flex;
+.vsd-plan-link {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748b;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 7px 12px;
-  animation: vsd-fade-in 0.2s ease;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: gap 0.15s ease, text-decoration-color 0.15s ease;
 }
 
-@keyframes vsd-fade-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+.vsd-plan-link:hover {
+  gap: 8px;
+  text-decoration-color: currentColor;
 }
