@@ -10,6 +10,7 @@ from app.models.visit_summary.visit_summary import (
     CreateVisitSummaryResponse,
     PatientDetails,
     SessionListItem,
+    VisitSummaryDetails,
 )
 
 _ROLE_TO_VISIT_TYPE: dict[Role, VisitType] = {
@@ -76,6 +77,28 @@ class VisitSummaryServices:
             A list of SessionListItem instances.
         """
         return await self.repository.get_sessions_by_patient(patient_id)
+
+    async def get_visit_summary_by_session_id(
+        self, session_id: int
+    ) -> VisitSummaryDetails:
+        """Return full visit summary or raise 404 if not found.
+
+        Args:
+            session_id: The unique identifier of the session.
+
+        Returns:
+            A VisitSummaryDetails instance.
+
+        Raises:
+            HTTPException: 404 if no matching session exists.
+        """
+        visit = await self.repository.get_visit_summary_by_session_id(session_id)
+        if not visit:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Visit summary not found",
+            )
+        return visit
 
     async def create_plan(self, request: CreatePlanRequest) -> CreatePlanResponse:
         """Persist a new treatment plan linked to the given session.

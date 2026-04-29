@@ -172,3 +172,24 @@ export interface SessionListItem {
   therapist_first_name: string
   therapist_last_name: string
 }
+
+export interface VisitSummaryDetails {
+  patient_id: string
+  patient_first_name: string
+  patient_last_name: string
+  phone: string | null
+  birth_date: string | null
+  email: string | null
+  session_id: number
+  visit_date: string
+  visit_time: string
+  visit_type: string
+  treatment_area: string
+  medical_diagnosis: string
+  description: string
+  recommendations: string | null
+  therapist_first_name: string
+  therapist_last_name: string
+  therapist_role: string
+  plan_id: number | null
+}
