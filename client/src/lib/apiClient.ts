@@ -1,7 +1,8 @@
 import axios from 'axios'
+//http://shanimi2.mtacloud.co.il/api - for Cpanel integration
 
 const apiClient = axios.create({
-  baseURL: 'http://shanimi2.mtacloud.co.il/api',
+  baseURL: 'http://localhost:8000',
 })
 
 export default apiClient
