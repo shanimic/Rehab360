@@ -1,4 +1,0 @@
-USE rehab360;
-
-ALTER TABLE plans
-ADD COLUMN notes TEXT NULL;
