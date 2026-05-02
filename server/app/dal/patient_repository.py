@@ -1,5 +1,12 @@
+from datetime import date, timedelta
+
 from aiomysql import DictCursor
-from app.models.patients.patient_exercises import DailyExerciseItem, WeeklyCompletion, WeeklyScheduleItem
+from app.models.patients.patient_exercises import (
+    DailyExerciseItem,
+    SaveWeeklyScheduleRequest,
+    WeeklyCompletion,
+    WeeklyScheduleItem,
+)
 
 
 class PatientRepository:
@@ -189,7 +196,9 @@ class PatientRepository:
                            time_duration,
                            time_unit,
                            e.exercise_name,
-                           e.visit_type
+                           e.visit_type,
+                           pe.session_id,
+                           p.plan_id
                     FROM plan_exercises pe,
                          plans p,
                          exercises e
@@ -208,3 +217,37 @@ class PatientRepository:
         )
         rows = await self.cursor.fetchall()
         return [WeeklyScheduleItem.model_validate(row) for row in rows]
+
+
+    async def save_weekly_schedule(self, _patient_id: str, body: SaveWeeklyScheduleRequest) -> None:
+        """Save the patient's weekly exercise schedule.
+
+        Args:
+            patient_id: The unique identifier of the patient.
+            body: The save-schedule request containing reminders flag and schedule entries.
+
+        Returns:
+            None
+        """
+        for item in body.schedule:
+            await self.cursor.execute(
+                query="""
+                        INSERT INTO weekly_plans (plan_id, session_id, exercise_id,
+                                                  reminder_time, notification_enabled,
+                                                  exercise_date)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                            reminder_time = VALUES(reminder_time),
+                            notification_enabled = VALUES(notification_enabled)
+                        """,
+                args=(
+                    item.plan_id,
+                    item.session_id,
+                    item.exercise_id,
+                    f"{item.reminder_date} {item.reminder_time}:00"
+                    if item.reminder_date and item.reminder_time
+                    else "1970-01-01 00:00:00",
+                    body.reminders_enabled,
+                    (date.today() + timedelta(days=item.day_index)).isoformat(),
+                ),
+            )

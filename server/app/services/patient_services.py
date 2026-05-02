@@ -1,5 +1,10 @@
 from app.dal.patient_repository import PatientRepository
-from app.models.patients.patient_exercises import DailyCompletion, PatientHomeData, WeeklyScheduleItem
+from app.models.patients.patient_exercises import (
+    DailyCompletion,
+    PatientHomeData,
+    SaveWeeklyScheduleRequest,
+    WeeklyScheduleItem,
+)
 
 
 class PatientServices:
@@ -34,3 +39,16 @@ class PatientServices:
             A list of WeeklyScheduleItem instances.
         """
         return await self.repository.get_weekly_schedule(patient_id)
+
+
+    async def save_weekly_schedule(self, patient_id: str, body: SaveWeeklyScheduleRequest) -> None:
+        """Save the patient's weekly exercise schedule.
+
+        Args:
+            patient_id: The unique identifier of the patient.
+            body: The save-schedule request containing reminders flag and schedule entries.
+
+        Returns:
+            None
+        """
+        await self.repository.save_weekly_schedule(patient_id, body)

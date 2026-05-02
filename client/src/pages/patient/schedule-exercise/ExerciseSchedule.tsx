@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
 import ExerciseCard from './components/ExerciseCard'
 import DayCard from './components/DayCard'
@@ -9,6 +8,7 @@ import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import PatientTopNav from '@/components/PatientTopNav'
 import { useGetWeeklySchedule } from '@/hooks/paitent/useGetWeeklySchedule'
+import { useSaveWeeklySchedule } from '@/hooks/paitent/useSaveWeeklySchedule'
 
 /* ── Types ── */
 export interface ScheduledExercise {
@@ -22,9 +22,9 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 
 /* ── Page ── */
 export default function ExerciseSchedule() {
-  const navigate = useNavigate()
   const user = useAtomValue(authAtom)
   const { data = [] } = useGetWeeklySchedule()
+  const saveSchedule = useSaveWeeklySchedule()
 
   // dayIndex (0–6) → array of scheduled exercises
   const [schedule, setSchedule] = useState<Record<number, ScheduledExercise[]>>({})
@@ -115,9 +115,24 @@ export default function ExerciseSchedule() {
       }
     }
 
-    // TODO: persist schedule to API
     setShowValidation(false)
-    navigate(-1)
+    saveSchedule.mutate({
+      reminders_enabled: remindersEnabled,
+      schedule: Object.entries(schedule).flatMap(([dayIndex, entries]) =>
+        entries.map(e => {
+          const ex = data.find(d => d.exercise_id === e.exerciseId)
+          return {
+            exercise_id: e.exerciseId,
+            day_index: Number(dayIndex),
+            sets: e.sets,
+            reminder_date: e.reminderDate || null,
+            reminder_time: remindersEnabled ? (e.reminderTime || null) : null,
+            session_id: ex?.session_id ?? undefined,
+            plan_id: ex?.plan_id ?? undefined,
+          }
+        })
+      ),
+    })
   }
 
   return (
