@@ -142,6 +142,40 @@ export interface PatientDetails extends Patient {
   trainingPlan: TreatmentPlan
 }
 
+// ── AI Search domain types ────────────────────────────────────────────────────
+
+export type ContentType = 'Article' | 'Clinical Guideline' | 'Exercise Guide'
+
+export interface AiQuery {
+  query_id: string
+  user_id: string
+  query_content: string
+  ai_response: string
+  query_date: string
+  query_time: string
+}
+
+export interface SavedContent {
+  recommendation_id: string
+  query_id: string
+  content_text: string
+  content_title: string
+  content_type: ContentType
+  source_url: string
+  verified_by_physio: boolean
+  verified_by_trainer: boolean
+  is_injected: boolean
+  created_at: string
+}
+
+export interface AiExchange {
+  query_id: string
+  query_content: string
+  ai_summary: string
+  sources: SavedContent[]
+}
+
+export type AiConversation = AiExchange[]
 export const VisitType = {
   PHYSIOTHERAPIST: "PHYSIOTHERAPIST",
   FITNESS: "FITNESS"

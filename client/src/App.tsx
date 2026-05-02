@@ -10,6 +10,9 @@ import PatientDetails from './pages/patient-details/PatientDetails'
 import PatientHome from './pages/patient/PatientHome'
 import PhysiotherapistHome from './pages/physiotherapist/home/PhysiotherapistHome'
 import PlaceholderPage from './pages/PlaceholderPage'
+import AiSearchPage from './pages/ai-search/AiSearchPage'
+import AiSearchResultsPage from './pages/ai-search/AiSearchResultsPage'
+import SavedContentPage from './pages/ai-search/SavedContentPage'
 import PageTransition from './components/PageTransition'
 import ExerciseReport from './pages/patient/ExerciseReport'
 import MyPlan from './pages/patient/MyPlan'
@@ -35,6 +38,9 @@ function AnimatedRoutes() {
       <Route path="/patient" element={<PageTransition><PatientHome /></PageTransition>} />
       <Route path="/physiotherapist" element={<PageTransition><PhysiotherapistHome /></PageTransition>} />
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
+      <Route path="/ai-search" element={<PageTransition><AiSearchPage /></PageTransition>} />
+      <Route path="/ai-search/results" element={<PageTransition><AiSearchResultsPage /></PageTransition>} />
+      <Route path="/ai-search/saved" element={<PageTransition><SavedContentPage /></PageTransition>} />
       <Route path="/patient/:id" element={<PageTransition><PatientDetails /></PageTransition>} />
       <Route path="/patient/exercise/:id" element={<PageTransition><ExerciseReport /></PageTransition>} />
       <Route path="/patient/my-plan" element={<PageTransition><MyPlan /></PageTransition>} />

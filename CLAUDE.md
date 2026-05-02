@@ -147,6 +147,8 @@ Current atoms:
 | File | Atom | Type | Purpose |
 |------|------|------|---------|
 | `store/authAtom.ts` | `authAtom` | `LoginResponse \| null` | Authenticated user session |
+| `store/aiSearchAtom.ts` | `currentQueryAtom` | `string` | Text in the search textarea; set by chips and typing, used for pre-fill on back-navigation |
+| `store/aiSearchAtom.ts` | `searchResultsAtom` | `AiConversation \| null` | Accumulated conversation (array of `AiExchange`); null before first search; follow-ups append to the array |
 
 Usage pattern:
 ```typescript
