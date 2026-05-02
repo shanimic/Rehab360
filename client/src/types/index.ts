@@ -205,3 +205,60 @@ export interface SessionListItem {
   therapist_first_name: string
   therapist_last_name: string
 }
+
+export interface VisitSummaryDetails {
+  patient_id: string
+  patient_first_name: string
+  patient_last_name: string
+  phone: string | null
+  birth_date: string | null
+  email: string | null
+  session_id: number
+  visit_date: string
+  visit_time: string
+  visit_type: string
+  treatment_area: string
+  medical_diagnosis: string
+  description: string
+  recommendations: string | null
+  therapist_first_name: string
+  therapist_last_name: string
+  therapist_role: string
+  plan_id: number | null
+}
+
+// ── Treatment Plan domain types ───────────────────────────────────────────────
+
+export interface TreatmentPlanContext {
+  session_id: number
+  medical_diagnosis: string
+  visit_type: string
+}
+
+export interface PhysiotherapyExerciseItem {
+  exercise_id: number
+  exercise_name: string
+}
+
+export interface PlanExerciseRequest {
+  exercise_id: number
+  reps: number
+  num_sets: number
+  weight: number
+  time_duration: number
+  time_unit: string
+  description: string | null
+}
+
+export interface CreateTreatmentPlanRequest {
+  goal: string
+  start_date: string
+  end_date: string
+  notes: string | null
+  exercises: PlanExerciseRequest[]
+}
+
+export interface CreateTreatmentPlanResponse {
+  plan_id: number
+  session_id: number
+}

@@ -8,6 +8,7 @@ from app.models.visit_summary.visit_summary import (
     CreateVisitSummaryResponse,
     PatientDetails,
     SessionListItem,
+    VisitSummaryDetails,
 )
 
 
@@ -127,6 +128,62 @@ class VisitSummaryRepository:
         rows = await self.cursor.fetchall()
         return [SessionListItem.model_validate(row) for row in rows]
 
+    async def get_visit_summary_by_session_id(
+        self, session_id: int
+    ) -> VisitSummaryDetails | None:
+        """Fetch full visit summary details by session ID.
+
+        Args:
+            session_id: The unique identifier of the session.
+
+        Returns:
+            A VisitSummaryDetails instance if found, otherwise None.
+        """
+        await self.cursor.execute(
+            query="""
+                SELECT
+                    u_patient.user_id        AS patient_id,
+                    u_patient.first_name     AS patient_first_name,
+                    u_patient.last_name      AS patient_last_name,
+                    u_patient.phone,
+                    u_patient.birth_date,
+                    u_patient.email,
+
+                    s.session_id,
+                    s.visit_date,
+                    s.visit_time,
+                    s.visit_type,
+                    s.treatment_area,
+                    s.medical_diagnosis,
+                    s.description,
+                    s.recommendations,
+
+                    u_therapist.first_name   AS therapist_first_name,
+                    u_therapist.last_name    AS therapist_last_name,
+                    s.therapist_role,
+
+                    p.plan_id
+
+                FROM sessions s
+
+                JOIN registered_users u_patient
+                    ON s.patient_id   = u_patient.user_id
+                   AND s.patient_role = u_patient.user_role
+
+                JOIN registered_users u_therapist
+                    ON s.therapist_id   = u_therapist.user_id
+                   AND s.therapist_role = u_therapist.user_role
+
+                LEFT JOIN plans p
+                    ON s.session_id = p.session_id
+
+                WHERE s.session_id = %s
+            """,
+            args=(session_id,),
+        )
+        row = await self.cursor.fetchone()
+        return VisitSummaryDetails.model_validate(row) if row else None
+
     async def create_plan(self, request: CreatePlanRequest) -> CreatePlanResponse:
         """Insert a new treatment plan linked to a session and return its generated plan_id.
 
@@ -138,14 +195,15 @@ class VisitSummaryRepository:
         """
         await self.cursor.execute(
             query="""
-                INSERT INTO plans (session_id, goal, start_date, end_date)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO plans (session_id, goal, start_date, end_date, notes)
+                VALUES (%s, %s, %s, %s, %s)
             """,
             args=(
                 request.session_id,
                 request.goal,
                 request.start_date,
                 request.end_date,
+                request.notes,
             ),
         )
         await self.cursor.execute(

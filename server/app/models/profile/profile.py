@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel
 
 
@@ -7,7 +9,7 @@ class ProfileData(BaseModel):
     last_name: str
     email: str
     phone: str
-    birth_date: str
+    birth_date: datetime.date
     license_number: str | None = None
 
 
@@ -17,6 +19,6 @@ class ActivePlan(BaseModel):
     plan_id: int
     goal: str
     category: str
-    start_date: str
-    end_date: str
+    start_date: datetime.date
+    end_date: datetime.date
     completion_percent: float | None = None

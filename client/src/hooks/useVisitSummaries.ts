@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import apiClient from '@/lib/apiClient'
-import type { SessionListItem, VisitSummaryPatientData } from '@/types'
+import type { SessionListItem, VisitSummaryDetails, VisitSummaryPatientData } from '@/types'
 
 export function useVisitSummaries(patientId: string | undefined) {
   return useQuery<SessionListItem[]>({
@@ -22,5 +22,16 @@ export function useVisitSummary(patientId: string | undefined) {
       return res.data
     },
     enabled: !!patientId,
+  })
+}
+
+export function useVisitSummaryDetail(sessionId: number | undefined) {
+  return useQuery<VisitSummaryDetails>({
+    queryKey: ['visitSummaryDetail', sessionId],
+    queryFn: async () => {
+      const res = await apiClient.get<VisitSummaryDetails>(`/visit-summary/${sessionId}`)
+      return res.data
+    },
+    enabled: typeof sessionId === 'number' && !Number.isNaN(sessionId),
   })
 }

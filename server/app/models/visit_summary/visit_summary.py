@@ -92,6 +92,49 @@ class SessionListItem(BaseModel):
         return value
 
 
+class VisitSummaryDetails(BaseModel):
+    """Full visit summary returned for the visit detail page."""
+
+    patient_id: str
+    patient_first_name: str
+    patient_last_name: str
+    phone: str | None
+    birth_date: datetime.date | None
+    email: str | None
+    session_id: int
+    visit_date: datetime.date
+    visit_time: datetime.time
+    visit_type: str
+    treatment_area: str
+    medical_diagnosis: str
+    description: str
+    recommendations: str | None
+    therapist_first_name: str
+    therapist_last_name: str
+    therapist_role: str
+    plan_id: int | None
+
+    @field_validator("visit_time", mode="before")
+    @classmethod
+    def coerce_timedelta_to_time(cls, value: object) -> object:  # type: ignore[override]
+        """Convert aiomysql timedelta to datetime.time for TIME columns.
+
+        Args:
+            value: The raw value from the database cursor.
+
+        Returns:
+            A datetime.time if value is a timedelta, otherwise the value unchanged.
+        """
+        if isinstance(value, datetime.timedelta):
+            total_seconds = int(value.total_seconds())
+            return datetime.time(
+                total_seconds // 3600,
+                (total_seconds % 3600) // 60,
+                total_seconds % 60,
+            )
+        return value
+
+
 class CreatePlanRequest(BaseModel):
     """Request body for creating a new treatment plan linked to a session."""
 
@@ -99,6 +142,7 @@ class CreatePlanRequest(BaseModel):
     goal: str
     start_date: datetime.date
     end_date: datetime.date
+    notes: str | None = None
 
 
 class CreatePlanResponse(BaseModel):

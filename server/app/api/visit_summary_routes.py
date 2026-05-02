@@ -9,6 +9,7 @@ from app.models.visit_summary.visit_summary import (
     CreateVisitSummaryResponse,
     PatientDetails,
     SessionListItem,
+    VisitSummaryDetails,
 )
 from app.services.visit_summary_services import VisitSummaryServices
 
@@ -55,6 +56,28 @@ async def get_sessions_by_patient(
     visit_summary_repository = VisitSummaryRepository(db=db)
     visit_summary_service = VisitSummaryServices(repository=visit_summary_repository)
     return await visit_summary_service.get_sessions_by_patient(patient_id)
+
+
+@visit_summary_router.get(
+    "/{session_id}",
+    tags=["Visit Summary"],
+    response_model=VisitSummaryDetails,
+)
+async def get_visit_summary_by_session_id(
+    session_id: int, db=Depends(get_db)
+) -> VisitSummaryDetails:
+    """Return full visit summary details for a single session.
+
+    Args:
+        session_id: The unique identifier of the session.
+        db: Database cursor injected by FastAPI.
+
+    Returns:
+        VisitSummaryDetails for the requested session.
+    """
+    visit_summary_repository = VisitSummaryRepository(db=db)
+    visit_summary_service = VisitSummaryServices(repository=visit_summary_repository)
+    return await visit_summary_service.get_visit_summary_by_session_id(session_id)
 
 
 @visit_summary_router.post(
