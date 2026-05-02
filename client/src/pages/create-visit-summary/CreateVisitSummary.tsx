@@ -82,17 +82,17 @@ export default function CreateVisitSummary() {
   }, [patientApiData])
 
   const displayPatient = {
-    id:        patientApiData?.patient_id        ?? PATIENT.id,
+    id: patientApiData?.patient_id ?? PATIENT.id,
     firstName: patientApiData?.patient_first_name ?? PATIENT.firstName,
-    lastName:  patientApiData?.patient_last_name  ?? PATIENT.lastName,
-    birthDate: patientApiData?.birth_date         ?? PATIENT.birthDate,
-    phone:     patientApiData?.phone              ?? PATIENT.phone,
-    email:     patientApiData?.email              ?? PATIENT.email,
+    lastName: patientApiData?.patient_last_name ?? PATIENT.lastName,
+    birthDate: patientApiData?.birth_date ?? PATIENT.birthDate,
+    phone: patientApiData?.phone ?? PATIENT.phone,
+    email: patientApiData?.email ?? PATIENT.email,
   }
 
   // Derive session type from user role — not editable
   const isPhysicalTherapy = auth?.role !== 'FITNESS_TRAINER'
-  const sessionType = isPhysicalTherapy ? 'Physical Therapy' : 'Training'
+  const sessionType = isPhysicalTherapy ? 'Physical Therapy' : 'Fitness Training'
 
   const age = calculateAge(displayPatient.birthDate)
 
@@ -386,7 +386,7 @@ export default function CreateVisitSummary() {
                 onClick={handleSaveAndCreatePlan}
               >
                 <ClipboardList size={15} className="cvs-btn-plan__icon" />
-                {isSaving ? 'Saving…' : 'Save & Create Treatment Plan'}
+                {isSaving ? 'Saving…' : (isPhysicalTherapy ? 'Save & Create Treatment Plan' : 'Save & Create Fitness Plan')}
               </button>
               <button
                 type="button"

@@ -7,6 +7,8 @@ import type { VisitSummaryDetails } from '@/types'
 
 import '../patient-details/PatientDetails.css'
 import './VisitSummaryDetail.css'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
 
 const VISIT_TYPE_LABEL: Record<string, string> = {
   PHYSIOTHERAPIST: 'Physical Therapy',
@@ -100,7 +102,7 @@ function VisitInfoCard({ visit, onOpenPlan }: VisitInfoCardProps) {
       {onOpenPlan && (
         <div className="vsd-plan-action">
           <button type="button" className="vsd-plan-link" onClick={onOpenPlan}>
-            Open Treatment Plan
+            Open {visitTypeLabel === 'Fitness Training' ? 'Fitness' : 'Treatment'} Plan
             <ArrowRight size={14} />
           </button>
         </div>

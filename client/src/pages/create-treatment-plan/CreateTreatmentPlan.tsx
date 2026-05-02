@@ -245,7 +245,7 @@ export default function CreateTreatmentPlan() {
             <div className="ctp-goal__header">
               <Target size={16} className="ctp-goal__icon" />
               <span className="ctp-goal__title">
-                Treatment Goal <span className="ctp-required">*</span>
+                {auth?.role === 'FITNESS_TRAINER' ? 'Fitness' : 'Treatment'} Goal <span className="ctp-required">*</span>
               </span>
             </div>
             <textarea

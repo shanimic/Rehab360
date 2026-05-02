@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { useSetAtom } from 'jotai'
-import {NavigateFunction, useNavigate} from 'react-router-dom'
+import { NavigateFunction, useNavigate } from 'react-router-dom'
 
 import apiClient from '@/lib/apiClient'
 import { authAtom } from '@/store/authAtom'
@@ -28,6 +28,6 @@ function navigateToHome(role: ApiRole, navigate: NavigateFunction): void {
   } else if (role === 'PHYSIOTHERAPIST') {
     navigate('/physiotherapist')
   } else if (role === 'FITNESS_TRAINER') {
-    navigate('/placeholder')
+    navigate('/fitness')
   }
 }
