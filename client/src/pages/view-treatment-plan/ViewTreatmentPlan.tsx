@@ -25,6 +25,7 @@ const MOCK_PLAN_RECENT: PlanFormState = {
 const MOCK_EXERCISES_RECENT: ExerciseEntry[] = [
   {
     id: '1',
+    exercise_id: 0,
     name: 'Wall Squats',
     sets: 3,
     reps: 12,
@@ -35,6 +36,7 @@ const MOCK_EXERCISES_RECENT: ExerciseEntry[] = [
   },
   {
     id: '2',
+    exercise_id: 0,
     name: 'Hip Bridge',
     sets: 3,
     reps: 15,
@@ -45,6 +47,7 @@ const MOCK_EXERCISES_RECENT: ExerciseEntry[] = [
   },
   {
     id: '3',
+    exercise_id: 0,
     name: 'Plank',
     sets: 3,
     reps: 1,
@@ -71,6 +74,7 @@ const MOCK_PLANS: Record<string, { plan: PlanFormState; exercises: ExerciseEntry
     exercises: [
       {
         id: 'a',
+        exercise_id: 0,
         name: 'Bicycle Crunch',
         sets: 3,
         reps: 20,
@@ -81,6 +85,7 @@ const MOCK_PLANS: Record<string, { plan: PlanFormState; exercises: ExerciseEntry
       },
       {
         id: 'b',
+        exercise_id: 0,
         name: 'Deadlift',
         sets: 4,
         reps: 8,

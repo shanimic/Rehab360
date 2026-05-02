@@ -2,11 +2,17 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ChevronLeft, Target, Dumbbell, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useAtomValue } from 'jotai'
+import axios from 'axios'
 import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
 import AddExerciseModal from './AddExerciseModal'
 import type { ExerciseEntry } from './AddExerciseModal'
-import { useCreatePlan } from '@/hooks/useCreatePlan'
+import {
+  useTreatmentPlanContext,
+  usePhysiotherapyExercises,
+  useCreateTreatmentPlan,
+} from '@/hooks/useTreatmentPlan'
+import type { CreateTreatmentPlanRequest } from '@/types'
 
 import '../patient-details/PatientDetails.css'
 import './CreateTreatmentPlan.css'
@@ -41,8 +47,7 @@ export default function CreateTreatmentPlan() {
   const auth = useAtomValue(authAtom)
 
   const state = (location.state ?? {}) as Partial<LocationState>
-  const medicalDiagnosis = state.medical_diagnosis ?? ''
-  const patientId = state.patient_id ?? '1'
+  const patientId = state.patient_id ?? 'P100'
   const sessionId = state.session_id ?? null
 
   // Restore any previously entered draft so data survives back-and-forth navigation
@@ -54,8 +59,16 @@ export default function CreateTreatmentPlan() {
     end_date: draft?.end_date ?? '',
     notes: draft?.notes ?? '',
   })
-  const createPlan = useCreatePlan()
-  const isSaving = createPlan.isPending
+
+  const contextQuery = useTreatmentPlanContext(sessionId)
+  const exercisesQuery = usePhysiotherapyExercises()
+  const createTreatmentPlan = useCreateTreatmentPlan()
+
+  const isSaving = createTreatmentPlan.isPending
+
+  // medical_diagnosis: prefer live data, fall back to navigation state while loading
+  const medicalDiagnosis =
+    contextQuery.data?.medical_diagnosis ?? state.medical_diagnosis ?? ''
 
   const [errors, setErrors] = useState<FormErrors>({})
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -66,11 +79,12 @@ export default function CreateTreatmentPlan() {
     window.scrollTo(0, 0)
   }, [])
 
-  // Goal + Start Date + End Date are all required
+  // Goal + Start Date + End Date + at least one exercise are all required
   const isFormValid =
     form.goal.trim().length > 0 &&
     form.start_date.length > 0 &&
-    form.end_date.length > 0
+    form.end_date.length > 0 &&
+    exercises.length > 0
 
   function handleChange(field: keyof PlanFormState, value: string): void {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -100,31 +114,49 @@ export default function CreateTreatmentPlan() {
     setExercises((prev) => prev.filter((ex) => ex.id !== id))
   }
 
-  // Save: POST to /visit-summary/plan with session_id linking the plan to the visit summary
   function handleSave(): void {
     if (!validate()) return
     if (sessionId === null) {
       setSaveError('No session linked. Please save a visit summary first.')
       return
     }
+    if (exercises.length === 0) {
+      setSaveError('Please add at least one exercise before saving.')
+      return
+    }
     setSaveError(null)
-    const payload = {
-      session_id: sessionId,
+
+    const body: CreateTreatmentPlanRequest = {
       goal: form.goal,
       start_date: form.start_date,
       end_date: form.end_date,
+      notes: form.notes.trim() || null,
+      exercises: exercises.map((ex) => ({
+        exercise_id: ex.exercise_id,
+        reps: ex.reps,
+        num_sets: ex.sets,
+        weight: ex.weight,
+        time_duration: ex.frequencyAmount,
+        time_unit: ex.frequencyUnit,
+        description: ex.description || null,
+      })),
     }
-    console.log('[DEBUG] POST /visit-summary/plan payload:', payload)
-    createPlan.mutate(payload, {
-      onSuccess: (data) => {
-        console.log('[DEBUG] Plan created, plan_id:', data.plan_id, 'session_id:', data.session_id)
-        navigate(`/patient/${patientId}/visit-summaries`)
+
+    createTreatmentPlan.mutate(
+      { sessionId, body },
+      {
+        onSuccess: () => {
+          navigate(`/patient/${patientId}/visit-summaries`)
+        },
+        onError: (err) => {
+          if (axios.isAxiosError(err) && err.response?.data?.detail) {
+            setSaveError(err.response.data.detail as string)
+          } else {
+            setSaveError('Failed to save treatment plan. Please try again.')
+          }
+        },
       },
-      onError: (err) => {
-        console.error('[DEBUG] Plan save failed:', err)
-        setSaveError('Failed to save treatment plan. Please try again.')
-      },
-    })
+    )
   }
 
   return (
@@ -153,7 +185,7 @@ export default function CreateTreatmentPlan() {
             <div className="ctp-section">
               <span className="ctp-label">Medical Diagnosis</span>
               <div className="ctp-readonly-field">
-                {medicalDiagnosis || '—'}
+                {contextQuery.isLoading ? 'Loading…' : (medicalDiagnosis || '—')}
               </div>
             </div>
 
@@ -231,7 +263,7 @@ export default function CreateTreatmentPlan() {
           <div className="ctp-exercises">
             <div className="ctp-exercises__header">
               <Dumbbell size={16} className="ctp-exercises__icon ctp-exercises__icon--active" />
-              <h2 className="ctp-exercises__title">Exercises</h2>
+              <h2 className="ctp-exercises__title">Exercises <span className="ctp-required">*</span></h2>
               {exercises.length > 0 && (
                 <span className="ctp-exercises__count">{exercises.length}</span>
               )}
@@ -310,6 +342,8 @@ export default function CreateTreatmentPlan() {
         <AddExerciseModal
           onAdd={handleAddExercise}
           onClose={() => setIsModalOpen(false)}
+          exercises={exercisesQuery.data ?? []}
+          isLoadingExercises={exercisesQuery.isLoading}
         />
       )}
     </div>

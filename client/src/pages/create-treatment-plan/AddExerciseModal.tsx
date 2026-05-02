@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X, Search, ChevronDown } from 'lucide-react'
+import type { PhysiotherapyExerciseItem } from '@/types'
 import './AddExerciseModal.css'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface ExerciseEntry {
   id: string
+  exercise_id: number
   name: string
   sets: number
   reps: number
@@ -19,24 +21,14 @@ export interface ExerciseEntry {
 interface AddExerciseModalProps {
   onAdd: (exercise: ExerciseEntry) => void
   onClose: () => void
+  exercises: PhysiotherapyExerciseItem[]
+  isLoadingExercises?: boolean
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
-const EXERCISE_OPTIONS = [
-  'Squats',
-  'Lunges',
-  'Plank',
-  'Deadlift',
-  'Push-ups',
-  'Pull-ups',
-  'Leg Press',
-  'Hip Bridge',
-  'Calf Raises',
-  'Bicycle Crunch',
-]
+// ── Local form state ───────────────────────────────────────────────────────────
 
 interface FormState {
+  exerciseId: number | null
   name: string
   sets: string
   reps: string
@@ -47,6 +39,7 @@ interface FormState {
 }
 
 const EMPTY_FORM: FormState = {
+  exerciseId: null,
   name: '',
   sets: '',
   reps: '',
@@ -58,15 +51,20 @@ const EMPTY_FORM: FormState = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
+export default function AddExerciseModal({
+  onAdd,
+  onClose,
+  exercises,
+  isLoadingExercises = false,
+}: AddExerciseModalProps) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [nameSearch, setNameSearch] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const filteredOptions = EXERCISE_OPTIONS.filter((ex) =>
-    ex.toLowerCase().includes(nameSearch.toLowerCase()),
+  const filteredOptions = exercises.filter((ex) =>
+    ex.exercise_name.toLowerCase().includes(nameSearch.toLowerCase()),
   )
 
   // Lock page scroll while modal is open
@@ -88,9 +86,9 @@ export default function AddExerciseModal({ onAdd, onClose }: AddExerciseModalPro
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  function handleSelectExercise(name: string): void {
-    setForm((prev) => ({ ...prev, name }))
-    setNameSearch(name)
+  function handleSelectExercise(exercise: PhysiotherapyExerciseItem): void {
+    setForm((prev) => ({ ...prev, name: exercise.exercise_name, exerciseId: exercise.exercise_id }))
+    setNameSearch(exercise.exercise_name)
     setShowDropdown(false)
     if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }))
   }
@@ -116,6 +114,7 @@ export default function AddExerciseModal({ onAdd, onClose }: AddExerciseModalPro
     if (!validate()) return
     onAdd({
       id: crypto.randomUUID(),
+      exercise_id: form.exerciseId!,
       name: form.name,
       sets: Number(form.sets),
       reps: Number(form.reps),
@@ -126,8 +125,7 @@ export default function AddExerciseModal({ onAdd, onClose }: AddExerciseModalPro
     })
   }
 
-  const inputBase =
-    'aem-input'
+  const inputBase = 'aem-input'
   const inputError = 'aem-input--error'
 
   const modal = (
@@ -173,10 +171,16 @@ export default function AddExerciseModal({ onAdd, onClose }: AddExerciseModalPro
                 value={nameSearch}
                 onChange={(e) => {
                   setNameSearch(e.target.value)
-                  handleFieldChange('name', '')
+                  setForm((prev) => ({ ...prev, name: '', exerciseId: null }))
                   setShowDropdown(true)
                 }}
-                onFocus={() => setShowDropdown(true)}
+                onFocus={() => {
+                  setNameSearch('')
+                  setShowDropdown(true)
+                }}
+                onBlur={() => {
+                  if (form.name) setNameSearch(form.name)
+                }}
               />
               <ChevronDown
                 size={14}
@@ -186,17 +190,19 @@ export default function AddExerciseModal({ onAdd, onClose }: AddExerciseModalPro
 
             {showDropdown && (
               <div className="aem-dropdown">
-                {filteredOptions.length === 0 ? (
+                {isLoadingExercises ? (
+                  <div className="aem-dropdown__empty">Loading exercises…</div>
+                ) : filteredOptions.length === 0 ? (
                   <div className="aem-dropdown__empty">No exercises found</div>
                 ) : (
-                  filteredOptions.map((name) => (
+                  filteredOptions.map((ex) => (
                     <button
-                      key={name}
+                      key={ex.exercise_id}
                       type="button"
                       className="aem-dropdown__item"
-                      onMouseDown={() => handleSelectExercise(name)}
+                      onMouseDown={() => handleSelectExercise(ex)}
                     >
-                      {name}
+                      {ex.exercise_name}
                     </button>
                   ))
                 )}
