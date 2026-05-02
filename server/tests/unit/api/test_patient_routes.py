@@ -124,3 +124,185 @@ class PatientRoutesTest(unittest.TestCase):
         assert body["daily_completions"]["total"] == 0
         assert body["weekly_completion"]["EXECOMP"] == 0
         assert body["weekly_completion"]["EXETDW"] == 5
+
+    def test_get_weekly_schedule_returns_list_of_exercises(self) -> None:
+        """
+        Given stubbed DB rows for the patient's active weekly plan,
+        When GET /patient/weekly-schedule/{patient_id} is called,
+        Then 200 is returned with a list of exercise items matching the DB rows.
+        """
+        # PREPARE
+        patient_id = "patient-001"
+        schedule_rows = [
+            {
+                "exercise_id": 1,
+                "exercise_name": "Squat",
+                "visit_type": "FITNESS",
+                "reps": 10,
+                "num_sets": 3,
+                "time_duration": 4,
+                "time_unit": "Weekly",
+                "session_id": 10,
+                "plan_id": 5,
+            },
+            {
+                "exercise_id": 2,
+                "exercise_name": "Shoulder Stretch",
+                "visit_type": "PHYSIOTHERAPIST",
+                "reps": 15,
+                "num_sets": 2,
+                "time_duration": 7,
+                "time_unit": "Daily",
+                "session_id": 11,
+                "plan_id": 6,
+            },
+        ]
+        cursor = _PatientHomeStubCursor(fetchall_rows=schedule_rows, fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get(f"/patient/weekly-schedule/{patient_id}")
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert len(body) == 2
+        assert body[0]["exercise_id"] == 1
+        assert body[0]["exercise_name"] == "Squat"
+        assert body[0]["visit_type"] == "FITNESS"
+        assert body[0]["session_id"] == 10
+        assert body[0]["plan_id"] == 5
+        assert body[1]["exercise_name"] == "Shoulder Stretch"
+
+    def test_get_weekly_schedule_empty_returns_empty_list(self) -> None:
+        """
+        Given no active plan exercises in the DB,
+        When GET /patient/weekly-schedule/{patient_id} is called,
+        Then 200 is returned with an empty list.
+        """
+        # PREPARE
+        patient_id = "patient-no-plan"
+        cursor = _PatientHomeStubCursor(fetchall_rows=[], fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get(f"/patient/weekly-schedule/{patient_id}")
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == []
+
+    def test_save_weekly_schedule_reminders_enabled_returns_200(self) -> None:
+        """
+        Given a valid payload with reminders enabled and full reminder date/time,
+        When POST /patient/weekly-schedule/{patient_id} is called,
+        Then 200 is returned.
+        """
+        # PREPARE
+        patient_id = "patient-001"
+        payload = {
+            "reminders_enabled": True,
+            "schedule": [
+                {
+                    "exercise_id": 1,
+                    "day_index": 1,
+                    "sets": 3,
+                    "reminder_date": "2026-05-05",
+                    "reminder_time": "09:00",
+                    "session_id": 10,
+                    "plan_id": 5,
+                }
+            ],
+        }
+        cursor = _PatientHomeStubCursor(fetchall_rows=[], fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(f"/patient/weekly-schedule/{patient_id}", json=payload)
+
+        # ASSERT
+        assert response.status_code == 200
+
+    def test_save_weekly_schedule_reminders_disabled_null_dates_returns_200(self) -> None:
+        """
+        Given a valid payload with reminders disabled and null reminder date/time,
+        When POST /patient/weekly-schedule/{patient_id} is called,
+        Then 200 is returned and null reminder fields are accepted.
+        """
+        # PREPARE
+        patient_id = "patient-001"
+        payload = {
+            "reminders_enabled": False,
+            "schedule": [
+                {
+                    "exercise_id": 2,
+                    "day_index": 3,
+                    "sets": 2,
+                    "reminder_date": None,
+                    "reminder_time": None,
+                    "session_id": 11,
+                    "plan_id": 6,
+                }
+            ],
+        }
+        cursor = _PatientHomeStubCursor(fetchall_rows=[], fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(f"/patient/weekly-schedule/{patient_id}", json=payload)
+
+        # ASSERT
+        assert response.status_code == 200
+
+    def test_save_weekly_schedule_missing_required_field_returns_422(self) -> None:
+        """
+        Given a payload missing the required reminders_enabled field,
+        When POST /patient/weekly-schedule/{patient_id} is called,
+        Then 422 Unprocessable Entity is returned.
+        """
+        # PREPARE
+        patient_id = "patient-001"
+        payload = {
+            "schedule": [
+                {
+                    "exercise_id": 1,
+                    "day_index": 0,
+                    "sets": 1,
+                    "reminder_date": None,
+                    "reminder_time": None,
+                }
+            ]
+        }
+        cursor = _PatientHomeStubCursor(fetchall_rows=[], fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(f"/patient/weekly-schedule/{patient_id}", json=payload)
+
+        # ASSERT
+        assert response.status_code == 422

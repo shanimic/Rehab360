@@ -92,7 +92,7 @@ export default function DayCard({
                 </div>
 
                 {/* Reminder */}
-                <div className={`es-reminder${remindersEnabled ? '' : ' es-reminder--disabled'}`}>
+                <div className="es-reminder">
                   <span className="es-reminder__label">
                     <Bell size={13} aria-hidden />
                     Set reminder
@@ -103,7 +103,6 @@ export default function DayCard({
                       className="es-reminder__input"
                       value={entry.reminderDate}
                       onChange={e => onUpdateReminderDate(entry.exerciseId, e.target.value)}
-                      disabled={!remindersEnabled}
                       aria-label={`Reminder date for ${ex.exercise_name}`}
                     />
                     <input

@@ -91,6 +91,8 @@ export interface WeeklyScheduleItem {
   num_sets: number
   time_duration: number
   time_unit: string
+  session_id?: number
+  plan_id?: number
 }
 
 export interface MyPlanResponse {

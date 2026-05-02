@@ -35,6 +35,27 @@ class WeeklyScheduleItem(BaseModel):
     num_sets: int
     time_duration: int
     time_unit: str
+    session_id: int | None = None
+    plan_id: int | None = None
+
+
+class SaveScheduleItem(BaseModel):
+    """One exercise entry from the frontend save-schedule payload."""
+
+    exercise_id: int
+    day_index: int
+    sets: int
+    reminder_date: str | None
+    reminder_time: str | None
+    session_id: int | None = None
+    plan_id: int | None = None
+
+
+class SaveWeeklyScheduleRequest(BaseModel):
+    """Request body for POST /patient/weekly-schedule/{patient_id}."""
+
+    reminders_enabled: bool
+    schedule: list[SaveScheduleItem]
 
 
 class WeeklyCompletion(BaseModel):
