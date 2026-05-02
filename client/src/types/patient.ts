@@ -83,6 +83,16 @@ export interface MyPlan {
   text_instructions: string
 }
 
+export interface WeeklyScheduleItem {
+  exercise_id: number
+  exercise_name: string
+  visit_type: VisitType
+  reps: number
+  num_sets: number
+  time_duration: number
+  time_unit: string
+}
+
 export interface MyPlanResponse {
   today_exercises: MyPlan[]
   tomorrow_exercises: MyPlan[]

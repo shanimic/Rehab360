@@ -15,6 +15,7 @@ venv/
 .venv/
 env/
 *.sqlite3
+.pytest_cache/
 
 # React & TypeScript
 node_modules/

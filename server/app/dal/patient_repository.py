@@ -1,5 +1,5 @@
 from aiomysql import DictCursor
-from app.models.patients.patient_exercises import DailyExerciseItem, WeeklyCompletion
+from app.models.patients.patient_exercises import DailyExerciseItem, WeeklyCompletion, WeeklyScheduleItem
 
 
 class PatientRepository:
@@ -171,3 +171,40 @@ class PatientRepository:
 
         # 3. If the value is None (SQL NULL), return 0, otherwise return the value
         return percentage if percentage is not None else 0
+
+    async def get_weekly_schedule(self, patient_id: str) -> list[WeeklyScheduleItem]:
+        """Retrieve all active plan exercises within the current date range.
+
+        Args:
+            patient_id: The unique identifier of the patient.
+
+        Returns:
+            A list of WeeklyScheduleItem instances for the patient's active plan.
+        """
+        await self.cursor.execute(
+            query="""
+                    SELECT e.exercise_id,
+                           reps,
+                           num_sets,
+                           time_duration,
+                           time_unit,
+                           e.exercise_name,
+                           e.visit_type
+                    FROM plan_exercises pe,
+                         plans p,
+                         exercises e
+                    WHERE p.plan_id = pe.plan_id
+                      AND e.exercise_id = pe.exercise_id
+                      AND p.session_id = pe.session_id
+                      AND p.end_date >= CURDATE()
+                      AND p.start_date <= CURDATE()
+                      AND pe.session_id IN (
+                          SELECT s.session_id
+                          FROM sessions s
+                          WHERE s.patient_id = %s
+                            AND s.session_status = 'ACTIVE')
+                    """,
+            args=(patient_id,),
+        )
+        rows = await self.cursor.fetchall()
+        return [WeeklyScheduleItem.model_validate(row) for row in rows]

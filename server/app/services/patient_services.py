@@ -1,5 +1,5 @@
 from app.dal.patient_repository import PatientRepository
-from app.models.patients.patient_exercises import DailyCompletion, PatientHomeData
+from app.models.patients.patient_exercises import DailyCompletion, PatientHomeData, WeeklyScheduleItem
 
 
 class PatientServices:
@@ -23,3 +23,14 @@ class PatientServices:
             physiotherapist_percentage=physiotherapist_percentage,
             daily_completions=daily_completions,
         )
+
+    async def get_weekly_schedule(self, patient_id: str) -> list[WeeklyScheduleItem]:
+        """Return the patient's active weekly exercise schedule.
+
+        Args:
+            patient_id: The unique identifier of the patient.
+
+        Returns:
+            A list of WeeklyScheduleItem instances.
+        """
+        return await self.repository.get_weekly_schedule(patient_id)
