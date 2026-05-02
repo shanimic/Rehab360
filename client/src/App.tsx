@@ -52,6 +52,7 @@ function AnimatedRoutes() {
       <Route path="/patient/:id/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
       <Route path="/patient/:id/treatment-plans" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
       <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
+      <Route path="/fitness/" element={<PageTransition><PhysiotherapistHome /></PageTransition>} />
       <Route path="/dev-login" element={<DevLogin />} />{/* DEV ONLY */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

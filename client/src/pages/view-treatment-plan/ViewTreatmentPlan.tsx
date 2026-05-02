@@ -199,7 +199,7 @@ export default function ViewTreatmentPlan() {
           <div className="vtp-goal-card">
             <div className="vtp-goal-card__header">
               <Target size={16} className="vtp-goal-card__icon" />
-              <span className="vtp-goal-card__title">Treatment Goal</span>
+              <span className="vtp-goal-card__title">{auth?.role === 'FITNESS_TRAINER' ? 'Fitness' : 'Treatment'} Goal</span>
             </div>
             <p className="vtp-goal-text">{plan.goal}</p>
           </div>

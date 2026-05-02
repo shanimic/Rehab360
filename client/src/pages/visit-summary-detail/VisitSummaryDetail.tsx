@@ -100,7 +100,7 @@ function VisitInfoCard({ visit, onOpenPlan }: VisitInfoCardProps) {
       {onOpenPlan && (
         <div className="vsd-plan-action">
           <button type="button" className="vsd-plan-link" onClick={onOpenPlan}>
-            Open Treatment Plan
+            Open {visitTypeLabel === 'Fitness Training' ? 'Fitness' : 'Treatment'} Plan
             <ArrowRight size={14} />
           </button>
         </div>
