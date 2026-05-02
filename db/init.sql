@@ -112,14 +112,15 @@ CREATE TABLE IF NOT EXISTS plans (
     goal TEXT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
+    notes TEXT NULL,
     PRIMARY KEY (plan_id, session_id),
     FOREIGN KEY (session_id) REFERENCES sessions(session_id)
 );
 
-INSERT INTO plans (session_id, goal, start_date, end_date)
+INSERT INTO plans (session_id, goal, start_date, end_date, notes)
 VALUES
-( 101,'Increase knee stability', '2024-01-11', '2027-02-11' ),
-( 102, 'Improve shoulder mobility', '2024-01-18', '2027-02-18' );
+( 101,'Increase knee stability', '2024-01-11', '2027-02-11', NULL ),
+( 102, 'Improve shoulder mobility', '2024-01-18', '2027-02-18', NULL );
 
 
 

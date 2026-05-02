@@ -142,6 +142,7 @@ class CreatePlanRequest(BaseModel):
     goal: str
     start_date: datetime.date
     end_date: datetime.date
+    notes: str | None = None
 
 
 class CreatePlanResponse(BaseModel):
