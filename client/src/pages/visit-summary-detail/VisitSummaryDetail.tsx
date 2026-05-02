@@ -7,8 +7,6 @@ import type { VisitSummaryDetails } from '@/types'
 
 import '../patient-details/PatientDetails.css'
 import './VisitSummaryDetail.css'
-import { useAtomValue } from 'jotai'
-import { authAtom } from '@/store/authAtom'
 
 const VISIT_TYPE_LABEL: Record<string, string> = {
   PHYSIOTHERAPIST: 'Physical Therapy',
