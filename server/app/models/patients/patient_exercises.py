@@ -25,6 +25,18 @@ class DailyExerciseItem(BaseModel):
             return False
         return int(value) == 1
 
+class WeeklyScheduleItem(BaseModel):
+    """One exercise row from the patient's active weekly plan."""
+
+    exercise_id: int
+    exercise_name: str
+    visit_type: VisitType
+    reps: int
+    num_sets: int
+    time_duration: int
+    time_unit: str
+
+
 class WeeklyCompletion(BaseModel):
     exe_comp: int = Field(alias="EXECOMP",by_alias=True, description="Number of exercises completed this week") # Nominator
     exe_tdw: int = Field(alias="EXETDW",by_alias=True, description="Number of exercises to be completed this week") # Denominator

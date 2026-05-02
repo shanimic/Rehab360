@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
-import { VisitType, type MyPlan } from '@/types/patient'
 import ExerciseCard from './components/ExerciseCard'
 import DayCard from './components/DayCard'
 import ReminderToggle from './components/ReminderToggle'
@@ -9,25 +8,15 @@ import './ExerciseSchedule.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import PatientTopNav from '@/components/PatientTopNav'
+import { useGetWeeklySchedule } from '@/hooks/paitent/useGetWeeklySchedule'
 
 /* ── Types ── */
 export interface ScheduledExercise {
   exerciseId: number
   sets: 1 | 2 | 3
-  timeOfDay: 'Morning' | 'Afternoon' | 'Evening'
   reminderDate: string
   reminderTime: string
 }
-
-/* ── Static exercise pool (defined by healthcare professional) ── */
-const EXERCISE_POOL: MyPlan[] = [
-  { exercise_id: 1, exercise_name: 'Push Up',        visit_type: VisitType.PHYSIOTHERAPIST, reps: 100, execution_status: false, text_instructions: '3 sets · 100 reps' },
-  { exercise_id: 2, exercise_name: 'Sit Up',         visit_type: VisitType.FITNESS,         reps: 20,  execution_status: false, text_instructions: '2 sets · 20 reps' },
-  { exercise_id: 3, exercise_name: 'Knee Push Up',   visit_type: VisitType.PHYSIOTHERAPIST, reps: 20,  execution_status: false, text_instructions: '2 sets · 20 reps' },
-  { exercise_id: 4, exercise_name: 'Shoulder Stretch',visit_type: VisitType.PHYSIOTHERAPIST, reps: 15,  execution_status: false, text_instructions: '3 sets · 15 reps each side' },
-  { exercise_id: 5, exercise_name: 'Squat',          visit_type: VisitType.FITNESS,         reps: 15,  execution_status: false, text_instructions: '3 sets · 15 reps' },
-  { exercise_id: 6, exercise_name: 'Plank',          visit_type: VisitType.PHYSIOTHERAPIST, reps: 30,  execution_status: false, text_instructions: '3 sets · 30 seconds' },
-]
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -35,6 +24,7 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 export default function ExerciseSchedule() {
   const navigate = useNavigate()
   const user = useAtomValue(authAtom)
+  const { data = [] } = useGetWeeklySchedule()
 
   // dayIndex (0–6) → array of scheduled exercises
   const [schedule, setSchedule] = useState<Record<number, ScheduledExercise[]>>({})
@@ -80,7 +70,6 @@ export default function ExerciseSchedule() {
       existingMap.get(id) ?? {
         exerciseId: id,
         sets: 1,
-        timeOfDay: 'Morning',
         reminderDate: '',
         reminderTime: '',
       }
@@ -146,7 +135,7 @@ export default function ExerciseSchedule() {
             <span className="es-section-sub">Prescribed by your healthcare professional</span>
           </div>
           <div className="es-pool" role="list" aria-label="Available exercises">
-            {EXERCISE_POOL.map(ex => (
+            {data.map(ex => (
               <div key={ex.exercise_id} role="listitem">
                 <ExerciseCard exercise={ex} />
               </div>
@@ -166,12 +155,11 @@ export default function ExerciseSchedule() {
                 key={day}
                 dayName={day}
                 exercises={getDay(idx)}
-                allExercises={EXERCISE_POOL}
+                allExercises={data}
                 remindersEnabled={remindersEnabled}
                 onAddClick={() => openPicker(idx)}
                 onRemove={exId => removeExercise(idx, exId)}
                 onUpdateSets={(exId, sets) => updateEntry(idx, exId, { sets })}
-                onUpdateTime={(exId, timeOfDay) => updateEntry(idx, exId, { timeOfDay })}
                 onUpdateReminderDate={(exId, date) => updateEntry(idx, exId, { reminderDate: date })}
                 onUpdateReminderTime={(exId, time) => updateEntry(idx, exId, { reminderTime: time })}
                 showValidation={showValidation}
@@ -221,7 +209,7 @@ export default function ExerciseSchedule() {
             </header>
 
             <ul className="es-modal__list" aria-label="Select exercises">
-              {EXERCISE_POOL.map(ex => {
+              {data.map(ex => {
                 const checked = pickerSelected.has(ex.exercise_id)
                 const isPhysio = ex.visit_type?.toLowerCase() === 'physiotherapist'
                 return (
@@ -241,7 +229,7 @@ export default function ExerciseSchedule() {
                       />
                       <div className="es-modal__info">
                         <span className="es-modal__ex-name">{ex.exercise_name}</span>
-                        <span className="es-modal__ex-desc">{ex.text_instructions}</span>
+                        <span className="es-modal__ex-desc">{`${ex.num_sets} sets · ${ex.reps} reps`}</span>
                       </div>
                       <span
                         className={`es-modal__badge${isPhysio ? ' es-modal__badge--treatment' : ' es-modal__badge--training'}`}

@@ -1,12 +1,13 @@
 import { Dumbbell } from 'lucide-react'
-import type { MyPlan } from '@/types/patient'
+import type { WeeklyScheduleItem } from '@/types/patient'
 
 interface ExerciseCardProps {
-  exercise: MyPlan
+  exercise: WeeklyScheduleItem
 }
 
 export default function ExerciseCard({ exercise }: ExerciseCardProps) {
   const isPhysio = exercise.visit_type?.toLowerCase() === 'physiotherapist'
+  const description = `${exercise.num_sets} sets · ${exercise.reps} reps`
 
   return (
     <article className="es-pool-card" aria-label={exercise.exercise_name}>
@@ -24,7 +25,7 @@ export default function ExerciseCard({ exercise }: ExerciseCardProps) {
         >
           {isPhysio ? 'Physio' : 'Fitness'}
         </span>
-        <span className="es-pool-card__desc">{exercise.text_instructions}</span>
+        <span className="es-pool-card__desc">{description}</span>
       </div>
     </article>
   )
