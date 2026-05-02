@@ -195,14 +195,15 @@ class VisitSummaryRepository:
         """
         await self.cursor.execute(
             query="""
-                INSERT INTO plans (session_id, goal, start_date, end_date)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO plans (session_id, goal, start_date, end_date, notes)
+                VALUES (%s, %s, %s, %s, %s)
             """,
             args=(
                 request.session_id,
                 request.goal,
                 request.start_date,
                 request.end_date,
+                request.notes,
             ),
         )
         await self.cursor.execute(
