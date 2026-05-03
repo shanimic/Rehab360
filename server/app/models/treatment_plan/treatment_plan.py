@@ -80,3 +80,29 @@ class CreateTreatmentPlanResponse(BaseModel):
 
     plan_id: int
     session_id: int
+
+
+class TreatmentPlanExerciseItem(BaseModel):
+    """One exercise entry within a treatment plan details response."""
+
+    exercise_id: int
+    exercise_name: str
+    reps: int | None
+    num_sets: int | None
+    weight: float | None
+    time_duration: int | None
+    time_unit: str | None
+    description: str | None
+
+
+class TreatmentPlanDetailsResponse(BaseModel):
+    """Full treatment plan returned for the view-treatment-plan page."""
+
+    plan_id: int
+    session_id: int
+    medical_diagnosis: str
+    goal: str
+    start_date: datetime.date
+    end_date: datetime.date
+    notes: str | None
+    exercises: list[TreatmentPlanExerciseItem]

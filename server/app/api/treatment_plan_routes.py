@@ -7,6 +7,7 @@ from app.models.treatment_plan.treatment_plan import (
     CreateTreatmentPlanResponse,
     PhysiotherapyExerciseItem,
     TreatmentPlanContext,
+    TreatmentPlanDetailsResponse,
 )
 from app.services.treatment_plan_services import TreatmentPlanServices
 
@@ -54,6 +55,28 @@ async def get_physiotherapy_exercises(
     repo = TreatmentPlanRepository(db=db)
     service = TreatmentPlanServices(repository=repo)
     return await service.get_physiotherapy_exercises()
+
+
+@treatment_plan_router.get(
+    "/plan/{plan_id}",
+    tags=["Treatment Plan"],
+    response_model=TreatmentPlanDetailsResponse,
+)
+async def get_treatment_plan_by_plan_id(
+    plan_id: int, db=Depends(get_db)
+) -> TreatmentPlanDetailsResponse:
+    """Return the full treatment plan for a plan.
+
+    Args:
+        plan_id: The unique identifier of the plan.
+        db: Database cursor injected by FastAPI.
+
+    Returns:
+        TreatmentPlanDetailsResponse with plan details and exercises.
+    """
+    repo = TreatmentPlanRepository(db=db)
+    service = TreatmentPlanServices(repository=repo)
+    return await service.get_treatment_plan_by_plan_id(plan_id)
 
 
 @treatment_plan_router.post(

@@ -380,6 +380,84 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
         # ASSERT
         assert response.status_code == 422
 
+    # ── GET /treatment-plan/plan/{plan_id} ───────────────────────────────
+
+    def test_get_treatment_plan_by_plan_id_found_returns_200(self) -> None:
+        """
+        Given an active plan with one exercise,
+        When GET /treatment-plan/plan/{plan_id} is called,
+        Then 200 is returned with plan details and the exercise list.
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(
+            fetchone_rows=[
+                {
+                    "plan_id": 6,
+                    "session_id": 103,
+                    "medical_diagnosis": "Shoulder Impingement",
+                    "goal": "Restore full range of motion",
+                    "start_date": datetime.date(2025, 1, 6),
+                    "end_date": datetime.date(2025, 3, 1),
+                    "notes": None,
+                }
+            ],
+            fetchall_rows=[
+                {
+                    "exercise_id": 1,
+                    "exercise_name": "Wall Squats",
+                    "reps": 12,
+                    "num_sets": 3,
+                    "weight": None,
+                    "time_duration": 3,
+                    "time_unit": "Weekly",
+                    "description": None,
+                }
+            ],
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/treatment-plan/plan/6")
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert body["plan_id"] == 6
+        assert body["session_id"] == 103
+        assert body["medical_diagnosis"] == "Shoulder Impingement"
+        assert body["goal"] == "Restore full range of motion"
+        assert body["notes"] is None
+        assert len(body["exercises"]) == 1
+        assert body["exercises"][0]["exercise_id"] == 1
+        assert body["exercises"][0]["exercise_name"] == "Wall Squats"
+        assert body["exercises"][0]["num_sets"] == 3
+
+    def test_get_treatment_plan_by_plan_id_not_found_returns_404(self) -> None:
+        """
+        Given no active plan exists for the plan_id,
+        When GET /treatment-plan/plan/{plan_id} is called,
+        Then 404 Not Found is returned.
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(fetchone_rows=[None])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/treatment-plan/plan/9999")
+
+        # ASSERT
+        assert response.status_code == 404
+
     def test_create_treatment_plan_end_date_before_start_date_returns_422(
         self,
     ) -> None:

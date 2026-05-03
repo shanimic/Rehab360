@@ -262,3 +262,25 @@ export interface CreateTreatmentPlanResponse {
   plan_id: number
   session_id: number
 }
+
+export interface TreatmentPlanExerciseItem {
+  exercise_id: number
+  exercise_name: string
+  reps: number | null
+  num_sets: number | null
+  weight: number | null
+  time_duration: number | null
+  time_unit: string | null
+  description: string | null
+}
+
+export interface TreatmentPlanDetailsResponse {
+  plan_id: number
+  session_id: number
+  medical_diagnosis: string
+  goal: string
+  start_date: string
+  end_date: string
+  notes: string | null
+  exercises: TreatmentPlanExerciseItem[]
+}
