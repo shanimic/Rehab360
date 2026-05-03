@@ -6,6 +6,7 @@ from app.models.treatment_plan.treatment_plan import (
     CreateTreatmentPlanResponse,
     PhysiotherapyExerciseItem,
     TreatmentPlanContext,
+    TreatmentPlanDetailsResponse,
 )
 
 _PHYSIOTHERAPIST_VISIT_TYPE = "PHYSIOTHERAPIST"
@@ -102,3 +103,28 @@ class TreatmentPlanServices:
                 ),
             )
         return await self.repository.create_treatment_plan(session_id, request)
+
+    async def get_treatment_plan_by_plan_id(
+        self, plan_id: int
+    ) -> TreatmentPlanDetailsResponse:
+        """Return the full treatment plan for a plan, or raise 404 if not found.
+
+        Args:
+            plan_id: The unique identifier of the plan.
+
+        Returns:
+            A TreatmentPlanDetailsResponse with plan details and exercises.
+
+        Raises:
+            HTTPException: 404 if no active treatment plan exists for this plan_id.
+        """
+        plan = await self.repository.get_treatment_plan_by_plan_id(plan_id)
+        if not plan:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Treatment plan not found",
+            )
+        plan.exercises = await self.repository.get_exercises_by_plan(
+            plan.plan_id, plan.session_id
+        )
+        return plan

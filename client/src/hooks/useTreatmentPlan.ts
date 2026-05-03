@@ -6,6 +6,7 @@ import type {
   CreateTreatmentPlanResponse,
   PhysiotherapyExerciseItem,
   TreatmentPlanContext,
+  TreatmentPlanDetailsResponse,
 } from '@/types'
 
 export function useTreatmentPlanContext(sessionId: number | null) {
@@ -28,6 +29,19 @@ export function usePhysiotherapyExercises() {
       const res = await apiClient.get<PhysiotherapyExerciseItem[]>('/treatment-plan/exercises')
       return res.data
     },
+  })
+}
+
+export function useTreatmentPlanDetails(planId: number | undefined) {
+  return useQuery<TreatmentPlanDetailsResponse>({
+    queryKey: ['treatmentPlanDetails', planId],
+    queryFn: async () => {
+      const res = await apiClient.get<TreatmentPlanDetailsResponse>(
+        `/treatment-plan/plan/${planId}`,
+      )
+      return res.data
+    },
+    enabled: typeof planId === 'number' && !Number.isNaN(planId),
   })
 }
 

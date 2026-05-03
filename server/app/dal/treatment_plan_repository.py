@@ -5,6 +5,8 @@ from app.models.treatment_plan.treatment_plan import (
     CreateTreatmentPlanResponse,
     PhysiotherapyExerciseItem,
     TreatmentPlanContext,
+    TreatmentPlanDetailsResponse,
+    TreatmentPlanExerciseItem,
 )
 
 
@@ -167,3 +169,73 @@ class TreatmentPlanRepository:
             )
 
         return CreateTreatmentPlanResponse(plan_id=plan_id, session_id=session_id)
+
+    async def get_treatment_plan_by_plan_id(
+        self, plan_id: int
+    ) -> TreatmentPlanDetailsResponse | None:
+        """Fetch treatment plan header for the given plan.
+
+        Args:
+            plan_id: The unique identifier of the plan.
+
+        Returns:
+            A TreatmentPlanDetailsResponse (with empty exercises) if an active plan
+            exists, otherwise None.
+        """
+        await self.cursor.execute(
+            query="""
+                SELECT
+                    p.plan_id,
+                    p.session_id,
+                    s.medical_diagnosis,
+                    p.goal,
+                    p.start_date,
+                    p.end_date,
+                    p.notes
+                FROM plans p
+                JOIN sessions s
+                    ON p.session_id = s.session_id
+                WHERE p.plan_id = %s
+                  AND s.session_status = 'ACTIVE'
+            """,
+            args=(plan_id,),
+        )
+        row = await self.cursor.fetchone()
+        if not row:
+            return None
+        return TreatmentPlanDetailsResponse(**row, exercises=[])
+
+    async def get_exercises_by_plan(
+        self, plan_id: int, session_id: int
+    ) -> list[TreatmentPlanExerciseItem]:
+        """Fetch all exercises belonging to the given plan, ordered by name.
+
+        Args:
+            plan_id: The unique identifier of the plan.
+            session_id: The session the plan belongs to.
+
+        Returns:
+            A list of TreatmentPlanExerciseItem instances ordered by exercise name.
+        """
+        await self.cursor.execute(
+            query="""
+                SELECT
+                    pe.exercise_id,
+                    e.exercise_name,
+                    pe.reps,
+                    pe.num_sets,
+                    pe.weight,
+                    pe.time_duration,
+                    pe.time_unit,
+                    pe.description
+                FROM plan_exercises pe
+                JOIN exercises e
+                    ON pe.exercise_id = e.exercise_id
+                WHERE pe.plan_id   = %s
+                  AND pe.session_id = %s
+                ORDER BY e.exercise_name ASC
+            """,
+            args=(plan_id, session_id),
+        )
+        rows = await self.cursor.fetchall()
+        return [TreatmentPlanExerciseItem.model_validate(row) for row in rows]
