@@ -54,7 +54,7 @@ export default function SourceCard({
   function handleSave() {
     if (isSaved || !onSave || saved) return
     setLocalSaved(true)
-    onSave(source as SourceCardType)
+    onSave(source)
   }
 
   function handleVerify() {
