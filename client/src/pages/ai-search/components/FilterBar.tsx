@@ -1,17 +1,25 @@
 import { cn } from '@/lib/utils'
-import type { SavedContent } from '@/types'
+import type { SourceCard, SavedContent } from '@/types'
 
 export type FilterKey = 'all' | 'verified' | 'unverified'
+
+type FilterableSource = SourceCard | SavedContent
+
+function isVerified(s: FilterableSource): boolean {
+  return 'is_verified' in s
+    ? s.is_verified
+    : s.verified_by_physio || s.verified_by_trainer
+}
 
 interface FilterBarProps {
   filter: FilterKey
   onChange: (f: FilterKey) => void
-  sources: SavedContent[]
+  sources: FilterableSource[]
 }
 
 export default function FilterBar({ filter, onChange, sources }: FilterBarProps) {
   const total = sources.length
-  const verified = sources.filter((s) => s.verified_by_physio || s.verified_by_trainer).length
+  const verified = sources.filter(isVerified).length
   const unverified = total - verified
 
   const options: { key: FilterKey; label: string; count: number }[] = [

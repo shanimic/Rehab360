@@ -3,15 +3,15 @@ import type { ComponentType } from 'react'
 import { FileText, ClipboardList, Activity, Check, ShieldCheck, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import VerificationBadge from './VerificationBadge'
-import type { SavedContent, ApiRole } from '@/types'
+import type { SourceCard as SourceCardType, SavedContent, ApiRole } from '@/types'
 
 interface SourceCardProps {
-  source: SavedContent
+  source: SourceCardType | SavedContent
   userRole: ApiRole
   mode: 'results' | 'saved'
-  onSave?: (item: SavedContent) => void
+  onSave?: (item: SourceCardType) => void
   onUnsave?: (recommendationId: string) => void
-  onVerify?: (recommendationId: string, role: 'PHYSIOTHERAPIST' | 'FITNESS_TRAINER') => void
+  onVerify?: (id: string, role: 'PHYSIOTHERAPIST' | 'FITNESS_TRAINER') => void
   savedIds?: Set<string>
 }
 
@@ -19,6 +19,10 @@ const CONTENT_TYPE_ICON: Record<string, ComponentType<{ size?: number; className
   Article: FileText,
   'Clinical Guideline': ClipboardList,
   'Exercise Guide': Activity,
+}
+
+function isSavedContent(source: SourceCardType | SavedContent): source is SavedContent {
+  return 'recommendation_id' in source
 }
 
 export default function SourceCard({
@@ -31,21 +35,32 @@ export default function SourceCard({
   savedIds,
 }: SourceCardProps) {
   const [localSaved, setLocalSaved] = useState(false)
-  const isSaved = localSaved || (savedIds?.has(source.recommendation_id) ?? false)
-  const isVerified = source.verified_by_physio || source.verified_by_trainer
+
+  const saved = isSavedContent(source)
+  const sourceId = saved ? source.recommendation_id : source.url
+  const title = saved ? source.content_title : source.title
+  const url = saved ? source.source_url : source.url
+  const description = saved ? source.content_text : source.description
+  const isVerified = saved
+    ? source.verified_by_physio || source.verified_by_trainer
+    : source.is_verified
+  const verifiedByPhysio = saved ? source.verified_by_physio : source.is_verified
+  const verifiedByTrainer = saved ? source.verified_by_trainer : false
+
+  const isSaved = localSaved || (savedIds?.has(sourceId) ?? false)
   const canVerify = userRole === 'PHYSIOTHERAPIST' || userRole === 'FITNESS_TRAINER'
   const ContentIcon = CONTENT_TYPE_ICON[source.content_type] ?? FileText
 
   function handleSave() {
-    if (isSaved || !onSave) return
+    if (isSaved || !onSave || saved) return
     setLocalSaved(true)
-    onSave(source)
+    onSave(source as SourceCardType)
   }
 
   function handleVerify() {
     if (!onVerify) return
     const role = userRole === 'PHYSIOTHERAPIST' ? 'PHYSIOTHERAPIST' : 'FITNESS_TRAINER'
-    onVerify(source.recommendation_id, role)
+    onVerify(sourceId, role)
   }
 
   return (
@@ -64,23 +79,22 @@ export default function SourceCard({
               {source.content_type}
             </span>
             <VerificationBadge
-              verified_by_physio={source.verified_by_physio}
-              verified_by_trainer={source.verified_by_trainer}
-              is_injected={source.is_injected}
+              verified_by_physio={verifiedByPhysio}
+              verified_by_trainer={verifiedByTrainer}
             />
           </div>
         </div>
 
-        <h3 className="text-sm font-semibold text-gray-800 leading-snug">{source.content_title}</h3>
+        <h3 className="text-sm font-semibold text-gray-800 leading-snug">{title}</h3>
         <p className="text-sm text-gray-500 line-clamp-2 lg:line-clamp-3 leading-relaxed">
-          {source.content_text}
+          {description}
         </p>
       </div>
 
       {mode === 'results' && (
         <div className="mt-3 grid grid-cols-2 gap-2 lg:flex lg:gap-2">
           <a
-            href={source.source_url}
+            href={url}
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
@@ -120,7 +134,7 @@ export default function SourceCard({
       {mode === 'saved' && (
         <div className="mt-3 grid grid-cols-2 gap-2 lg:flex lg:gap-2">
           <a
-            href={source.source_url}
+            href={url}
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
@@ -132,7 +146,7 @@ export default function SourceCard({
             Read More →
           </a>
           <button
-            onClick={() => onUnsave?.(source.recommendation_id)}
+            onClick={() => saved && onUnsave?.(source.recommendation_id)}
             className={cn(
               'text-sm font-medium px-4 py-2.5 rounded-xl border transition-colors min-h-[44px]',
               'bg-white text-red-500 border-red-200 hover:bg-red-50',

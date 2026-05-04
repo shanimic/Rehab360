@@ -1,13 +1,12 @@
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { Send, Loader2 } from 'lucide-react'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import { currentQueryAtom } from '@/store/aiSearchAtom'
+import { currentQueryAtom, searchResultsAtom } from '@/store/aiSearchAtom'
 import { useAiSearchMutation } from '@/hooks/useAiSearchMutation'
 import { useQueryHistory } from '@/hooks/useQueryHistory'
 import { useDeleteQuery } from '@/hooks/useDeleteQuery'
-import { useRestoreQuery } from '@/hooks/useRestoreQuery'
 import { useSavedContent } from '@/hooks/useSavedContent'
 import { errMsg } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -25,8 +24,8 @@ type SearchValues = z.infer<typeof searchSchema>
 export default function AiSearchPage() {
   const auth = useAtomValue(authAtom)
   const [currentQuery, setCurrentQuery] = useAtom(currentQueryAtom)
+  const setSearchResults = useSetAtom(searchResultsAtom)
   const searchMutation = useAiSearchMutation()
-  const restoreQuery = useRestoreQuery()
   const history = useQueryHistory()
   const savedContent = useSavedContent()
 
@@ -37,6 +36,7 @@ export default function AiSearchPage() {
     validators: { onSubmit: searchSchema },
     onSubmit: ({ value }) => {
       setCurrentQuery(value.query)
+      setSearchResults(null)
       searchMutation.mutate(value.query)
     },
   })
@@ -115,10 +115,12 @@ export default function AiSearchPage() {
           <div className="ais-page__right">
             <HistoryPanel
               history={history}
-              onRestore={(queryId) => restoreQuery.mutate(queryId)}
+              onSelect={(queryText) => {
+                setCurrentQuery(queryText)
+                form.setFieldValue('query', queryText)
+              }}
               onDelete={handleHistoryDelete}
               onClearAll={() => history.forEach((q) => deleteQuery.mutate(q.query_id))}
-              totalSearches={history.length}
               savedCount={savedContent.length}
             />
           </div>

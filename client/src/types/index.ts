@@ -149,10 +149,8 @@ export type ContentType = 'Article' | 'Clinical Guideline' | 'Exercise Guide'
 export interface AiQuery {
   query_id: string
   user_id: string
-  query_content: string
-  ai_response: string
+  query_text: string
   query_date: string
-  query_time: string
 }
 
 export interface SavedContent {
@@ -164,15 +162,22 @@ export interface SavedContent {
   source_url: string
   verified_by_physio: boolean
   verified_by_trainer: boolean
-  is_injected: boolean
   created_at: string
+}
+
+export interface SourceCard {
+  title: string
+  url: string
+  description: string
+  content_type: ContentType
+  is_verified: boolean
 }
 
 export interface AiExchange {
   query_id: string
   query_content: string
   ai_summary: string
-  sources: SavedContent[]
+  sources: SourceCard[]
 }
 
 export type AiConversation = AiExchange[]

@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { SavedContent } from '@/types'
+import type { SourceCard } from '@/types'
 
 // TODO: replace mutationFn with real POST /saved-content call once endpoint is available
-export function useSaveContent(onSuccess: (item: SavedContent) => void) {
+export function useSaveContent(onSuccess: (item: SourceCard) => void) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (item: SavedContent): Promise<SavedContent> => {
+    mutationFn: async (item: SourceCard): Promise<SourceCard> => {
       await new Promise((resolve) => setTimeout(resolve, 100))
       return item
     },

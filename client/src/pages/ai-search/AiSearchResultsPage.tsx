@@ -1,16 +1,16 @@
-import { Fragment, useState, useRef, useEffect } from 'react'
+import { Fragment, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAtomValue } from 'jotai'
 import { searchResultsAtom } from '@/store/aiSearchAtom'
 import { authAtom } from '@/store/authAtom'
 import { useSaveContent } from '@/hooks/useSaveContent'
 import { useVerifyContent } from '@/hooks/useVerifyContent'
-import { useFollowUpMutation } from '@/hooks/useFollowUpMutation'
+import { useAiSearchMutation } from '@/hooks/useAiSearchMutation'
 import PatientTopNav from '@/components/PatientTopNav'
 import BackButton from '@/components/ui/BackButton'
 import ExchangeBlock from './components/ExchangeBlock'
-import FollowUpInput from './components/FollowUpInput'
-import type { SavedContent } from '@/types'
+import NewSearchInput from './components/NewSearchInput'
+import type { SourceCard } from '@/types'
 import './AiSearchResultsPage.css'
 
 export default function AiSearchResultsPage() {
@@ -18,23 +18,12 @@ export default function AiSearchResultsPage() {
   const conversation = useAtomValue(searchResultsAtom)
   const auth = useAtomValue(authAtom)
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
-  const [pendingBubbles, setPendingBubbles] = useState<string[]>([])
-  const convLength = conversation?.length ?? 0
-  const prevConvLenRef = useRef(0)
 
-  useEffect(() => {
-    if (convLength > prevConvLenRef.current) {
-      const added = convLength - prevConvLenRef.current
-      setPendingBubbles((prev) => prev.slice(added))
-      prevConvLenRef.current = convLength
-    }
-  }, [convLength])
-
-  const saveContent = useSaveContent((item: SavedContent) => {
-    setSavedIds((prev) => new Set([...prev, item.recommendation_id]))
+  const saveContent = useSaveContent((item: SourceCard) => {
+    setSavedIds((prev) => new Set([...prev, item.url]))
   })
   const verifyContent = useVerifyContent()
-  const followUp = useFollowUpMutation()
+  const searchMutation = useAiSearchMutation()
 
   if (!conversation) {
     navigate('/ai-search', { replace: true })
@@ -68,30 +57,16 @@ export default function AiSearchResultsPage() {
                   />
                 </Fragment>
               ))}
-              {pendingBubbles.map((text, i) => (
-                <div key={`pending-${i}`} className="flex justify-end">
-                  <div className="ais-bubble mr-2 md:mr-4">{text}</div>
-                </div>
-              ))}
             </div>
 
-            <FollowUpInput
-              conversation={conversation}
-              onSubmit={(text) => {
-                setPendingBubbles((prev) => [...prev, text])
-                followUp.mutate({ parentQueryId: conversation[0].query_id, text })
-              }}
-              isPending={followUp.isPending}
+            <NewSearchInput
+              onSubmit={(text) => searchMutation.mutate(text)}
+              isPending={searchMutation.isPending}
             />
           </div>
 
           {/* ─── Right sidebar (desktop only) ─── */}
-          <aside className="ais-results__sidebar hidden lg:block">
-            <div className="ais-results__sidebar-card ais-results__sidebar-card--clinic">
-              <h3 className="ais-results__sidebar-title">Clinic content active</h3>
-              <p className="text-xs text-green-700">Your clinic&apos;s professionals have added trusted content to these results.</p>
-            </div>
-          </aside>
+          <aside className="ais-results__sidebar hidden lg:block" />
         </div>
       </main>
     </div>

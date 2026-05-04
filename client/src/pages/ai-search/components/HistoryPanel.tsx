@@ -5,10 +5,9 @@ import type { AiQuery } from '@/types'
 
 interface HistoryPanelProps {
   history: AiQuery[]
-  onRestore: (queryId: string) => void
+  onSelect: (queryText: string) => void
   onDelete: (queryId: string) => void
   onClearAll: () => void
-  totalSearches: number
   savedCount: number
 }
 
@@ -22,10 +21,9 @@ function relativeDate(dateStr: string): string {
 
 export default function HistoryPanel({
   history,
-  onRestore,
+  onSelect,
   onDelete,
   onClearAll,
-  totalSearches,
   savedCount,
 }: HistoryPanelProps) {
   const navigate = useNavigate()
@@ -76,17 +74,12 @@ export default function HistoryPanel({
           >
             <button
               className="flex-1 text-left flex items-start gap-2 min-w-0"
-              onClick={() => onRestore(q.query_id)}
+              onClick={() => onSelect(q.query_text)}
             >
               <Clock size={16} className="text-gray-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
               <div className="min-w-0">
-                <p className="text-sm text-gray-700 truncate">{q.query_content}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-gray-400">{relativeDate(q.query_date)}</span>
-                  <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">
-                    1 exchange
-                  </span>
-                </div>
+                <p className="text-sm text-gray-700 truncate">{q.query_text}</p>
+                <span className="text-xs text-gray-400">{relativeDate(q.query_date)}</span>
               </div>
             </button>
             <button
@@ -104,16 +97,6 @@ export default function HistoryPanel({
         ))}
       </ul>
 
-      <div className="hidden lg:flex gap-3 mt-2 pt-3 border-t border-gray-100">
-        <div className="flex-1 bg-gray-50 rounded-xl p-3 text-center">
-          <p className="text-lg font-bold text-blue-600">{totalSearches}</p>
-          <p className="text-xs text-gray-500">Total searches</p>
-        </div>
-        <div className="flex-1 bg-gray-50 rounded-xl p-3 text-center">
-          <p className="text-lg font-bold text-green-600">{savedCount}</p>
-          <p className="text-xs text-gray-500">Items saved</p>
-        </div>
-      </div>
     </div>
   )
 }

@@ -18,17 +18,15 @@ export function useVerifyContent() {
       await new Promise((resolve) => setTimeout(resolve, 100))
       return payload
     },
-    onSuccess: ({ recommendationId, role }) => {
+    onSuccess: ({ recommendationId }) => {
       if (!conversation) return
       const updated: AiConversation = conversation.map((exchange) => ({
         ...exchange,
-        sources: exchange.sources.map((source) => {
-          if (source.recommendation_id !== recommendationId) return source
-          if (role === 'PHYSIOTHERAPIST') {
-            return { ...source, verified_by_physio: !source.verified_by_physio }
-          }
-          return { ...source, verified_by_trainer: !source.verified_by_trainer }
-        }),
+        sources: exchange.sources.map((source) =>
+          source.url === recommendationId
+            ? { ...source, is_verified: !source.is_verified }
+            : source
+        ),
       }))
       setConversation(updated)
     },

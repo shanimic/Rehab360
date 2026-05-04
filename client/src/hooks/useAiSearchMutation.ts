@@ -23,8 +23,8 @@ export function useAiSearchMutation() {
         },
       ]
     },
-    onSuccess: (conversation) => {
-      setSearchResults(conversation)
+    onSuccess: (newExchanges) => {
+      setSearchResults((prev) => [...(prev ?? []), ...newExchanges])
       navigate('/ai-search/results')
     },
   })
