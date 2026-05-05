@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Sparkles, Hospital } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import type { AiExchange } from '@/types'
 
 interface AiSummaryCardProps {
@@ -10,7 +10,6 @@ const GEMINI_LOGO_URL = 'https://www.gstatic.com/lamda/images/gemini_sparkle_v00
 
 export default function AiSummaryCard({ exchange }: AiSummaryCardProps) {
   const [geminiLogoError, setGeminiLogoError] = useState(false)
-  const injectedCount = exchange.sources.filter((s) => s.is_injected).length
 
   return (
     <div className="rounded-2xl overflow-hidden shadow-md">
@@ -29,17 +28,9 @@ export default function AiSummaryCard({ exchange }: AiSummaryCardProps) {
           )}
           <span className="text-sm font-semibold text-white">Powered by Gemini AI</span>
         </div>
-        <div className="flex items-center gap-3">
-          {injectedCount > 0 && (
-            <span className="text-xs text-blue-200 hidden sm:flex items-center gap-1">
-              <Hospital size={14} aria-hidden="true" />
-              {injectedCount} clinic-verified {injectedCount === 1 ? 'source' : 'sources'}
-            </span>
-          )}
-          <span className="text-xs text-blue-200 hidden sm:block">
-            Always consult your healthcare professional
-          </span>
-        </div>
+        <span className="text-xs text-blue-200 hidden sm:block">
+          Always consult your healthcare professional
+        </span>
       </div>
 
       <div className="px-4 py-4 bg-gray-100">

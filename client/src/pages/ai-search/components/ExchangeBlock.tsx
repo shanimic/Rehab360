@@ -4,19 +4,19 @@ import AiSummaryCard from './AiSummaryCard'
 import FilterBar from './FilterBar'
 import SourceCard from './SourceCard'
 import type { FilterKey } from './FilterBar'
-import type { AiExchange, SavedContent, ApiRole } from '@/types'
+import type { AiExchange, SourceCard as SourceCardType, ApiRole } from '@/types'
 
 interface ExchangeBlockProps {
   exchange: AiExchange
   userRole: ApiRole
-  onSave: (item: SavedContent) => void
-  onVerify: (recommendationId: string, role: 'PHYSIOTHERAPIST' | 'FITNESS_TRAINER') => void
+  onSave: (item: SourceCardType) => void
+  onVerify: (id: string, role: 'PHYSIOTHERAPIST' | 'FITNESS_TRAINER') => void
   savedIds: Set<string>
 }
 
-function applyFilter(sources: SavedContent[], filter: FilterKey): SavedContent[] {
-  if (filter === 'verified') return sources.filter((s) => s.verified_by_physio || s.verified_by_trainer)
-  if (filter === 'unverified') return sources.filter((s) => !s.verified_by_physio && !s.verified_by_trainer)
+function applyFilter(sources: SourceCardType[], filter: FilterKey): SourceCardType[] {
+  if (filter === 'verified') return sources.filter((s) => s.is_verified)
+  if (filter === 'unverified') return sources.filter((s) => !s.is_verified)
   return sources
 }
 
@@ -48,7 +48,7 @@ export default function ExchangeBlock({
             </h2>
             {filtered.map((source) => (
               <SourceCard
-                key={source.recommendation_id}
+                key={source.url}
                 source={source}
                 userRole={userRole}
                 mode="results"

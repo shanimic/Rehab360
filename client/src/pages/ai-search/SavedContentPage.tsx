@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bookmark, BookmarkCheck } from 'lucide-react'
+import { Bookmark } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import { useSavedContent } from '@/hooks/useSavedContent'
@@ -11,20 +11,7 @@ import FilterBar from './components/FilterBar'
 import SourceCard from './components/SourceCard'
 import type { FilterKey } from './components/FilterBar'
 import type { SavedContent } from '@/types'
-import { mockQueryHistory } from '@/mocks/aiSearchMocks'
 import './SavedContentPage.css'
-
-function queryLabel(queryId: string): string {
-  return mockQueryHistory.find((h) => h.query_id === queryId)?.query_content ?? 'Unknown query'
-}
-
-function relativeDate(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const days = Math.floor(diff / 86400000)
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  return `${days}d ago`
-}
 
 function applyFilter(items: SavedContent[], filter: FilterKey): SavedContent[] {
   if (filter === 'verified') return items.filter((i) => i.verified_by_physio || i.verified_by_trainer)
@@ -65,8 +52,6 @@ export default function SavedContentPage() {
             <div className="ais-saved__stat"><span className="ais-saved__stat-num">{localContent.length}</span><span>Saved</span></div>
             <div className="ais-saved__stat-divider" />
             <div className="ais-saved__stat"><span className="ais-saved__stat-num">{verifiedCount}</span><span>Verified</span></div>
-            <div className="ais-saved__stat-divider" />
-            <div className="ais-saved__stat"><span className="ais-saved__stat-num">3</span><span>Searches</span></div>
           </div>
         </div>
 
@@ -92,9 +77,6 @@ export default function SavedContentPage() {
           <ul className="ais-saved__list">
             {filtered.map((item) => (
               <li key={item.recommendation_id}>
-                <p className="ais-saved__attribution">
-                  <BookmarkCheck size={14} className="inline-block align-middle mr-1" aria-hidden="true" />Saved from: &ldquo;<span className="ais-saved__attribution-query">{queryLabel(item.query_id)}</span>&rdquo; · {relativeDate(item.created_at)}
-                </p>
                 <SourceCard
                   source={item}
                   userRole={userRole}
