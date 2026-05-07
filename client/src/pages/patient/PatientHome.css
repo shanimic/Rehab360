@@ -536,13 +536,20 @@
 }
 
 .ph-exercise-item__check { flex-shrink: 0; margin-top: 2px; }
-.ph-exercise-item__check--done { color: var(--color-primary); }
-.ph-exercise-item__check--todo { color: var(--color-border); }
+.ph-exercise-item__check--done { color: #10b981; }
+.ph-exercise-item__check--placeholder { width: 24px; height: 24px; flex-shrink: 0; }
 
 .ph-exercise-item__info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.ph-exercise-item__name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .ph-exercise-item__name {
