@@ -143,6 +143,12 @@ export default function ExerciseSchedule() {
 
       <main className="es-main">
 
+        {/* ── Page title ── */}
+        <div className="es-page-header">
+          <h1 className="es-page-title">Weekly Schedule</h1>
+          <p className="es-page-sub">Plan your exercises for each day</p>
+        </div>
+
         {/* ── Exercise Pool ── */}
         <section aria-labelledby="pool-title">
           <div className="es-section-header">
@@ -159,11 +165,7 @@ export default function ExerciseSchedule() {
         </section>
 
         {/* ── Weekly Schedule ── */}
-        <section aria-labelledby="schedule-title">
-          <div className="es-section-header">
-            <h2 className="es-section-title" id="schedule-title">Weekly Schedule</h2>
-            <span className="es-section-sub">Plan your exercises for each day</span>
-          </div>
+        <section>
           <div className="es-week-grid">
             {DAYS.map((day, idx) => (
               <DayCard
