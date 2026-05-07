@@ -1,4 +1,4 @@
-import { Plus, CheckCircle2, Circle, X, Bell } from 'lucide-react'
+import { Plus, CheckCircle2, X, Bell } from 'lucide-react'
 import type { WeeklyScheduleItem } from '@/types/patient'
 import type { ScheduledExercise } from '../ExerciseSchedule'
 
@@ -41,7 +41,7 @@ export default function DayCard({
         <span className="es-day-card__day-name">{dayName}</span>
         {hasExercises
           ? <CheckCircle2 size={18} className="es-day-card__check es-day-card__check--done" aria-label="Day has exercises" />
-          : <Circle size={18} className="es-day-card__check" aria-label="No exercises yet" />
+          : null
         }
       </header>
 

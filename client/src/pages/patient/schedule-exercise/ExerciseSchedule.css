@@ -10,6 +10,7 @@
   display: flex;
   flex-direction: column;
   font-family: var(--font-family);
+  padding-top: 64px; /* offset for fixed nav */
 }
 
 
@@ -18,7 +19,7 @@
    ========================================= */
 .es-main {
   flex: 1;
-  padding: 20px 16px 40px;
+  padding: 24px 16px 40px;
   width: 100%;
   max-width: 680px;
   margin: 0 auto;
@@ -51,6 +52,30 @@
 }
 
 /* =========================================
+   Page header
+   ========================================= */
+.es-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.es-page-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.es-page-sub {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  margin: 0;
+}
+
+/* =========================================
    Exercise Pool (horizontal scroll on mobile)
    ========================================= */
 .es-pool {
@@ -70,6 +95,7 @@
 .es-pool-card {
   flex-shrink: 0;
   width: 140px;
+  min-height: 170px;
   background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
@@ -104,6 +130,10 @@
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .es-pool-card__badge {
@@ -487,14 +517,16 @@
    Save button
    ========================================= */
 .es-save-btn {
-  width: 100%;
-  height: 52px;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  padding: 10px 24px;
   background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-button);
   font-family: var(--font-family);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.15s;
@@ -723,6 +755,7 @@
   /* Pool: let cards grow a bit */
   .es-pool-card {
     width: 160px;
+    min-height: 180px;
   }
 
   .es-pool-card__thumb {
@@ -760,13 +793,7 @@
 
   .es-pool-card {
     width: 160px;
-  }
-
-  /* Two-column day grid */
-  .es-week-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    min-height: 180px;
   }
 
   .es-section-title {
@@ -792,7 +819,4 @@
    Wide desktop (≥ 1280px)
    ========================================= */
 @media (min-width: 1280px) {
-  .es-week-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }

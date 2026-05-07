@@ -54,7 +54,7 @@ export default function MyPlanPage() {
           <div className="mp-title-actions">
             <button className="mp-new-btn" type="button" onClick={() => navigate('/patient/schedule-exercise')}>
               <Plus size={15} />
-              New Schedule
+              New Weekly Plan
             </button>
           </div>
         </div>
