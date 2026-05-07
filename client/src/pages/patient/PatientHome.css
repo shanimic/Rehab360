@@ -518,6 +518,20 @@
 
 .ph-section__view-all:hover { text-decoration: underline; }
 
+.ph-section__view-all--btn {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: background 0.15s;
+}
+.ph-section__view-all--btn:hover { background: #1648c0; text-decoration: none; }
+
 /* ── Exercise List ── */
 .ph-exercise-list {
   display: flex;
