@@ -745,6 +745,69 @@
 }
 
 /* =========================================
+   Calendar Links Modal
+   ========================================= */
+.es-cal-list {
+  padding: 10px 0;
+}
+
+.es-cal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.es-cal-item:last-child {
+  border-bottom: none;
+}
+
+.es-cal-item__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.es-cal-item__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.es-cal-item__time {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.es-cal-item__btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.es-cal-item__btn:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* =========================================
    Tablet (≥ 640px)
    ========================================= */
 @media (min-width: 640px) {

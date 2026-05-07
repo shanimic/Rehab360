@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import ExerciseCard from './components/ExerciseCard'
 import DayCard from './components/DayCard'
 import ReminderToggle from './components/ReminderToggle'
+import CalendarLinksModal, { type CalendarItem } from './components/CalendarLinksModal'
 import './ExerciseSchedule.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
@@ -32,6 +33,7 @@ export default function ExerciseSchedule() {
   const [pickerDay, setPickerDay] = useState<number | null>(null)
   const [pickerSelected, setPickerSelected] = useState<Set<number>>(new Set())
   const [showValidation, setShowValidation] = useState(false)
+  const [calendarItems, setCalendarItems] = useState<CalendarItem[] | null>(null)
 
   /* ── Helpers ── */
   function getDay(dayIndex: number): ScheduledExercise[] {
@@ -102,19 +104,8 @@ export default function ExerciseSchedule() {
   const totalExercises = Object.values(schedule).reduce((sum, arr) => sum + arr.length, 0)
   const isSaveDisabled = totalExercises === 0
 
-  function handleSave() {
-    if (isSaveDisabled) return
-
-    if (remindersEnabled) {
-      const hasMissingReminder = Object.values(schedule).some(day =>
-        day.some(e => !e.reminderDate || !e.reminderTime)
-      )
-      if (hasMissingReminder) {
-        setShowValidation(true)
-        return
-      }
-    }
-
+  function doSave() {
+    setCalendarItems(null)
     setShowValidation(false)
     saveSchedule.mutate({
       reminders_enabled: remindersEnabled,
@@ -133,6 +124,36 @@ export default function ExerciseSchedule() {
         })
       ),
     })
+  }
+
+  function handleSave() {
+    if (isSaveDisabled) return
+
+    if (remindersEnabled) {
+      const hasMissingReminder = Object.values(schedule).some(day =>
+        day.some(e => !e.reminderDate || !e.reminderTime)
+      )
+      if (hasMissingReminder) {
+        setShowValidation(true)
+        return
+      }
+      const items: CalendarItem[] = Object.values(schedule)
+        .flat()
+        .filter(e => e.reminderDate && e.reminderTime)
+        .map(e => {
+          const ex = data.find(d => d.exercise_id === e.exerciseId)
+          return {
+            exerciseName: ex?.exercise_name ?? `Exercise ${e.exerciseId}`,
+            date: e.reminderDate,
+            time: e.reminderTime,
+          }
+        })
+      setShowValidation(false)
+      setCalendarItems(items)
+      return
+    }
+
+    doSave()
   }
 
   return (
@@ -200,6 +221,15 @@ export default function ExerciseSchedule() {
         </button>
 
       </main>
+
+      {/* ── Calendar Links Modal ── */}
+      {calendarItems !== null && (
+        <CalendarLinksModal
+          items={calendarItems}
+          onSave={doSave}
+          onClose={() => setCalendarItems(null)}
+        />
+      )}
 
       {/* ── Exercise Picker Modal ── */}
       {pickerDay !== null && (
