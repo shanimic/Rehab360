@@ -517,14 +517,16 @@
    Save button
    ========================================= */
 .es-save-btn {
-  width: 100%;
-  height: 52px;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  padding: 10px 24px;
   background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-button);
   font-family: var(--font-family);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.15s;
@@ -794,13 +796,6 @@
     min-height: 180px;
   }
 
-  /* Two-column day grid */
-  .es-week-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
   .es-section-title {
     font-size: 18px;
   }
@@ -824,7 +819,4 @@
    Wide desktop (≥ 1280px)
    ========================================= */
 @media (min-width: 1280px) {
-  .es-week-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
