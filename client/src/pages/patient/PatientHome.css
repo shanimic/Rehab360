@@ -518,6 +518,20 @@
 
 .ph-section__view-all:hover { text-decoration: underline; }
 
+.ph-section__view-all--btn {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: background 0.15s;
+}
+.ph-section__view-all--btn:hover { background: #1648c0; text-decoration: none; }
+
 /* ── Exercise List ── */
 .ph-exercise-list {
   display: flex;
@@ -533,16 +547,37 @@
   display: flex;
   align-items: flex-start;
   gap: 14px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, background 0.15s;
+  width: 100%;
+  border: none;
+  text-align: left;
+  font-family: var(--font-family);
+}
+.ph-exercise-item:hover { box-shadow: var(--shadow-card-hover, 0 4px 16px rgba(0,0,0,0.12)); background: #f8faff; }
+
+.ph-exercise-item__arrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  align-self: center;
+  color: var(--color-text-secondary);
 }
 
 .ph-exercise-item__check { flex-shrink: 0; margin-top: 2px; }
-.ph-exercise-item__check--done { color: var(--color-primary); }
-.ph-exercise-item__check--todo { color: var(--color-border); }
+.ph-exercise-item__check--done { color: #10b981; }
+.ph-exercise-item__check--placeholder { width: 24px; height: 24px; flex-shrink: 0; }
 
 .ph-exercise-item__info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.ph-exercise-item__name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .ph-exercise-item__name {

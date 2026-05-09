@@ -58,7 +58,6 @@ function CalendarCard() {
     <div className="ph-calendar-card">
       <div className="ph-section__header">
         <h2 className="ph-section__title">Upcoming Sessions</h2>
-        <button className="ph-section__view-all">View All</button>
       </div>
 
       {/* Week strip */}
@@ -210,7 +209,7 @@ export default function PatientHome() {
             <section className="ph-section">
               <div className="ph-section__header">
                 <h2 className="ph-section__title">Today Plan</h2>
-                <button className="ph-section__view-all" onClick={() => navigate('/patient/my-plan')}>View All</button>
+                <button className="ph-section__view-all--btn" onClick={() => navigate('/patient/my-plan')}>All Exercises</button>
               </div>
               <div className="ph-exercise-list">
                 {isLoading
