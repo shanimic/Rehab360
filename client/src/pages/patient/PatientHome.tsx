@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Home, Dumbbell, BarChart2, Sparkles, User,
+  Dumbbell,
   CalendarCheck, ChevronRight,
   Video, MapPin,
 } from 'lucide-react'
@@ -103,15 +103,6 @@ function CalendarCard() {
     </div>
   )
 }
-
-/* ── Nav items ── */
-const bottomNav = [
-  { label: 'Home', icon: Home, active: true },
-  { label: 'Exercises', icon: Dumbbell, active: false },
-  { label: 'Progress', icon: BarChart2, active: false },
-  { label: 'AI Search', icon: Sparkles, active: false },
-  { label: 'Profile', icon: User, active: false },
-]
 
 /* ── Page ── */
 export default function PatientHome() {
@@ -226,21 +217,6 @@ export default function PatientHome() {
         </div>
 
       </main>
-
-      {/* ── Bottom Nav (mobile) ── */}
-      <nav className="ph-bottom-nav">
-        {bottomNav.map(({ label, icon: Icon, active }) => (
-          <button
-            key={label}
-            className={`ph-bottom-nav__item${active ? ' ph-bottom-nav__item--active' : ''}`}
-            aria-label={label}
-            onClick={label === 'Profile' ? () => navigate('/profile') : undefined}
-          >
-            <Icon size={22} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
 
     </div>
   )
