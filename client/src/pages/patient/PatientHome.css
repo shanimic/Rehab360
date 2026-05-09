@@ -547,6 +547,20 @@
   display: flex;
   align-items: flex-start;
   gap: 14px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, background 0.15s;
+  width: 100%;
+  border: none;
+  text-align: left;
+  font-family: var(--font-family);
+}
+.ph-exercise-item:hover { box-shadow: var(--shadow-card-hover, 0 4px 16px rgba(0,0,0,0.12)); background: #f8faff; }
+
+.ph-exercise-item__arrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  align-self: center;
+  color: var(--color-text-secondary);
 }
 
 .ph-exercise-item__check { flex-shrink: 0; margin-top: 2px; }
