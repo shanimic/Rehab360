@@ -9,7 +9,7 @@ import AddExerciseModal from './AddExerciseModal'
 import type { ExerciseEntry } from './AddExerciseModal'
 import {
   useTreatmentPlanContext,
-  usePhysiotherapyExercises,
+  usePlanExercises,
   useCreateTreatmentPlan,
 } from '@/hooks/useTreatmentPlan'
 import type { CreateTreatmentPlanRequest } from '@/types'
@@ -61,7 +61,10 @@ export default function CreateTreatmentPlan() {
   })
 
   const contextQuery = useTreatmentPlanContext(sessionId)
-  const exercisesQuery = usePhysiotherapyExercises()
+  const visitType = contextQuery.data?.visit_type
+    ?? (auth?.role === 'FITNESS_TRAINER' ? 'FITNESS' : 'PHYSIOTHERAPIST')
+  const isFitness = visitType === 'FITNESS'
+  const exercisesQuery = usePlanExercises(visitType)
   const createTreatmentPlan = useCreateTreatmentPlan()
 
   const isSaving = createTreatmentPlan.isPending
@@ -95,7 +98,7 @@ export default function CreateTreatmentPlan() {
 
   function validate(): boolean {
     const newErrors: FormErrors = {}
-    if (!form.goal.trim()) newErrors.goal = 'Treatment goal is required'
+    if (!form.goal.trim()) newErrors.goal = `${visitType === 'FITNESS' ? 'Fitness' : 'Treatment'} goal is required`
     if (!form.start_date) newErrors.start_date = 'Start date is required'
     if (!form.end_date) newErrors.end_date = 'End date is required'
     else if (form.start_date && form.end_date < form.start_date) {
@@ -161,7 +164,7 @@ export default function CreateTreatmentPlan() {
 
   return (
     <div className="ctp-page">
-      <TopNav doctorName={auth?.first_name ?? 'Cohen'} />
+      <TopNav />
 
       <main className="pt-16">
         {/* ── Back navigation ── */}
@@ -173,7 +176,7 @@ export default function CreateTreatmentPlan() {
           >
             <ChevronLeft size={20} />
           </button>
-          <h1 className="patient-nav__title">New Treatment Plan</h1>
+          <h1 className="patient-nav__title">New {isFitness ? 'Fitness' : 'Treatment'} Plan</h1>
         </div>
 
         <div className="ctp-body">
@@ -245,7 +248,7 @@ export default function CreateTreatmentPlan() {
             <div className="ctp-goal__header">
               <Target size={16} className="ctp-goal__icon" />
               <span className="ctp-goal__title">
-                {auth?.role === 'FITNESS_TRAINER' ? 'Fitness' : 'Treatment'} Goal <span className="ctp-required">*</span>
+                {visitType === 'FITNESS' ? 'Fitness' : 'Treatment'} Goal <span className="ctp-required">*</span>
               </span>
             </div>
             <textarea
@@ -330,7 +333,7 @@ export default function CreateTreatmentPlan() {
                   Saving…
                 </>
               ) : (
-                'Save Treatment Plan'
+                `Save ${isFitness ? 'Fitness' : 'Treatment'} Plan`
               )}
             </button>
           </div>

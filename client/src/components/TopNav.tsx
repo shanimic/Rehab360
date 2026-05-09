@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
 import { LogoIcon } from '@/pages/auth/AuthLayout'
 import './TopNav.css'
-
-interface TopNavProps {
-  doctorName: string
-}
 
 const MENU_ITEMS = [
   {
@@ -43,7 +41,9 @@ const MENU_ITEMS = [
   },
 ]
 
-export default function TopNav({ doctorName }: TopNavProps) {
+export default function TopNav() {
+  const auth = useAtomValue(authAtom)
+  const displayName = auth ? `${auth.first_name} ${auth.last_name}`.trim() : ''
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -61,9 +61,11 @@ export default function TopNav({ doctorName }: TopNavProps) {
 
           {/* Right side */}
           <div className="flex items-center gap-4">
-            <span className="hidden sm:block text-sm font-medium text-slate-500">
-              Dr. {doctorName}
-            </span>
+            {displayName && (
+              <span className="hidden sm:block text-sm font-medium text-slate-500">
+                {displayName}
+              </span>
+            )}
             <button
               className="flex items-center justify-center w-9 h-9 rounded-xl text-slate-500 hover:bg-slate-100 active:bg-slate-200 transition-colors border-0 bg-transparent cursor-pointer"
               onClick={() => setMenuOpen(true)}

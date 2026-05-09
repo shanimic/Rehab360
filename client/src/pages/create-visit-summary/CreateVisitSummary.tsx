@@ -199,7 +199,7 @@ export default function CreateVisitSummary() {
 
   return (
     <div className="cvs-page">
-      <TopNav doctorName={auth?.first_name ?? 'Cohen'} />
+      <TopNav />
 
       <main className="pt-16">
         {/* ── Back navigation ── */}

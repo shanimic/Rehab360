@@ -19,6 +19,7 @@ export interface LoginResponse {
   email: string
   role: ApiRole
   first_name: string
+  last_name: string
   token?: string
 }
 
@@ -278,6 +279,7 @@ export interface TreatmentPlanDetailsResponse {
   plan_id: number
   session_id: number
   medical_diagnosis: string
+  visit_type: string
   goal: string
   start_date: string
   end_date: string

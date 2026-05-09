@@ -1,8 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Target, Dumbbell, Stethoscope, CalendarDays, FileText } from 'lucide-react'
-import { useAtomValue } from 'jotai'
-import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
 import { useTreatmentPlanDetails } from '@/hooks/useTreatmentPlan'
 
@@ -26,7 +24,7 @@ function formatDate(iso: string): string {
 function PageShell({ onBack, children }: { onBack: () => void; children: React.ReactNode }) {
   return (
     <div className="vtp-page">
-      <TopNav doctorName="Cohen" />
+      <TopNav />
       <main className="pt-16">
         <div className="patient-nav">
           <button type="button" className="patient-nav__back" onClick={onBack}>
@@ -45,7 +43,6 @@ function PageShell({ onBack, children }: { onBack: () => void; children: React.R
 export default function ViewTreatmentPlan() {
   const navigate = useNavigate()
   const { planId } = useParams<{ id: string; planId?: string }>()
-  const auth = useAtomValue(authAtom)
 
   const { data, isLoading, isError } = useTreatmentPlanDetails(planId ? Number(planId) : undefined)
 
@@ -126,7 +123,7 @@ export default function ViewTreatmentPlan() {
         <div className="vtp-goal-card__header">
           <Target size={16} className="vtp-goal-card__icon" />
           <span className="vtp-goal-card__title">
-            {auth?.role === 'FITNESS_TRAINER' ? 'Fitness' : 'Treatment'} Goal
+            {data.visit_type === 'FITNESS' ? 'Fitness' : 'Treatment'} Goal
           </span>
         </div>
         <p className="vtp-goal-text">{data.goal}</p>

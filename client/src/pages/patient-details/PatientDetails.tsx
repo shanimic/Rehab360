@@ -92,7 +92,7 @@ export default function PatientDetails() {
 
   return (
     <div className="patient-page">
-      <TopNav doctorName="Cohen" />
+      <TopNav />
       <main className="pt-16">
         {/* ── Back navigation ── */}
         <div className="patient-nav">

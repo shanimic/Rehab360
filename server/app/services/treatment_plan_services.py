@@ -9,8 +9,6 @@ from app.models.treatment_plan.treatment_plan import (
     TreatmentPlanDetailsResponse,
 )
 
-_PHYSIOTHERAPIST_VISIT_TYPE = "PHYSIOTHERAPIST"
-
 
 class TreatmentPlanServices:
     """Business logic for treatment plan operations."""
@@ -21,7 +19,7 @@ class TreatmentPlanServices:
     async def get_treatment_plan_context(
         self, session_id: int
     ) -> TreatmentPlanContext:
-        """Return session context or raise if the session is missing or not PHYSIOTHERAPIST.
+        """Return session context or raise if the session is missing or inactive.
 
         Args:
             session_id: The unique identifier of the session.
@@ -31,7 +29,6 @@ class TreatmentPlanServices:
 
         Raises:
             HTTPException: 404 if the session does not exist or is not active.
-            HTTPException: 400 if the session visit_type is not PHYSIOTHERAPIST.
         """
         context = await self.repository.get_treatment_plan_context(session_id)
         if not context:
@@ -39,27 +36,25 @@ class TreatmentPlanServices:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Session not found",
             )
-        if context.visit_type != _PHYSIOTHERAPIST_VISIT_TYPE:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Treatment plans can only be created for PHYSIOTHERAPIST sessions",
-            )
         return context
 
-    async def get_physiotherapy_exercises(self) -> list[PhysiotherapyExerciseItem]:
-        """Return all PHYSIOTHERAPIST exercises available for selection.
+    async def get_exercises(self, visit_type: str) -> list[PhysiotherapyExerciseItem]:
+        """Return all exercises for the given visit type, available for plan creation.
+
+        Args:
+            visit_type: The visit type to filter exercises by.
 
         Returns:
             A list of PhysiotherapyExerciseItem instances.
         """
-        return await self.repository.get_physiotherapy_exercises()
+        return await self.repository.get_exercises_by_visit_type(visit_type)
 
     async def create_treatment_plan(
         self,
         session_id: int,
         request: CreateTreatmentPlanRequest,
     ) -> CreateTreatmentPlanResponse:
-        """Validate and persist a new treatment plan with its exercises.
+        """Validate and persist a new plan with its exercises.
 
         Args:
             session_id: The session this plan belongs to (from the URL path).
@@ -70,9 +65,8 @@ class TreatmentPlanServices:
 
         Raises:
             HTTPException: 404 if the session does not exist or is not active.
-            HTTPException: 400 if the session is not a PHYSIOTHERAPIST session.
-            HTTPException: 409 if a treatment plan already exists for this session.
-            HTTPException: 400 if any selected exercise is not a PHYSIOTHERAPIST exercise.
+            HTTPException: 409 if a plan already exists for this session.
+            HTTPException: 400 if any exercise does not match the session's visit type.
         """
         context = await self.repository.get_treatment_plan_context(session_id)
         if not context:
@@ -80,27 +74,20 @@ class TreatmentPlanServices:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Session not found",
             )
-        if context.visit_type != _PHYSIOTHERAPIST_VISIT_TYPE:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Treatment plans can only be created for PHYSIOTHERAPIST sessions",
-            )
         if await self.repository.plan_exists(session_id):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="A treatment plan already exists for this session",
+                detail="A plan already exists for this session",
             )
         requested_ids = [e.exercise_id for e in request.exercises]
-        valid_ids = await self.repository.get_valid_physiotherapy_exercise_ids(
-            requested_ids
+        valid_ids = await self.repository.get_valid_exercise_ids(
+            requested_ids, context.visit_type
         )
         invalid_ids = set(requested_ids) - set(valid_ids)
         if invalid_ids:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    "One or more exercises are invalid or not of PHYSIOTHERAPIST type"
-                ),
+                detail="One or more exercises are not valid for this session's visit type",
             )
         return await self.repository.create_treatment_plan(session_id, request)
 

@@ -100,7 +100,7 @@ function VisitInfoCard({ visit, onOpenPlan }: VisitInfoCardProps) {
       {onOpenPlan && (
         <div className="vsd-plan-action">
           <button type="button" className="vsd-plan-link" onClick={onOpenPlan}>
-            Open {visitTypeLabel === 'Fitness Training' ? 'Fitness' : 'Treatment'} Plan
+            Open {visit.visit_type === 'FITNESS' ? 'Fitness' : 'Treatment'} Plan
             <ArrowRight size={14} />
           </button>
         </div>
@@ -148,7 +148,7 @@ function MedicalCard({ visit }: MedicalCardProps) {
 function PageShell({ onBack, children }: { onBack: () => void; children: React.ReactNode }) {
   return (
     <div className="vsd-page">
-      <TopNav doctorName="Cohen" />
+      <TopNav />
       <main className="pt-16">
         <div className="patient-nav">
           <button type="button" className="patient-nav__back" onClick={onBack}>
