@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import {
   ArrowLeft, CheckCircle2, XCircle, Minus, Plus,
-  Home, Dumbbell, BarChart2, Sparkles, User,
   Bell, Menu,
 } from 'lucide-react'
 import { markReported } from '@/lib/reportedExercises'
@@ -10,16 +9,6 @@ import type { MyPlan } from '@/types/patient'
 import './ExerciseReport.css'
 import { useSaveExerciseReport } from '@/hooks/paitent/useSaveExerciseReport'
 import { useGetExercise } from '@/hooks/paitent/useGetExercise'
-
-/* ── Nav items ── */
-const bottomNav = [
-  { label: 'Home', icon: Home, active: false },
-  { label: 'Exercises', icon: Dumbbell, active: true },
-  { label: 'Progress', icon: BarChart2, active: false },
-  { label: 'AI Search', icon: Sparkles, active: false },
-  { label: 'Profile', icon: User, active: false },
-]
-
 
 /* ── Rating control ── */
 function RatingControl({
@@ -305,21 +294,6 @@ export default function ExerciseReport() {
 
         </div>
       </main>
-
-      {/* ── Bottom Nav (mobile) ── */}
-      <nav className="er-bottom-nav">
-        {bottomNav.map(({ label, icon: Icon, active }) => (
-          <button
-            key={label}
-            className={`er-bottom-nav__item${active ? ' er-bottom-nav__item--active' : ''}`}
-            aria-label={label}
-            type="button"
-          >
-            <Icon size={22} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
 
     </div>
   )

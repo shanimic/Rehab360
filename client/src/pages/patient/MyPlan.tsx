@@ -1,8 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import {
-  Plus,
-  Home, Dumbbell, BarChart2, MessageSquare, Search as SearchIcon,
-} from 'lucide-react'
+import { Plus } from 'lucide-react'
 import './MyPlan.css'
 import PatientTopNav from '@/components/PatientTopNav'
 import { useAtomValue } from 'jotai'
@@ -10,14 +7,6 @@ import { authAtom } from '@/store/authAtom'
 import { useGetMyPlan } from '@/hooks/paitent/useGetMyPlan'
 import type { MyPlan } from '@/types/patient'
 import ExerciseCard from '@/components/ExerciseCard'
-
-const bottomNav = [
-  { label: 'Home', icon: Home, active: false },
-  { label: 'Exercises', icon: Dumbbell, active: true },
-  { label: 'Analytics', icon: BarChart2, active: false },
-  { label: 'Chats', icon: MessageSquare, active: false },
-  { label: 'Search', icon: SearchIcon, active: false },
-]
 
 
 export default function MyPlanPage() {
@@ -116,19 +105,6 @@ export default function MyPlanPage() {
         </div>
       </main>
 
-      <nav className="mp-bottom-nav">
-        {bottomNav.map(({ label, icon: Icon, active: isActive }) => (
-          <button
-            key={label}
-            className={`mp-bottom-nav__item${isActive ? ' mp-bottom-nav__item--active' : ''}`}
-            aria-label={label}
-            type="button"
-          >
-            <Icon size={22} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
     </div>
   )
 }
