@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dal.treatment_plan_repository import TreatmentPlanRepository
 from app.db.session import get_db
@@ -41,12 +41,14 @@ async def get_treatment_plan_context(
     tags=["Treatment Plan"],
     response_model=list[PhysiotherapyExerciseItem],
 )
-async def get_physiotherapy_exercises(
+async def get_plan_exercises(
+    visit_type: str = Query(default="PHYSIOTHERAPIST"),
     db=Depends(get_db),
 ) -> list[PhysiotherapyExerciseItem]:
-    """Return all PHYSIOTHERAPIST exercises for the add-exercise popup.
+    """Return exercises for the add-exercise popup, filtered by visit type.
 
     Args:
+        visit_type: Filter exercises by visit type (PHYSIOTHERAPIST or FITNESS).
         db: Database cursor injected by FastAPI.
 
     Returns:
@@ -54,7 +56,7 @@ async def get_physiotherapy_exercises(
     """
     repo = TreatmentPlanRepository(db=db)
     service = TreatmentPlanServices(repository=repo)
-    return await service.get_physiotherapy_exercises()
+    return await service.get_exercises(visit_type)
 
 
 @treatment_plan_router.get(

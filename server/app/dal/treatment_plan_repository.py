@@ -42,8 +42,13 @@ class TreatmentPlanRepository:
         row = await self.cursor.fetchone()
         return TreatmentPlanContext.model_validate(row) if row else None
 
-    async def get_physiotherapy_exercises(self) -> list[PhysiotherapyExerciseItem]:
-        """Fetch all exercises that belong to the PHYSIOTHERAPIST visit type.
+    async def get_exercises_by_visit_type(
+        self, visit_type: str
+    ) -> list[PhysiotherapyExerciseItem]:
+        """Fetch all exercises that belong to the given visit type.
+
+        Args:
+            visit_type: The visit type to filter by (e.g. 'PHYSIOTHERAPIST' or 'FITNESS').
 
         Returns:
             A list of PhysiotherapyExerciseItem instances ordered by name.
@@ -54,9 +59,10 @@ class TreatmentPlanRepository:
                     exercise_id,
                     exercise_name
                 FROM exercises
-                WHERE visit_type = 'PHYSIOTHERAPIST'
+                WHERE visit_type = %s
                 ORDER BY exercise_name ASC
             """,
+            args=(visit_type,),
         )
         rows = await self.cursor.fetchall()
         return [PhysiotherapyExerciseItem.model_validate(row) for row in rows]
@@ -82,16 +88,17 @@ class TreatmentPlanRepository:
         row = await self.cursor.fetchone()
         return row is not None
 
-    async def get_valid_physiotherapy_exercise_ids(
-        self, exercise_ids: list[int]
+    async def get_valid_exercise_ids(
+        self, exercise_ids: list[int], visit_type: str
     ) -> list[int]:
-        """Return the subset of the given IDs that are PHYSIOTHERAPIST exercises.
+        """Return the subset of the given IDs that match the specified visit type.
 
         Args:
             exercise_ids: List of exercise IDs to validate.
+            visit_type: The visit type the exercises must belong to.
 
         Returns:
-            A list of exercise_id values that exist and have visit_type PHYSIOTHERAPIST.
+            A list of exercise_id values that exist and match the given visit_type.
         """
         if not exercise_ids:
             return []
@@ -101,9 +108,9 @@ class TreatmentPlanRepository:
                 SELECT exercise_id
                 FROM exercises
                 WHERE exercise_id IN ({placeholders})
-                  AND visit_type = 'PHYSIOTHERAPIST'
+                  AND visit_type = %s
             """,
-            args=tuple(exercise_ids),
+            args=(*exercise_ids, visit_type),
         )
         rows = await self.cursor.fetchall()
         return [row["exercise_id"] for row in rows]
@@ -188,6 +195,7 @@ class TreatmentPlanRepository:
                     p.plan_id,
                     p.session_id,
                     s.medical_diagnosis,
+                    s.visit_type,
                     p.goal,
                     p.start_date,
                     p.end_date,

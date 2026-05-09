@@ -1,5 +1,5 @@
-import { useLocation } from 'react-router-dom'
-
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
 import AlertItem from './components/AlertItem'
 import ScheduleCard from './components/ScheduleCard'
@@ -16,13 +16,13 @@ function getGreeting() {
 const TODAY = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
 export default function PhysiotherapistHome() {
-  const location = useLocation()
-  const doctorName = (location.state as { firstName?: string } | null)?.firstName ?? 'Doctor'
+  const auth = useAtomValue(authAtom)
+  const displayName = auth ? `${auth.first_name} ${auth.last_name}`.trim() : 'Doctor'
   const { alerts, patients, schedule } = usePatientsList()
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <TopNav doctorName={doctorName} />
+      <TopNav />
 
       <main className="pt-16">
         <div className="w-full max-w-[1280px] mx-auto px-8 py-6 pb-10">
@@ -30,7 +30,7 @@ export default function PhysiotherapistHome() {
           {/* Greeting */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-slate-800 leading-tight">
-              {getGreeting()}, Dr. {doctorName}
+              {getGreeting()}, {displayName}
             </h1>
             <p className="text-sm text-slate-500 mt-1">{TODAY}</p>
           </div>

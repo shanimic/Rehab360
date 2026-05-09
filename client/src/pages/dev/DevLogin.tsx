@@ -7,16 +7,16 @@ import { useSetAtom } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import type { LoginResponse } from '@/types'
 
-const DEV_TARGET = '/patient/P100/visit-summaries/new'
+const DEV_TARGET = '/patient/P100/visit-summaries'
 
 const DEV_USERS: { label: string; auth: LoginResponse }[] = [
   {
     label: 'Bob Johnson — T200 (Physiotherapist)',
-    auth: { id: 'T200', email: 'bob@physio.com', role: 'PHYSIOTHERAPIST', first_name: 'Bob' },
+    auth: { id: 'T200', email: 'bob@physio.com', role: 'PHYSIOTHERAPIST', first_name: 'Bob', last_name: 'Johnson' },
   },
   {
     label: 'Charlie Davis — F300 (Fitness Trainer)',
-    auth: { id: 'F300', email: 'charlie@gym.com', role: 'FITNESS_TRAINER', first_name: 'Charlie' },
+    auth: { id: 'F300', email: 'charlie@gym.com', role: 'FITNESS_TRAINER', first_name: 'Charlie', last_name: 'Davis' },
   },
 ]
 

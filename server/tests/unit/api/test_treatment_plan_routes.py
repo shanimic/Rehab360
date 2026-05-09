@@ -91,11 +91,11 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
         # ASSERT
         assert response.status_code == 404
 
-    def test_get_context_non_physiotherapist_returns_400(self) -> None:
+    def test_get_context_fitness_session_returns_200(self) -> None:
         """
         Given the session has visit_type FITNESS,
         When GET /treatment-plan/context/{session_id} is called,
-        Then 400 Bad Request is returned.
+        Then 200 is returned with the FITNESS context (both visit types are accepted).
         """
         # PREPARE
         cursor = _TreatmentPlanStubCursor(
@@ -118,14 +118,17 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
         response = client.get("/treatment-plan/context/55")
 
         # ASSERT
-        assert response.status_code == 400
+        assert response.status_code == 200
+        body = response.json()
+        assert body["visit_type"] == "FITNESS"
+        assert body["session_id"] == 55
 
     # ── GET /treatment-plan/exercises ─────────────────────────────────────
 
     def test_get_physiotherapy_exercises_returns_list(self) -> None:
         """
         Given two PHYSIOTHERAPIST exercise rows exist in the DB,
-        When GET /treatment-plan/exercises is called,
+        When GET /treatment-plan/exercises?visit_type=PHYSIOTHERAPIST is called,
         Then 200 is returned with a list of two items.
         """
         # PREPARE
@@ -144,7 +147,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
 
         # ACT
         client = TestClient(app)
-        response = client.get("/treatment-plan/exercises")
+        response = client.get("/treatment-plan/exercises?visit_type=PHYSIOTHERAPIST")
 
         # ASSERT
         assert response.status_code == 200
@@ -153,6 +156,37 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
         assert body[0]["exercise_id"] == 1
         assert body[0]["exercise_name"] == "Curl"
         assert body[1]["exercise_id"] == 2
+
+    def test_get_fitness_exercises_returns_list(self) -> None:
+        """
+        Given two FITNESS exercise rows exist in the DB,
+        When GET /treatment-plan/exercises?visit_type=FITNESS is called,
+        Then 200 is returned with a list of two items.
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(
+            fetchone_rows=[],
+            fetchall_rows=[
+                {"exercise_id": 5, "exercise_name": "Wall Squats"},
+                {"exercise_id": 6, "exercise_name": "Plank"},
+            ],
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/treatment-plan/exercises?visit_type=FITNESS")
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert len(body) == 2
+        assert body[0]["exercise_id"] == 5
+        assert body[0]["exercise_name"] == "Wall Squats"
 
     # ── POST /treatment-plan/{session_id} ─────────────────────────────────
 
@@ -395,6 +429,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
                     "plan_id": 6,
                     "session_id": 103,
                     "medical_diagnosis": "Shoulder Impingement",
+                    "visit_type": "PHYSIOTHERAPIST",
                     "goal": "Restore full range of motion",
                     "start_date": datetime.date(2025, 1, 6),
                     "end_date": datetime.date(2025, 3, 1),
@@ -430,6 +465,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
         assert body["plan_id"] == 6
         assert body["session_id"] == 103
         assert body["medical_diagnosis"] == "Shoulder Impingement"
+        assert body["visit_type"] == "PHYSIOTHERAPIST"
         assert body["goal"] == "Restore full range of motion"
         assert body["notes"] is None
         assert len(body["exercises"]) == 1
@@ -457,6 +493,64 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
 
         # ASSERT
         assert response.status_code == 404
+
+    def test_create_treatment_plan_fitness_session_success(self) -> None:
+        """
+        Given a valid FITNESS session with no existing plan and valid FITNESS exercises,
+        When POST /treatment-plan/77 is called with a complete request body,
+        Then 200 is returned with the new plan_id and session_id.
+
+        fetchone sequence:
+          1. get_treatment_plan_context → FITNESS context row
+          2. plan_exists → None  (no existing plan)
+          3. LAST_INSERT_ID → {plan_id: 20}
+        fetchall: valid FITNESS exercise IDs [5]
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(
+            fetchone_rows=[
+                {
+                    "session_id": 77,
+                    "medical_diagnosis": "Knee strengthening",
+                    "visit_type": "FITNESS",
+                },
+                None,
+                {"plan_id": 20},
+            ],
+            fetchall_rows=[{"exercise_id": 5}],
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/treatment-plan/77",
+            json={
+                "goal": "Build lower body strength",
+                "start_date": "2026-05-01",
+                "end_date": "2026-08-01",
+                "exercises": [
+                    {
+                        "exercise_id": 5,
+                        "reps": 12,
+                        "num_sets": 3,
+                        "weight": 0.0,
+                        "time_duration": 3,
+                        "time_unit": "Weekly",
+                    }
+                ],
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert body["plan_id"] == 20
+        assert body["session_id"] == 77
 
     def test_create_treatment_plan_end_date_before_start_date_returns_422(
         self,
@@ -497,3 +591,211 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
 
         # ASSERT
         assert response.status_code == 422
+
+    def test_create_treatment_plan_blank_goal_returns_422(self) -> None:
+        """
+        Given the goal field contains only whitespace,
+        When POST /treatment-plan/42 is called,
+        Then 422 Unprocessable Entity is returned (goal_not_blank field_validator).
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/treatment-plan/42",
+            json={
+                "goal": "   ",
+                "start_date": "2026-05-01",
+                "end_date": "2026-07-01",
+                "exercises": [
+                    {
+                        "exercise_id": 1,
+                        "reps": 10,
+                        "num_sets": 3,
+                        "weight": 0.0,
+                        "time_duration": 30,
+                        "time_unit": "seconds",
+                    }
+                ],
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 422
+
+    def test_create_treatment_plan_equal_start_end_date_returns_422(self) -> None:
+        """
+        Given start_date equals end_date in the request body,
+        When POST /treatment-plan/42 is called,
+        Then 422 Unprocessable Entity is returned (end_date_after_start_date uses <=).
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(fetchone_rows=[])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/treatment-plan/42",
+            json={
+                "goal": "Restore range of motion",
+                "start_date": "2026-05-01",
+                "end_date": "2026-05-01",
+                "exercises": [
+                    {
+                        "exercise_id": 1,
+                        "reps": 10,
+                        "num_sets": 3,
+                        "weight": 0.0,
+                        "time_duration": 30,
+                        "time_unit": "seconds",
+                    }
+                ],
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 422
+
+    def test_get_exercises_without_visit_type_defaults_to_physiotherapist(
+        self,
+    ) -> None:
+        """
+        Given no visit_type query parameter is provided,
+        When GET /treatment-plan/exercises is called,
+        Then 200 is returned using the PHYSIOTHERAPIST default.
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(
+            fetchone_rows=[],
+            fetchall_rows=[{"exercise_id": 1, "exercise_name": "Curl"}],
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/treatment-plan/exercises")
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert len(body) == 1
+        assert body[0]["exercise_id"] == 1
+
+    def test_get_fitness_plan_by_plan_id_returns_visit_type_fitness(self) -> None:
+        """
+        Given an active FITNESS plan exists for the plan_id,
+        When GET /treatment-plan/plan/{plan_id} is called,
+        Then 200 is returned and visit_type in the response body is 'FITNESS'.
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(
+            fetchone_rows=[
+                {
+                    "plan_id": 20,
+                    "session_id": 77,
+                    "medical_diagnosis": "Knee strengthening",
+                    "visit_type": "FITNESS",
+                    "goal": "Build lower body strength",
+                    "start_date": datetime.date(2026, 5, 1),
+                    "end_date": datetime.date(2026, 8, 1),
+                    "notes": None,
+                }
+            ],
+            fetchall_rows=[
+                {
+                    "exercise_id": 5,
+                    "exercise_name": "Wall Squats",
+                    "reps": 12,
+                    "num_sets": 3,
+                    "weight": None,
+                    "time_duration": 3,
+                    "time_unit": "Weekly",
+                    "description": None,
+                }
+            ],
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get("/treatment-plan/plan/20")
+
+        # ASSERT
+        assert response.status_code == 200
+        body = response.json()
+        assert body["visit_type"] == "FITNESS"
+        assert body["plan_id"] == 20
+        assert len(body["exercises"]) == 1
+
+    def test_create_fitness_session_with_pt_exercise_returns_400(self) -> None:
+        """
+        Given a FITNESS session and an exercise that is only valid for PHYSIOTHERAPIST,
+        When POST /treatment-plan/77 is called,
+        Then 400 Bad Request is returned.
+
+        fetchone sequence:
+          1. get_treatment_plan_context → FITNESS context
+          2. plan_exists → None  (no plan)
+        fetchall: [] (exercise ID 1 is a PT exercise, not valid for FITNESS)
+        """
+        # PREPARE
+        cursor = _TreatmentPlanStubCursor(
+            fetchone_rows=[
+                {
+                    "session_id": 77,
+                    "medical_diagnosis": "Knee strengthening",
+                    "visit_type": "FITNESS",
+                },
+                None,
+            ],
+            fetchall_rows=[],
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/treatment-plan/77",
+            json={
+                "goal": "Build lower body strength",
+                "start_date": "2026-05-01",
+                "end_date": "2026-08-01",
+                "exercises": [
+                    {
+                        "exercise_id": 1,
+                        "reps": 10,
+                        "num_sets": 3,
+                        "weight": 0.0,
+                        "time_duration": 30,
+                        "time_unit": "seconds",
+                    }
+                ],
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 400

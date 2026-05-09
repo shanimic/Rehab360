@@ -22,13 +22,16 @@ export function useTreatmentPlanContext(sessionId: number | null) {
   })
 }
 
-export function usePhysiotherapyExercises() {
+export function usePlanExercises(visitType: string) {
   return useQuery<PhysiotherapyExerciseItem[]>({
-    queryKey: ['physiotherapyExercises'],
+    queryKey: ['planExercises', visitType],
     queryFn: async () => {
-      const res = await apiClient.get<PhysiotherapyExerciseItem[]>('/treatment-plan/exercises')
+      const res = await apiClient.get<PhysiotherapyExerciseItem[]>('/treatment-plan/exercises', {
+        params: { visit_type: visitType },
+      })
       return res.data
     },
+    enabled: visitType.length > 0,
   })
 }
 

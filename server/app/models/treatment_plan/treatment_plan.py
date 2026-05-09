@@ -101,6 +101,7 @@ class TreatmentPlanDetailsResponse(BaseModel):
     plan_id: int
     session_id: int
     medical_diagnosis: str
+    visit_type: str
     goal: str
     start_date: datetime.date
     end_date: datetime.date
