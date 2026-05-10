@@ -6,7 +6,7 @@ import type { AiQuery } from '@/types'
 interface HistoryPanelProps {
   history: AiQuery[]
   onSelect: (queryText: string) => void
-  onDelete: (queryId: string) => void
+  onDelete: (queryId: number) => void
   onClearAll: () => void
   savedCount: number
 }
@@ -30,18 +30,6 @@ export default function HistoryPanel({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-700">Recent Searches</h2>
-        {history.length > 0 && (
-          <button
-            onClick={onClearAll}
-            className="text-xs text-gray-400 hover:text-red-500 transition-colors min-h-[44px] px-2"
-          >
-            Clear all
-          </button>
-        )}
-      </div>
-
       <button
         onClick={() => navigate('/ai-search/saved')}
         className={cn(
@@ -57,6 +45,18 @@ export default function HistoryPanel({
         )}
         <ChevronRight size={14} className="flex-shrink-0 text-gray-400" />
       </button>
+
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-gray-700">Recent Searches</h2>
+        {history.length > 0 && (
+          <button
+            onClick={onClearAll}
+            className="text-xs text-gray-400 hover:text-red-500 transition-colors min-h-[44px] px-2"
+          >
+            Clear all
+          </button>
+        )}
+      </div>
 
       {history.length === 0 && (
         <p className="text-sm text-gray-400 italic">No recent searches yet.</p>

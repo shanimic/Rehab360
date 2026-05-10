@@ -4,20 +4,25 @@ import AiSummaryCard from './AiSummaryCard'
 import FilterBar from './FilterBar'
 import SourceCard from './SourceCard'
 import type { FilterKey } from './FilterBar'
+import type { SavePayload } from '@/hooks/useSaveContent'
 import type { AiExchange, SourceCard as SourceCardType, ApiRole } from '@/types'
 
 interface ExchangeBlockProps {
   exchange: AiExchange
   userRole: ApiRole
-  onSave: (item: SourceCardType) => void
-  onVerify: (id: string, role: 'PHYSIOTHERAPIST' | 'FITNESS_TRAINER') => void
+  onSave: (payload: SavePayload) => void
+  onVerify: (url: string, verified: boolean) => void
   savedIds: Set<string>
 }
 
 function applyFilter(sources: SourceCardType[], filter: FilterKey): SourceCardType[] {
-  if (filter === 'verified') return sources.filter((s) => s.is_verified)
-  if (filter === 'unverified') return sources.filter((s) => !s.is_verified)
-  return sources
+  if (filter === 'verified') return sources.filter((s) => s.verified_by_physio || s.verified_by_trainer)
+  if (filter === 'unverified') return sources.filter((s) => !s.verified_by_physio && !s.verified_by_trainer)
+  return [...sources].sort((a, b) => {
+    const aVerified = a.verified_by_physio || a.verified_by_trainer ? 1 : 0
+    const bVerified = b.verified_by_physio || b.verified_by_trainer ? 1 : 0
+    return bVerified - aVerified
+  })
 }
 
 export default function ExchangeBlock({
@@ -52,6 +57,7 @@ export default function ExchangeBlock({
                 source={source}
                 userRole={userRole}
                 mode="results"
+                query_id={exchange.query_id}
                 onSave={onSave}
                 onVerify={onVerify}
                 savedIds={savedIds}

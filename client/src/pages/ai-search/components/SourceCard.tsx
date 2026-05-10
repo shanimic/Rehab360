@@ -1,17 +1,19 @@
 import { useState } from 'react'
 import type { ComponentType } from 'react'
-import { FileText, ClipboardList, Activity, Check, ShieldCheck, X } from 'lucide-react'
+import { FileText, ClipboardList, Activity, Video, Check, ShieldCheck, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import VerificationBadge from './VerificationBadge'
+import type { SavePayload } from '@/hooks/useSaveContent'
 import type { SourceCard as SourceCardType, SavedContent, ApiRole } from '@/types'
 
 interface SourceCardProps {
   source: SourceCardType | SavedContent
   userRole: ApiRole
   mode: 'results' | 'saved'
-  onSave?: (item: SourceCardType) => void
-  onUnsave?: (recommendationId: string) => void
-  onVerify?: (id: string, role: 'PHYSIOTHERAPIST' | 'FITNESS_TRAINER') => void
+  query_id?: number
+  onSave?: (payload: SavePayload) => void
+  onUnsave?: (savingId: number) => void
+  onVerify?: (url: string, verified: boolean) => void
   savedIds?: Set<string>
 }
 
@@ -19,16 +21,18 @@ const CONTENT_TYPE_ICON: Record<string, ComponentType<{ size?: number; className
   Article: FileText,
   'Clinical Guideline': ClipboardList,
   'Exercise Guide': Activity,
+  Video: Video,
 }
 
 function isSavedContent(source: SourceCardType | SavedContent): source is SavedContent {
-  return 'recommendation_id' in source
+  return 'saving_id' in source
 }
 
 export default function SourceCard({
   source,
   userRole,
   mode,
+  query_id,
   onSave,
   onUnsave,
   onVerify,
@@ -37,30 +41,44 @@ export default function SourceCard({
   const [localSaved, setLocalSaved] = useState(false)
 
   const saved = isSavedContent(source)
-  const sourceId = saved ? source.recommendation_id : source.url
   const title = saved ? source.content_title : source.title
   const url = saved ? source.source_url : source.url
   const description = saved ? source.content_text : source.description
-  const isVerified = saved
-    ? source.verified_by_physio || source.verified_by_trainer
-    : source.is_verified
-  const verifiedByPhysio = saved ? source.verified_by_physio : source.is_verified
-  const verifiedByTrainer = saved ? source.verified_by_trainer : false
 
-  const isSaved = localSaved || (savedIds?.has(sourceId) ?? false)
+  const serverVerifiedByPhysio = saved ? source.verified_by_physio : source.verified_by_physio
+  const serverVerifiedByTrainer = saved ? source.verified_by_trainer : source.verified_by_trainer
+
+  const [localVerifiedByPhysio, setLocalVerifiedByPhysio] = useState(serverVerifiedByPhysio)
+  const [localVerifiedByTrainer, setLocalVerifiedByTrainer] = useState(serverVerifiedByTrainer)
+
+  const verifiedByPhysio = localVerifiedByPhysio
+  const verifiedByTrainer = localVerifiedByTrainer
+  const isVerified = verifiedByPhysio || verifiedByTrainer
+
+  const isSaved = localSaved || (savedIds?.has(url) ?? false)
   const canVerify = userRole === 'PHYSIOTHERAPIST' || userRole === 'FITNESS_TRAINER'
+  const isPhysio = userRole === 'PHYSIOTHERAPIST'
+  const myVerified = isPhysio ? verifiedByPhysio : verifiedByTrainer
   const ContentIcon = CONTENT_TYPE_ICON[source.content_type] ?? FileText
 
   function handleSave() {
-    if (isSaved || !onSave || saved) return
+    if (isSaved || !onSave || saved || query_id === undefined) return
     setLocalSaved(true)
-    onSave(source)
+    onSave({
+      title,
+      url,
+      content_text: description ?? null,
+      content_type: source.content_type,
+      query_id,
+    })
   }
 
   function handleVerify() {
     if (!onVerify) return
-    const role = userRole === 'PHYSIOTHERAPIST' ? 'PHYSIOTHERAPIST' : 'FITNESS_TRAINER'
-    onVerify(sourceId, role)
+    const next = !myVerified
+    if (isPhysio) setLocalVerifiedByPhysio(next)
+    else setLocalVerifiedByTrainer(next)
+    onVerify(url, next)
   }
 
   return (
@@ -103,7 +121,7 @@ export default function SourceCard({
               'flex items-center justify-center',
             )}
           >
-            Read More →
+            Read More
           </a>
           <button
             onClick={handleSave}
@@ -122,10 +140,15 @@ export default function SourceCard({
               onClick={handleVerify}
               className={cn(
                 'text-sm font-medium px-4 py-2.5 rounded-xl border transition-colors min-h-[44px]',
-                'bg-white text-purple-600 border-purple-200 hover:bg-purple-50',
+                myVerified
+                  ? 'bg-green-50 text-green-700 border-green-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                  : 'bg-white text-purple-600 border-purple-200 hover:bg-purple-50',
               )}
             >
-              <span className="inline-flex items-center gap-1"><ShieldCheck size={16} />Verify</span>
+              <span className="inline-flex items-center gap-1">
+                <ShieldCheck size={16} />
+                {myVerified ? 'Verified ✓' : 'Verify'}
+              </span>
             </button>
           )}
         </div>
@@ -143,10 +166,10 @@ export default function SourceCard({
               'flex items-center justify-center',
             )}
           >
-            Read More →
+            Read More
           </a>
           <button
-            onClick={() => saved && onUnsave?.(source.recommendation_id)}
+            onClick={() => saved && onUnsave?.(source.saving_id)}
             className={cn(
               'text-sm font-medium px-4 py-2.5 rounded-xl border transition-colors min-h-[44px]',
               'bg-white text-red-500 border-red-200 hover:bg-red-50',

@@ -10,7 +10,7 @@ import PatientTopNav from '@/components/PatientTopNav'
 import BackButton from '@/components/ui/BackButton'
 import ExchangeBlock from './components/ExchangeBlock'
 import NewSearchInput from './components/NewSearchInput'
-import type { SourceCard } from '@/types'
+import type { SavePayload } from '@/hooks/useSaveContent'
 import './AiSearchResultsPage.css'
 
 export default function AiSearchResultsPage() {
@@ -19,9 +19,7 @@ export default function AiSearchResultsPage() {
   const auth = useAtomValue(authAtom)
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
 
-  const saveContent = useSaveContent((item: SourceCard) => {
-    setSavedIds((prev) => new Set([...prev, item.url]))
-  })
+  const saveContent = useSaveContent(() => {})
   const verifyContent = useVerifyContent()
   const searchMutation = useAiSearchMutation()
 
@@ -31,6 +29,11 @@ export default function AiSearchResultsPage() {
   }
 
   const userRole = auth?.role ?? 'PATIENT'
+
+  function handleSave(payload: SavePayload) {
+    setSavedIds((prev) => new Set([...prev, payload.url]))
+    saveContent.mutate(payload)
+  }
 
   return (
     <div className="ais-results pt-16">
@@ -51,8 +54,8 @@ export default function AiSearchResultsPage() {
                   <ExchangeBlock
                     exchange={exchange}
                     userRole={userRole}
-                    onSave={(item) => saveContent.mutate(item)}
-                    onVerify={(id, role) => verifyContent.mutate({ recommendationId: id, role })}
+                    onSave={handleSave}
+                    onVerify={(url, verified) => verifyContent.mutate({ url, query_id: exchange.query_id, verified })}
                     savedIds={savedIds}
                   />
                 </Fragment>

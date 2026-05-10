@@ -46,7 +46,7 @@ export default function AiSearchPage() {
     form.setFieldValue('query', chip)
   }
 
-  function handleHistoryDelete(queryId: string) {
+  function handleHistoryDelete(queryId: number) {
     deleteQuery.mutate(queryId)
   }
 
@@ -105,6 +105,11 @@ export default function AiSearchPage() {
                     )}
                   </Button>
                 </div>
+                {searchMutation.isError && (
+                  <p className="ais-page__field-error">
+                    {(searchMutation.error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Something went wrong. Please try again.'}
+                  </p>
+                )}
               </form>
             </div>
 

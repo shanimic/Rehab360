@@ -1,31 +1,46 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { useSetAtom } from 'jotai'
+import { useSetAtom, useAtomValue } from 'jotai'
 import { searchResultsAtom } from '@/store/aiSearchAtom'
-import { mockSearchResults } from '@/mocks/aiSearchMocks'
-import type { AiConversation } from '@/types'
+import { authAtom } from '@/store/authAtom'
+import apiClient from '@/lib/apiClient'
+import type { AiExchange, AiConversation } from '@/types'
 
-// TODO: replace mutationFn with real Gemini API call once endpoint is available
+interface AiSearchApiResponse {
+  query_id: number
+  summary: string
+  sources: AiExchange['sources']
+}
+
 export function useAiSearchMutation() {
+  const queryClient = useQueryClient()
   const setSearchResults = useSetAtom(searchResultsAtom)
   const navigate = useNavigate()
+  const auth = useAtomValue(authAtom)
 
   return useMutation({
     mutationFn: async (queryContent: string): Promise<AiConversation> => {
-      await new Promise((resolve) => setTimeout(resolve, 800))
-      return [
-        {
-          query_id: `q-${Date.now()}`,
-          query_content: queryContent,
-          ai_summary:
-            "Some discomfort after knee exercises is normal, especially when starting a new program. However, sharp or intense pain may indicate injury. It is important to differentiate between muscle soreness (DOMS) which typically peaks 24–48 hours post-exercise, and joint pain which should be evaluated by a professional. Always follow your physiotherapist's guidance on pain thresholds during rehabilitation.",
-          sources: mockSearchResults,
-        },
-      ]
+      const response = await apiClient.post<AiSearchApiResponse>('/ai-search/queries', {
+        query_text: queryContent,
+        user_id: auth?.id,
+        user_role: auth?.role,
+      })
+      const { query_id, summary, sources } = response.data
+      const exchange: AiExchange = {
+        query_id,
+        query_content: queryContent,
+        ai_summary: summary,
+        sources,
+      }
+      return [exchange]
     },
     onSuccess: (newExchanges) => {
       setSearchResults((prev) => [...(prev ?? []), ...newExchanges])
+      queryClient.invalidateQueries({ queryKey: ['query-history'] })
       navigate('/ai-search/results')
+    },
+    onError: (error) => {
+      console.error('[AI Search] mutation failed:', error)
     },
   })
 }

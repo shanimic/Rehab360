@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS `rehab360`;
 USE `rehab360`;
 
-drop table recommended_content ;
+drop table saved_content ;
 drop table content ;
 drop table queries ;
 drop table exercise_completion ;
@@ -210,22 +210,25 @@ VALUES
 -- 9. Content Table
 CREATE TABLE IF NOT EXISTS content (
     content_id INT PRIMARY KEY auto_increment,
+    content_text TEXT NULL,
     content_type VARCHAR(50) NOT NULL,
     content_title VARCHAR(255) NOT NULL,
     content_source_link VARCHAR(255) NOT NULL,
+    physio_verification_count INT NOT NULL DEFAULT 0,
+    trainer_verification_count INT NOT NULL DEFAULT 0,
     query_id INT,
     FOREIGN KEY (query_id) REFERENCES queries(query_id)
 );
 
-INSERT INTO content ( content_type, content_title, content_source_link, query_id)
+INSERT INTO content ( content_type, content_title, content_text, content_source_link, query_id)
 VALUES
-( 'Article', 'RICE Method for Swelling', 'https://health.blog/rice-method', 1),
-( 'Video', 'ACL Recovery Phase 1', 'https://video.link/acl-phase1', 2);
+( 'Article', 'RICE Method for Injuries', 'The RICE method involves Rest, Ice, Compression, and Elevation to reduce swelling.', 'https://www.webmd.com/first-aid/rice-method-injuries', 1),
+( 'Video', 'ACL Recovery Phase 1', 'Initial exercises focusing on range of motion and reducing post-surgery inflammation.', 'https://www.youtube.com/watch?v=kFGB7gW3pQ8', 2);
 
--- 10. Recommended Content Table
-CREATE TABLE IF NOT EXISTS recommended_content (
-    recommended_id INT PRIMARY KEY auto_increment,
-    recommendation_date DATE NOT NULL,
+-- 10. Saved Content Table
+CREATE TABLE IF NOT EXISTS saved_content (
+    saving_id INT PRIMARY KEY auto_increment,
+    saving_date DATE NOT NULL,
     content_id INT,
     user_id VARCHAR(255),
     user_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
@@ -233,7 +236,7 @@ CREATE TABLE IF NOT EXISTS recommended_content (
     FOREIGN KEY (user_id, user_role) REFERENCES registered_users(user_id, user_role)
 );
 
-INSERT INTO recommended_content ( recommendation_date, content_id, user_id, user_role)
+INSERT INTO saved_content ( saving_date, content_id, user_id, user_role)
 VALUES
 ( '2024-01-13', 1, 'P100', 'PATIENT'),
 ( '2024-01-14', 2, 'T200', 'PHYSIOTHERAPIST');

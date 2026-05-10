@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bookmark } from 'lucide-react'
 import { useAtomValue } from 'jotai'
@@ -26,8 +26,12 @@ export default function SavedContentPage() {
   const [localContent, setLocalContent] = useState<SavedContent[]>(initialContent)
   const [filter, setFilter] = useState<FilterKey>('all')
 
+  useEffect(() => {
+    setLocalContent(initialContent)
+  }, [initialContent])
+
   const unsave = useUnsaveContent((id) => {
-    setLocalContent((prev) => prev.filter((i) => i.recommendation_id !== id))
+    setLocalContent((prev) => prev.filter((i) => i.saving_id !== id))
   })
 
   const filtered = applyFilter(localContent, filter)
@@ -76,7 +80,7 @@ export default function SavedContentPage() {
         {filtered.length > 0 && (
           <ul className="ais-saved__list">
             {filtered.map((item) => (
-              <li key={item.recommendation_id}>
+              <li key={item.saving_id}>
                 <SourceCard
                   source={item}
                   userRole={userRole}
