@@ -6,9 +6,7 @@ export type FilterKey = 'all' | 'verified' | 'unverified'
 type FilterableSource = SourceCard | SavedContent
 
 function isVerified(s: FilterableSource): boolean {
-  return 'is_verified' in s
-    ? s.is_verified
-    : s.verified_by_physio || s.verified_by_trainer
+  return s.verified_by_physio || s.verified_by_trainer
 }
 
 interface FilterBarProps {

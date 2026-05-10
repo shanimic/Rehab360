@@ -1,12 +1,20 @@
+import { useQuery } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import { mockSavedContent } from '@/mocks/aiSearchMocks'
+import apiClient from '@/lib/apiClient'
 import type { SavedContent } from '@/types'
 
-// TODO: replace with useQuery once saved content API endpoint is available
 export function useSavedContent(): SavedContent[] {
   const auth = useAtomValue(authAtom)
-  if (!auth?.email) return []
-  // Mock data is scoped to MOCK_USER_EMAIL; in prod filter by auth.email via API
-  return mockSavedContent
+
+  const { data } = useQuery({
+    queryKey: ['saved-content', auth?.id],
+    queryFn: () =>
+      apiClient
+        .get<SavedContent[]>(`/ai-search/saved-content/${auth?.id}`)
+        .then((res) => res.data),
+    enabled: !!auth?.id,
+  })
+
+  return data ?? []
 }

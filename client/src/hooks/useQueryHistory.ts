@@ -1,11 +1,20 @@
+import { useQuery } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import { mockQueryHistory } from '@/mocks/aiSearchMocks'
+import apiClient from '@/lib/apiClient'
 import type { AiQuery } from '@/types'
 
-// TODO: replace with useQuery once query history API endpoint is available
 export function useQueryHistory(): AiQuery[] {
   const auth = useAtomValue(authAtom)
-  if (!auth?.email) return []
-  return mockQueryHistory.filter((q) => q.user_id === auth.email)
+
+  const { data } = useQuery({
+    queryKey: ['query-history', auth?.id],
+    queryFn: () =>
+      apiClient
+        .get<AiQuery[]>(`/ai-search/queries/${auth?.id}`)
+        .then((res) => res.data),
+    enabled: !!auth?.id,
+  })
+
+  return data ?? []
 }

@@ -41,7 +41,7 @@ tail -n +14 ~/Rehab360/db/init.sql | mysql -u shanimi2_u1 -p shanimi2_rehab360_d
 mysql -u shanimi2_u1 -p shanimi2_rehab360_db -e "SHOW TABLES;"
 ```
 
-Expected tables: `content`, `exercise_completion`, `exercises`, `plan_exercises`, `plans`, `queries`, `recommended_content`, `registered_users`, `sessions`, `weekly_plans`
+Expected tables: `content`, `exercise_completion`, `exercises`, `plan_exercises`, `plans`, `queries`, `saved_content`, `registered_users`, `sessions`, `weekly_plans`
 
 ---
 

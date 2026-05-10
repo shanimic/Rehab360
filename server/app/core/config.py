@@ -5,6 +5,9 @@ class Settings(BaseSettings):
     PROJECT_VERSION: str = "1.0.0"
     CORS_ORIGINS: list[str] = ["*"]
 
+    # Gemini AI
+    GEMINI_API_KEY: str = ""
+
     # Database Settings
     DB_HOST: str = "localhost"
     DB_USER: str = "root"

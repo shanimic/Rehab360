@@ -147,17 +147,17 @@ export interface PatientDetails extends Patient {
 export type ContentType = 'Article' | 'Clinical Guideline' | 'Exercise Guide'
 
 export interface AiQuery {
-  query_id: string
-  user_id: string
+  query_id: number
   query_text: string
   query_date: string
 }
 
 export interface SavedContent {
-  recommendation_id: string
-  query_id: string
-  content_text: string
+  saving_id: number
+  content_id: number
+  query_id: number
   content_title: string
+  content_text: string | null
   content_type: ContentType
   source_url: string
   verified_by_physio: boolean
@@ -170,11 +170,12 @@ export interface SourceCard {
   url: string
   description: string
   content_type: ContentType
-  is_verified: boolean
+  verified_by_physio: boolean
+  verified_by_trainer: boolean
 }
 
 export interface AiExchange {
-  query_id: string
+  query_id: number
   query_content: string
   ai_summary: string
   sources: SourceCard[]

@@ -6,7 +6,7 @@ import './PatientNavbar.css'
 
 const desktopNav = [
   { label: 'Exercises',  icon: Dumbbell, path: '/patient/my-plan' },
-  { label: 'AI Search',  icon: Sparkles,  path: '/placeholder'    },
+  { label: 'AI Search',  icon: Sparkles,  path: '/ai-search'      },
   { label: 'My Profile', icon: User,      path: '/profile'        },
 ]
 
