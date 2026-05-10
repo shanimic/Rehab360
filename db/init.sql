@@ -10,6 +10,7 @@ drop table plan_exercises ;
 drop table plans ;
 drop table sessions ;
 drop table exercises ;
+drop table appointments;
 drop table registered_users;
 
 -- 1. Registered Users Table
@@ -240,3 +241,30 @@ INSERT INTO saved_content ( saving_date, content_id, user_id, user_role)
 VALUES
 ( '2024-01-13', 1, 'P100', 'PATIENT'),
 ( '2024-01-14', 2, 'T200', 'PHYSIOTHERAPIST');
+
+-- 11. Appointments Table
+CREATE TABLE IF NOT EXISTS appointments (
+    appointment_id INT PRIMARY KEY AUTO_INCREMENT,
+    appointment_date DATE NOT NULL,
+    appointment_time TIME NOT NULL,
+    appointment_status ENUM('SCHEDULED', 'CANCELLED') NOT NULL,
+    visit_type ENUM('PHYSIOTHERAPIST', 'FITNESS') NOT NULL,
+    notes TEXT,
+    patient_id VARCHAR(255) NOT NULL,
+    patient_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER') NOT NULL,
+    therapist_id VARCHAR(255) NOT NULL,
+    therapist_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER') NOT NULL,
+    FOREIGN KEY (patient_id, patient_role) REFERENCES registered_users(user_id, user_role),
+    FOREIGN KEY (therapist_id, therapist_role) REFERENCES registered_users(user_id, user_role)
+) AUTO_INCREMENT = 1001;
+
+INSERT INTO appointments (appointment_date, appointment_time, appointment_status, visit_type, notes, patient_id, patient_role, therapist_id, therapist_role)
+VALUES
+('2026-06-28', '09:00:00', 'SCHEDULED',  'PHYSIOTHERAPIST', 'Follow-up on shoulder mobility progress.',        'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST'),
+('2026-07-02', '10:00:00', 'SCHEDULED',  'PHYSIOTHERAPIST', 'Reassessment of ACL recovery baseline.',          'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST'),
+('2026-07-08', '11:00:00', 'CANCELLED',  'PHYSIOTHERAPIST', 'Patient cancelled due to illness.',               'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST'),
+('2026-07-15', '09:30:00', 'SCHEDULED',  'PHYSIOTHERAPIST', 'Pain evaluation and range of motion check.',      'P100', 'PATIENT', 'T200', 'PHYSIOTHERAPIST'),
+('2026-06-29', '11:00:00', 'SCHEDULED',  'FITNESS', 'Knee strengthening session - phase 2.',                   'P100', 'PATIENT', 'F300', 'FITNESS_TRAINER'),
+('2026-07-05', '14:30:00', 'SCHEDULED',  'FITNESS', 'Core stabilization and hip work.',                        'P100', 'PATIENT', 'F300', 'FITNESS_TRAINER'),
+('2026-07-10', '08:30:00', 'CANCELLED',  'FITNESS', 'Trainer unavailable - rescheduled.',                      'P100', 'PATIENT', 'F300', 'FITNESS_TRAINER'),
+('2026-07-20', '10:00:00', 'SCHEDULED',  'FITNESS', 'Progressive load training for lower body.',               'P100', 'PATIENT', 'F300', 'FITNESS_TRAINER');
