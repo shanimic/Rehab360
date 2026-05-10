@@ -214,8 +214,8 @@ CREATE TABLE IF NOT EXISTS content (
     content_type VARCHAR(50) NOT NULL,
     content_title VARCHAR(255) NOT NULL,
     content_source_link VARCHAR(255) NOT NULL,
-    verified_by_physio BOOLEAN NOT NULL DEFAULT FALSE,
-    verified_by_trainer BOOLEAN NOT NULL DEFAULT FALSE,
+    physio_verification_count INT NOT NULL DEFAULT 0,
+    trainer_verification_count INT NOT NULL DEFAULT 0,
     query_id INT,
     FOREIGN KEY (query_id) REFERENCES queries(query_id)
 );
