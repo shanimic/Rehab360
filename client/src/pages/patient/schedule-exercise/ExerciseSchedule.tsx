@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, ArrowLeft } from 'lucide-react'
 import ExerciseCard from './components/ExerciseCard'
 import DayCard from './components/DayCard'
 import ReminderToggle from './components/ReminderToggle'
@@ -8,6 +8,7 @@ import './ExerciseSchedule.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import PatientTopNav from '@/components/PatientTopNav'
+import { useNavigate } from 'react-router-dom'
 import { useGetWeeklySchedule } from '@/hooks/paitent/useGetWeeklySchedule'
 import { useSaveWeeklySchedule } from '@/hooks/paitent/useSaveWeeklySchedule'
 
@@ -23,6 +24,7 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 
 /* ── Page ── */
 export default function ExerciseSchedule() {
+  const navigate = useNavigate()
   const user = useAtomValue(authAtom)
   const { data = [] } = useGetWeeklySchedule()
   const saveSchedule = useSaveWeeklySchedule()
@@ -146,6 +148,7 @@ export default function ExerciseSchedule() {
             exerciseName: ex?.exercise_name ?? `Exercise ${e.exerciseId}`,
             date: e.reminderDate,
             time: e.reminderTime,
+            sets: e.sets,
           }
         })
       setShowValidation(false)
@@ -163,6 +166,11 @@ export default function ExerciseSchedule() {
       <PatientTopNav patientName={user?.first_name} />
 
       <main className="es-main">
+
+        {/* ── Back button ── */}
+        <button className="es-back-btn" onClick={() => navigate('/patient/my-plan')} type="button" aria-label="Go back">
+          <ArrowLeft size={18} />
+        </button>
 
         {/* ── Page title ── */}
         <div className="es-page-header">

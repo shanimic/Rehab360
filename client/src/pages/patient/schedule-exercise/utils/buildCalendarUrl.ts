@@ -1,4 +1,4 @@
-export function buildCalendarUrl(exerciseName: string, date: string, time: string): string {
+export function buildCalendarUrl(exerciseName: string, date: string, time: string, sets: number): string {
   const datePart = date.replace(/-/g, '')
   const [hStr, mStr] = time.split(':')
   const h = parseInt(hStr, 10)
@@ -13,7 +13,7 @@ export function buildCalendarUrl(exerciseName: string, date: string, time: strin
     action: 'TEMPLATE',
     text: exerciseName,
     dates: `${startDt}/${endDt}`,
-    details: 'Rehab360 exercise reminder',
+    details: `${sets} sets\nRehab360 exercise reminder`,
   })
   return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
