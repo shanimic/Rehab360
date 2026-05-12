@@ -285,7 +285,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 10px 14px 10px 10px;
+  padding: 16px;
   width: 100%;
   text-align: left;
   border: none;
@@ -346,6 +346,11 @@
   overflow: hidden;
 }
 
+/* Completed checkmark icon */
+.mp-card__done-icon {
+  flex-shrink: 0;
+}
+
 /* Info */
 .mp-card__info {
   flex: 1;
@@ -362,6 +367,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.mp-card__sets {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
 .mp-card__desc {
@@ -389,13 +400,13 @@
 }
 
 .mp-card__badge--physio {
-  background: #e0f7f4;
-  color: #00796b;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
 .mp-card__badge--fitness {
-  background: #fff3e0;
-  color: #e65100;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 /* Arrow icon */
@@ -477,15 +488,11 @@
    Tablet (≥ 640px)
    ========================================= */
 @media (min-width: 640px) {
-  .mp-card__thumb {
-    width: 80px;
-    height: 76px;
-  }
-
   .mp-card__name {
     font-size: 15px;
   }
 
+  .mp-card__sets,
   .mp-card__desc {
     font-size: 13px;
   }
@@ -538,20 +545,15 @@
 
   /* Bigger cards */
   .mp-card {
-    padding: 12px 16px 12px 12px;
+    padding: 18px;
     gap: 16px;
-  }
-
-  .mp-card__thumb {
-    width: 88px;
-    height: 82px;
-    border-radius: 14px;
   }
 
   .mp-card__name {
     font-size: 15px;
   }
 
+  .mp-card__sets,
   .mp-card__desc {
     font-size: 13px;
   }
@@ -580,8 +582,7 @@
    Wide desktop (≥ 1280px)
    ========================================= */
 @media (min-width: 1280px) {
-  .mp-card__thumb {
-    width: 96px;
-    height: 90px;
+  .mp-card {
+    padding: 20px;
   }
 }
