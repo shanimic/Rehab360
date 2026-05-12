@@ -19,7 +19,7 @@ export default function ExerciseItem({ exercise }: { exercise: DailyExerciseItem
         <div className="ph-exercise-item__name-row">
           <span className="ph-exercise-item__name">{exercise.exercise_name}</span>
           <span className={`ph-exercise-item__badge ph-exercise-item__badge--${exercise.visit_type === VisitType.PHYSIOTHERAPIST ? 'treatment' : 'training'}`}>
-            {exercise.visit_type}
+            {exercise.visit_type === VisitType.PHYSIOTHERAPIST ? 'Physio' : 'Fitness'}
           </span>
         </div>
         <span className="ph-exercise-item__desc">{exercise.reps} reps × {exercise.num_sets} sets</span>

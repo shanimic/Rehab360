@@ -595,8 +595,8 @@
   width: fit-content;
 }
 
-.ph-exercise-item__badge--treatment { background: #fce7ef; color: #c2185b; }
-.ph-exercise-item__badge--training  { background: #ede7f6; color: #6d28d9; }
+.ph-exercise-item__badge--treatment { background: var(--color-primary-light); color: var(--color-primary); }
+.ph-exercise-item__badge--training  { background: #d1fae5; color: #065f46; }
 
 .ph-exercise-item__desc {
   font-size: 12px;
