@@ -136,6 +136,25 @@
   gap: 18px;
 }
 
+/* ── Back Button ── */
+.mp-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+.mp-back-btn:hover { background: var(--color-input-bg); }
+.mp-back-btn:active { transform: scale(0.94); }
+
 /* ── Page title row ── */
 .mp-title-row {
   display: flex;

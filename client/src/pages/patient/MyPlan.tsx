@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { Plus, ChevronLeft } from 'lucide-react'
 import './MyPlan.css'
 import PatientTopNav from '@/components/PatientTopNav'
 import { useAtomValue } from 'jotai'
@@ -30,6 +30,9 @@ export default function MyPlanPage() {
 
       <main className="mp-main">
         <div className="mp-title-row">
+          <button className="mp-back-btn" type="button" onClick={() => navigate('/patient')} aria-label="Back to home">
+            <ChevronLeft size={20} />
+          </button>
           <div className="mp-title-left">
             <h1 className="mp-title">My Plan</h1>
             {!isLoading && (
