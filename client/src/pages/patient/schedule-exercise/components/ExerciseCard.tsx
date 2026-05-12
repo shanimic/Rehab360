@@ -1,4 +1,4 @@
-import { Dumbbell } from 'lucide-react'
+import { Dumbbell, Stethoscope } from 'lucide-react'
 import type { WeeklyScheduleItem } from '@/types/patient'
 
 interface ExerciseCardProps {
@@ -16,7 +16,10 @@ export default function ExerciseCard({ exercise }: ExerciseCardProps) {
         style={{ background: isPhysio ? 'linear-gradient(135deg, #74b9ff, #0984e3)' : 'linear-gradient(135deg, #55efc4, #00b894)' }}
         aria-hidden
       >
-        <Dumbbell size={22} color="#fff" strokeWidth={1.6} />
+        {isPhysio
+          ? <Stethoscope size={22} color="#fff" strokeWidth={1.6} />
+          : <Dumbbell size={22} color="#fff" strokeWidth={1.6} />
+        }
       </div>
       <div className="es-pool-card__body">
         <span className="es-pool-card__name">{exercise.exercise_name}</span>
