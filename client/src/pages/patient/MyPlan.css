@@ -136,6 +136,25 @@
   gap: 18px;
 }
 
+/* ── Back Button ── */
+.mp-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+.mp-back-btn:hover { background: var(--color-input-bg); }
+.mp-back-btn:active { transform: scale(0.94); }
+
 /* ── Page title row ── */
 .mp-title-row {
   display: flex;
@@ -230,11 +249,38 @@
   margin-bottom: 14px;
 }
 
+.mp-section__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mp-section__title-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .mp-section__title {
   font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;
+}
+
+.mp-section__lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  letter-spacing: 0.2px;
+  user-select: none;
 }
 
 .mp-section__view-all {
@@ -266,7 +312,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 10px 14px 10px 10px;
+  padding: 16px;
   width: 100%;
   text-align: left;
   border: none;
@@ -288,14 +334,26 @@
 
 /* Tomorrow cards — not clickable */
 .mp-card--tomorrow {
-  cursor: default;
+  cursor: not-allowed;
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-border);
+  box-shadow: none;
   opacity: 0.6;
 }
 
 .mp-card--tomorrow:hover {
   transform: none;
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
   background: var(--color-surface);
+}
+
+.mp-card--tomorrow .mp-card__name {
+  color: var(--color-text-secondary);
+}
+
+.mp-card__lock-icon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
 }
 
 /* Completed exercise card — stays in list, non-clickable */
@@ -327,6 +385,11 @@
   overflow: hidden;
 }
 
+/* Completed checkmark icon */
+.mp-card__done-icon {
+  flex-shrink: 0;
+}
+
 /* Info */
 .mp-card__info {
   flex: 1;
@@ -343,6 +406,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.mp-card__sets {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
 .mp-card__desc {
@@ -370,13 +439,13 @@
 }
 
 .mp-card__badge--physio {
-  background: #e0f7f4;
-  color: #00796b;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
 .mp-card__badge--fitness {
-  background: #fff3e0;
-  color: #e65100;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 /* Arrow icon */
@@ -458,15 +527,11 @@
    Tablet (≥ 640px)
    ========================================= */
 @media (min-width: 640px) {
-  .mp-card__thumb {
-    width: 80px;
-    height: 76px;
-  }
-
   .mp-card__name {
     font-size: 15px;
   }
 
+  .mp-card__sets,
   .mp-card__desc {
     font-size: 13px;
   }
@@ -519,20 +584,15 @@
 
   /* Bigger cards */
   .mp-card {
-    padding: 12px 16px 12px 12px;
+    padding: 18px;
     gap: 16px;
-  }
-
-  .mp-card__thumb {
-    width: 88px;
-    height: 82px;
-    border-radius: 14px;
   }
 
   .mp-card__name {
     font-size: 15px;
   }
 
+  .mp-card__sets,
   .mp-card__desc {
     font-size: 13px;
   }
@@ -561,8 +621,7 @@
    Wide desktop (≥ 1280px)
    ========================================= */
 @media (min-width: 1280px) {
-  .mp-card__thumb {
-    width: 96px;
-    height: 90px;
+  .mp-card {
+    padding: 20px;
   }
 }

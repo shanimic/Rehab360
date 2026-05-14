@@ -1,4 +1,3 @@
-from datetime import date, timedelta
 
 from aiomysql import DictCursor
 from app.models.patients.patient_exercises import (
@@ -248,6 +247,6 @@ class PatientRepository:
                     if item.reminder_date and item.reminder_time
                     else "1970-01-01 00:00:00",
                     body.reminders_enabled,
-                    (date.today() + timedelta(days=item.day_index)).isoformat(),
-                ),
+                    item.reminder_date if item.reminder_date and item.reminder_time else "1970-01-01"
+                                  ),
             )

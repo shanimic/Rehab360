@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { Plus, ChevronLeft, Lock } from 'lucide-react'
 import './MyPlan.css'
 import PatientTopNav from '@/components/PatientTopNav'
 import { useAtomValue } from 'jotai'
@@ -30,6 +30,9 @@ export default function MyPlanPage() {
 
       <main className="mp-main">
         <div className="mp-title-row">
+          <button className="mp-back-btn" type="button" onClick={() => navigate('/patient')} aria-label="Back to home">
+            <ChevronLeft size={20} />
+          </button>
           <div className="mp-title-left">
             <h1 className="mp-title">My Plan</h1>
             {!isLoading && (
@@ -82,7 +85,9 @@ export default function MyPlanPage() {
           {/* Tomorrow */}
           <section className="mp-section">
             <div className="mp-section__header">
-              <h2 className="mp-section__title">Tomorrow plan</h2>
+              <div className="mp-section__title-group">
+                <h2 className="mp-section__title">Tomorrow plan</h2>
+              </div>
             </div>
 
             {isLoading && <p className="mp-empty__text">Loading exercises…</p>}
@@ -97,7 +102,7 @@ export default function MyPlanPage() {
             {!isLoading && !error && tomorrowExercises.length > 0 && (
               <div className="mp-section__list">
                 {tomorrowExercises.map(ex => (
-                  <ExerciseCard key={ex.exercise_id} exercise={ex} />
+                  <ExerciseCard key={ex.exercise_id} exercise={ex} tomorrow />
                 ))}
               </div>
             )}
