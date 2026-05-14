@@ -5,16 +5,17 @@ interface ExerciseCardProps {
   exercise: MyPlan
   onClick?: () => void
   completed?: boolean
+  tomorrow?: boolean
 }
 
-export default function ExerciseCard({ exercise, onClick, completed = false }: ExerciseCardProps) {
+export default function ExerciseCard({ exercise, onClick, completed = false, tomorrow = false }: ExerciseCardProps) {
   const isPhysio = exercise.visit_type?.toLowerCase() === 'physiotherapist'
 
   return (
     <button
-      className={`mp-card${completed ? ' mp-card--completed' : ''}`}
-      onClick={completed ? undefined : onClick}
-      disabled={completed}
+      className={`mp-card${completed ? ' mp-card--completed' : ''}${tomorrow ? ' mp-card--tomorrow' : ''}`}
+      onClick={completed || tomorrow ? undefined : onClick}
+      disabled={completed || tomorrow}
       type="button"
     >
       {completed && (

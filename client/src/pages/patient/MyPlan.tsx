@@ -100,7 +100,7 @@ export default function MyPlanPage() {
             {!isLoading && !error && tomorrowExercises.length > 0 && (
               <div className="mp-section__list">
                 {tomorrowExercises.map(ex => (
-                  <ExerciseCard key={ex.exercise_id} exercise={ex} />
+                  <ExerciseCard key={ex.exercise_id} exercise={ex} tomorrow />
                 ))}
               </div>
             )}

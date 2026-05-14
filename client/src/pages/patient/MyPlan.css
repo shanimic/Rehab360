@@ -308,13 +308,14 @@
 /* Tomorrow cards — not clickable */
 .mp-card--tomorrow {
   cursor: default;
-  opacity: 0.6;
+  background: #e2e8f0;
+  box-shadow: none;
 }
 
 .mp-card--tomorrow:hover {
   transform: none;
-  box-shadow: var(--shadow-card);
-  background: var(--color-surface);
+  box-shadow: none;
+  background: #e2e8f0;
 }
 
 /* Completed exercise card — stays in list, non-clickable */
