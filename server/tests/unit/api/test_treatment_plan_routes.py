@@ -418,7 +418,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
 
     def test_get_treatment_plan_by_plan_id_found_returns_200(self) -> None:
         """
-        Given an active plan with one exercise,
+        Given a plan with one exercise,
         When GET /treatment-plan/plan/{plan_id} is called,
         Then 200 is returned with plan details and the exercise list.
         """
@@ -475,7 +475,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
 
     def test_get_treatment_plan_by_plan_id_not_found_returns_404(self) -> None:
         """
-        Given no active plan exists for the plan_id,
+        Given no plan exists for the plan_id,
         When GET /treatment-plan/plan/{plan_id} is called,
         Then 404 Not Found is returned.
         """

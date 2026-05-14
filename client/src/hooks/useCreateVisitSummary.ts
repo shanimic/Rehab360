@@ -12,6 +12,7 @@ export interface CreateVisitSummaryPayload {
   patient_id: string
   therapist_id: string
   therapist_role: string
+  copy_previous_plan?: boolean
 }
 
 export function useCreateVisitSummary() {

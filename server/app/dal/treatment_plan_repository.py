@@ -186,7 +186,7 @@ class TreatmentPlanRepository:
             plan_id: The unique identifier of the plan.
 
         Returns:
-            A TreatmentPlanDetailsResponse (with empty exercises) if an active plan
+            A TreatmentPlanDetailsResponse (with empty exercises) if the plan
             exists, otherwise None.
         """
         await self.cursor.execute(
@@ -204,7 +204,6 @@ class TreatmentPlanRepository:
                 JOIN sessions s
                     ON p.session_id = s.session_id
                 WHERE p.plan_id = %s
-                  AND s.session_status = 'ACTIVE'
             """,
             args=(plan_id,),
         )

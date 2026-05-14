@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query, status
 
 from app.dal.visit_summary_repository import VisitSummaryRepository
 from app.db.session import get_db
+from app.models.patients.visit_type import VisitType
 from app.models.visit_summary.visit_summary import (
     CreatePlanRequest,
     CreatePlanResponse,
     CreateVisitSummaryRequest,
     CreateVisitSummaryResponse,
+    HasPreviousPlanResponse,
     PatientDetails,
     SessionListItem,
     VisitSummaryDetails,
@@ -56,6 +58,53 @@ async def get_sessions_by_patient(
     visit_summary_repository = VisitSummaryRepository(db=db)
     visit_summary_service = VisitSummaryServices(repository=visit_summary_repository)
     return await visit_summary_service.get_sessions_by_patient(patient_id)
+
+
+@visit_summary_router.get(
+    "/has-previous-plan/{patient_id}",
+    tags=["Visit Summary"],
+    response_model=HasPreviousPlanResponse,
+)
+async def check_has_previous_plan(
+    patient_id: str,
+    visit_type: VisitType = Query(default=VisitType.PHYSIOTHERAPIST),
+    db=Depends(get_db),
+) -> HasPreviousPlanResponse:
+    """Return whether a previous active plan exists for a patient and visit type.
+
+    Args:
+        patient_id: The unique identifier of the patient.
+        visit_type: The visit type to check (query parameter).
+        db: Database cursor injected by FastAPI.
+
+    Returns:
+        HasPreviousPlanResponse indicating whether a previous plan exists.
+    """
+    visit_summary_repository = VisitSummaryRepository(db=db)
+    visit_summary_service = VisitSummaryServices(repository=visit_summary_repository)
+    return await visit_summary_service.check_has_previous_plan(patient_id, visit_type)
+
+
+@visit_summary_router.post(
+    "/ensure-plan/{session_id}",
+    tags=["Visit Summary"],
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def ensure_plan_exists(
+    session_id: int, db=Depends(get_db)
+) -> None:
+    """Copy the previous plan into this session if no plan exists yet.
+
+    A no-op when a plan already exists. Returns 409 when no previous plan is
+    available and the user must create one manually.
+
+    Args:
+        session_id: The unique identifier of the session.
+        db: Database cursor injected by FastAPI.
+    """
+    visit_summary_repository = VisitSummaryRepository(db=db)
+    visit_summary_service = VisitSummaryServices(repository=visit_summary_repository)
+    await visit_summary_service.ensure_plan_exists(session_id)
 
 
 @visit_summary_router.get(

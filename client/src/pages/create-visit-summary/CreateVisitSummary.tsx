@@ -4,7 +4,7 @@ import { ChevronLeft, Phone, Mail, ClipboardList } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
-import { useVisitSummary } from '@/hooks/useVisitSummaries'
+import { useHasPreviousPlan, useVisitSummary } from '@/hooks/useVisitSummaries'
 import { useCreateVisitSummary } from '@/hooks/useCreateVisitSummary'
 
 import '../patient-details/PatientDetails.css'
@@ -90,9 +90,22 @@ export default function CreateVisitSummary() {
     email: patientApiData?.email ?? PATIENT.email,
   }
 
-  // Derive session type from user role — not editable
+  // Derive session type and visit_type from user role — not editable
   const isPhysicalTherapy = auth?.role !== 'FITNESS_TRAINER'
   const sessionType = isPhysicalTherapy ? 'Physical Therapy' : 'Fitness Training'
+  const visitType = auth?.role === 'FITNESS_TRAINER' ? 'FITNESS' : 'PHYSIOTHERAPIST'
+
+  const {
+    data: previousPlanData,
+    isLoading: isLoadingPreviousPlan,
+    isError: isPreviousPlanError,
+  } = useHasPreviousPlan(id, visitType)
+  const hasPreviousPlan = previousPlanData?.has_previous_plan ?? false
+
+  useEffect(() => {
+    console.log('[DEBUG] useHasPreviousPlan — patientId:', id, 'visitType:', visitType)
+    console.log('[DEBUG] useHasPreviousPlan — isLoading:', isLoadingPreviousPlan, 'isError:', isPreviousPlanError, 'data:', previousPlanData)
+  }, [id, visitType, isLoadingPreviousPlan, isPreviousPlanError, previousPlanData])
 
   const age = calculateAge(displayPatient.birthDate)
 
@@ -129,7 +142,7 @@ export default function CreateVisitSummary() {
     return Object.keys(newErrors).length === 0
   }
 
-  function buildPayload() {
+  function buildPayload(copyPreviousPlan: boolean) {
     const patientId = id ?? displayPatient.id
     return {
       patientId,
@@ -143,16 +156,17 @@ export default function CreateVisitSummary() {
         patient_id: patientId,
         therapist_id: auth?.id ?? '',
         therapist_role: auth?.role ?? '',
+        copy_previous_plan: copyPreviousPlan,
       },
     }
   }
 
-  // Save summary only — navigate to the list on success
+  // Save summary only — navigate to the list on success; backend copies previous plan
   function handleSave(): void {
     if (!auth) { setSaveError('Session expired. Please log in again.'); return }
     if (!validate()) return
     setSaveError(null)
-    const { patientId, payload } = buildPayload()
+    const { patientId, payload } = buildPayload(true)
     console.log('[DEBUG] POST /visit-summary payload:', payload)
     createVisitSummary.mutate(payload, {
       onSuccess: (data) => {
@@ -167,12 +181,12 @@ export default function CreateVisitSummary() {
     })
   }
 
-  // Save summary first, then navigate to Create Treatment Plan with session_id
+  // Save summary and redirect user to create a new plan for this session
   function handleSaveAndCreatePlan(): void {
     if (!auth) { setSaveError('Session expired. Please log in again.'); return }
     if (!validate()) return
     setSaveError(null)
-    const { patientId, payload } = buildPayload()
+    const { patientId, payload } = buildPayload(false)
     console.log('[DEBUG] POST /visit-summary (save & plan) payload:', payload)
     createVisitSummary.mutate(payload, {
       onSuccess: (data) => {
@@ -374,10 +388,20 @@ export default function CreateVisitSummary() {
               Cancel
             </button>
 
-            {/* Far right — plan button + primary save */}
+            {/* Far right — save summary (conditional) + plan button (always) */}
             <div className="cvs-actions__right">
               {saveError && (
                 <p className="cvs-error-msg" style={{ alignSelf: 'center' }}>{saveError}</p>
+              )}
+              {!isLoadingPreviousPlan && hasPreviousPlan && (
+                <button
+                  type="button"
+                  className="cvs-btn-save"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'Saving…' : 'Save Summary'}
+                </button>
               )}
               <button
                 type="button"
@@ -387,14 +411,6 @@ export default function CreateVisitSummary() {
               >
                 <ClipboardList size={15} className="cvs-btn-plan__icon" />
                 {isSaving ? 'Saving…' : (isPhysicalTherapy ? 'Save & Create Treatment Plan' : 'Save & Create Fitness Plan')}
-              </button>
-              <button
-                type="button"
-                className="cvs-btn-save"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? 'Saving…' : 'Save Summary'}
               </button>
             </div>
           </div>
