@@ -14,8 +14,8 @@ import type { SavedContent } from '@/types'
 import './SavedContentPage.css'
 
 function applyFilter(items: SavedContent[], filter: FilterKey): SavedContent[] {
-  if (filter === 'verified') return items.filter((i) => i.verified_by_physio || i.verified_by_trainer)
-  if (filter === 'unverified') return items.filter((i) => !i.verified_by_physio && !i.verified_by_trainer)
+  if (filter === 'verified') return items.filter((i) => i.physio_verification_count > 0 || i.trainer_verification_count > 0)
+  if (filter === 'unverified') return items.filter((i) => i.physio_verification_count === 0 && i.trainer_verification_count === 0)
   return items
 }
 
@@ -35,7 +35,7 @@ export default function SavedContentPage() {
   })
 
   const filtered = applyFilter(localContent, filter)
-  const verifiedCount = localContent.filter((i) => i.verified_by_physio || i.verified_by_trainer).length
+  const verifiedCount = localContent.filter((i) => i.physio_verification_count > 0 || i.trainer_verification_count > 0).length
   const userRole = auth?.role ?? 'PATIENT'
 
   return (

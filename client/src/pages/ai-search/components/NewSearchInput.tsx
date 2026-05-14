@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button'
 interface NewSearchInputProps {
   onSubmit: (text: string) => void
   isPending: boolean
+  isError?: boolean
+  errorMessage?: string
 }
 
-export default function NewSearchInput({ onSubmit, isPending }: NewSearchInputProps) {
+export default function NewSearchInput({ onSubmit, isPending, isError, errorMessage }: NewSearchInputProps) {
   const [text, setText] = useState('')
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -54,6 +56,9 @@ export default function NewSearchInput({ onSubmit, isPending }: NewSearchInputPr
             )}
           </Button>
         </div>
+        {isError && errorMessage && (
+          <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
+        )}
       </form>
     </div>
   )

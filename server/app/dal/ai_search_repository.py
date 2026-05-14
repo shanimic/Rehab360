@@ -152,8 +152,8 @@ class AiSearchRepository:
                     c.content_source_link   AS source_url,
                     c.content_text,
                     c.content_type,
-                    c.verified_by_physio,
-                    c.verified_by_trainer,
+                    c.physio_verification_count,
+                    c.trainer_verification_count,
                     rc.saving_date          AS created_at
                 FROM saved_content rc
                 JOIN content c ON rc.content_id = c.content_id
@@ -205,7 +205,7 @@ class AiSearchRepository:
     async def update_verified_flag(
         self, url: str, user_role: str, value: bool
     ) -> None:
-        """Set or clear the verified flag for a professional's role on all content rows for a URL.
+        """Increment or decrement the verification count for a professional's role on all content rows for a URL.
 
         Updates every content row sharing the same source URL so that verification
         propagates to all users who saved the same link under different queries.
@@ -213,36 +213,41 @@ class AiSearchRepository:
         Args:
             url: The source URL whose content rows should be updated.
             user_role: 'PHYSIOTHERAPIST' or 'FITNESS_TRAINER'.
-            value: True to verify, False to unverify.
+            value: True to increment, False to decrement (floored at 0).
         """
         if user_role == "PHYSIOTHERAPIST":
-            column = "verified_by_physio"
+            column = "physio_verification_count"
         else:
-            column = "verified_by_trainer"
+            column = "trainer_verification_count"
 
-        await self.cursor.execute(
-            query=f"UPDATE content SET {column} = %s WHERE content_source_link = %s",
-            args=(value, url),
-        )
+        if value:
+            query = f"UPDATE content SET {column} = {column} + 1 WHERE content_source_link = %s"
+        else:
+            query = (
+                f"UPDATE content SET {column} = GREATEST({column} - 1, 0) "
+                f"WHERE content_source_link = %s"
+            )
 
-    async def get_verified_content_url_flags(self) -> dict[str, dict[str, bool]]:
-        """Return verification flags for all URLs verified by at least one professional.
+        await self.cursor.execute(query=query, args=(url,))
+
+    async def get_verified_content_url_flags(self) -> dict[str, dict[str, int]]:
+        """Return verification counts for all URLs verified by at least one professional.
 
         Returns:
-            A dict mapping source URL to {'physio': bool, 'trainer': bool}.
+            A dict mapping source URL to {'physio': int, 'trainer': int}.
         """
         await self.cursor.execute(
             query="""
-                SELECT content_source_link, verified_by_physio, verified_by_trainer
+                SELECT content_source_link, physio_verification_count, trainer_verification_count
                 FROM content
-                WHERE verified_by_physio = TRUE OR verified_by_trainer = TRUE
+                WHERE physio_verification_count > 0 OR trainer_verification_count > 0
             """
         )
         rows = await self.cursor.fetchall()
         return {
             row["content_source_link"]: {
-                "physio": row["verified_by_physio"],
-                "trainer": row["verified_by_trainer"],
+                "physio": row["physio_verification_count"],
+                "trainer": row["trainer_verification_count"],
             }
             for row in rows
         }
@@ -270,28 +275,48 @@ class AiSearchRepository:
             args=(title, content_text, content_type, content_id),
         )
 
-    async def get_verification_flags_by_url(self, url: str) -> dict[str, bool]:
-        """Return the OR-aggregate of verification flags for a URL across all content rows.
+    async def get_verification_flags_by_url(self, url: str) -> dict[str, int]:
+        """Return the max verification counts for a URL across all content rows.
 
         Args:
             url: The source URL to look up.
 
         Returns:
-            A dict with 'physio' and 'trainer' booleans — True if any row for
-            this URL has the flag set, False otherwise.
+            A dict with 'physio' and 'trainer' int counts.
         """
         await self.cursor.execute(
             query="""
                 SELECT
-                    COALESCE(MAX(verified_by_physio), FALSE) AS physio,
-                    COALESCE(MAX(verified_by_trainer), FALSE) AS trainer
+                    COALESCE(MAX(physio_verification_count), 0) AS physio,
+                    COALESCE(MAX(trainer_verification_count), 0) AS trainer
                 FROM content
                 WHERE content_source_link = %s
             """,
             args=(url,),
         )
         row = await self.cursor.fetchone()
-        return {"physio": bool(row["physio"]), "trainer": bool(row["trainer"])}
+        return {"physio": row["physio"], "trainer": row["trainer"]}
+
+    async def set_content_verification_counts(
+        self, content_id: int, physio_count: int, trainer_count: int
+    ) -> None:
+        """Directly set verification counts on a specific content row.
+
+        Used when propagating existing URL verification to a newly inserted content row.
+
+        Args:
+            content_id: The content row to update.
+            physio_count: The physio verification count to apply.
+            trainer_count: The trainer verification count to apply.
+        """
+        await self.cursor.execute(
+            query="""
+                UPDATE content
+                SET physio_verification_count = %s, trainer_verification_count = %s
+                WHERE content_id = %s
+            """,
+            args=(physio_count, trainer_count, content_id),
+        )
 
     async def get_content_by_url_and_query(
         self, url: str, query_id: int

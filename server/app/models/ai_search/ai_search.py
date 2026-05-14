@@ -18,8 +18,8 @@ class SourceCard(BaseModel):
     url: str
     description: str
     content_type: str
-    verified_by_physio: bool = False
-    verified_by_trainer: bool = False
+    physio_verification_count: int = 0
+    trainer_verification_count: int = 0
 
 
 class AiSearchResponse(BaseModel):
@@ -60,8 +60,8 @@ class SavedContentItem(BaseModel):
     source_url: str
     content_text: str | None
     content_type: str
-    verified_by_physio: bool
-    verified_by_trainer: bool
+    physio_verification_count: int
+    trainer_verification_count: int
     created_at: datetime.date
 
 

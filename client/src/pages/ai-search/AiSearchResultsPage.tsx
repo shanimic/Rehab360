@@ -6,6 +6,7 @@ import { authAtom } from '@/store/authAtom'
 import { useSaveContent } from '@/hooks/useSaveContent'
 import { useVerifyContent } from '@/hooks/useVerifyContent'
 import { useAiSearchMutation } from '@/hooks/useAiSearchMutation'
+import { resolveSearchError } from '@/lib/aiSearchUtils'
 import PatientTopNav from '@/components/PatientTopNav'
 import BackButton from '@/components/ui/BackButton'
 import ExchangeBlock from './components/ExchangeBlock'
@@ -65,6 +66,8 @@ export default function AiSearchResultsPage() {
             <NewSearchInput
               onSubmit={(text) => searchMutation.mutate(text)}
               isPending={searchMutation.isPending}
+              isError={searchMutation.isError}
+              errorMessage={resolveSearchError(searchMutation.error)}
             />
           </div>
 

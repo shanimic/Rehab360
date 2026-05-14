@@ -69,6 +69,12 @@ class AiSearchServices:
                 detail="Gemini returned an unexpected response format",
             ) from exc
         except Exception as exc:
+            exc_str = str(exc)
+            if "UNAVAILABLE" in exc_str or "503" in exc_str:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="The AI service is temporarily unavailable. Please try again in a moment.",
+                ) from exc
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Gemini API error: {exc}",
@@ -81,8 +87,8 @@ class AiSearchServices:
                 url=s["url"],
                 description=s["description"],
                 content_type=s["content_type"],
-                verified_by_physio=verified_flags.get(s["url"], {}).get("physio", False),
-                verified_by_trainer=verified_flags.get(s["url"], {}).get("trainer", False),
+                physio_verification_count=verified_flags.get(s["url"], {}).get("physio", 0),
+                trainer_verification_count=verified_flags.get(s["url"], {}).get("trainer", 0),
             )
             for s in raw_sources
         ]
@@ -139,10 +145,10 @@ class AiSearchServices:
                 )
             )
             flags = await self.repository.get_verification_flags_by_url(request.url)
-            if flags["physio"]:
-                await self.repository.update_verified_flag(request.url, "PHYSIOTHERAPIST", True)
-            if flags["trainer"]:
-                await self.repository.update_verified_flag(request.url, "FITNESS_TRAINER", True)
+            if flags["physio"] > 0 or flags["trainer"] > 0:
+                await self.repository.set_content_verification_counts(
+                    content_id, flags["physio"], flags["trainer"]
+                )
 
         existing_rec = await self.repository.get_recommendation_by_content_and_user(
             content_id, request.user_id
