@@ -120,6 +120,14 @@ class ExerciseRepository:
         return ExerciseReportMetadata.model_validate(row) if row else None
 
     async def get_patient_plan(self, patient_id: str) -> list[DailyExerciseItem] | list:
+        """Fetch today's exercises (both completed and pending) for the patient.
+
+        Args:
+            patient_id: Patient identifier (active sessions only).
+
+        Returns:
+            List of ``DailyExerciseItem`` for today's active session.
+        """
         await self.cursor.execute(query="""
                     -- Part 1: Exercises scheduled for today that are NOT yet completed
                     SELECT
@@ -186,7 +194,55 @@ class ExerciseRepository:
             return []
         return [DailyExerciseItem.model_validate(row) for row in rows]
 
+    async def get_week_exercises(self, patient_id: str) -> list[dict]:
+        """Fetch exercises for day+2 through day+6, including the exercise_date for grouping.
+
+        Args:
+            patient_id: Patient identifier (active sessions only).
+
+        Returns:
+            Raw dicts with exercise fields plus ``exercise_date``, ordered by date.
+        """
+        await self.cursor.execute(
+            query="""
+                SELECT
+                    pe.exercise_id,
+                    e.exercise_name,
+                    e.visit_type,
+                    pe.reps,
+                    0 AS execution_status,
+                    pe.num_sets,
+                    e.text_instructions,
+                    wp.exercise_date
+                FROM weekly_plans wp
+                JOIN plan_exercises pe
+                    ON wp.session_id = pe.session_id
+                    AND wp.plan_id = pe.plan_id
+                    AND wp.exercise_id = pe.exercise_id
+                JOIN exercises e ON pe.exercise_id = e.exercise_id
+                WHERE wp.exercise_date BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY)
+                                          AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+                  AND pe.session_id IN (
+                      SELECT s.session_id
+                      FROM sessions s
+                      WHERE s.patient_id = %s AND s.session_status = 'ACTIVE'
+                  )
+                ORDER BY wp.exercise_date
+            """,
+            args=(patient_id,),
+        )
+        rows = await self.cursor.fetchall()
+        return list(rows) if rows else []
+
     async def get_tommorow_exercises(self, patient_id: str) -> list[DailyExerciseItem] | list:
+        """Fetch tomorrow's exercises for the patient.
+
+        Args:
+            patient_id: Patient identifier (active sessions only).
+
+        Returns:
+            List of ``DailyExerciseItem`` scheduled for tomorrow.
+        """
         await self.cursor.execute(query="""
                     -- Part 1: Exercises scheduled for TOMORROW that are NOT yet completed
                         SELECT

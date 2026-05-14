@@ -3,17 +3,23 @@
 from aiomysql import DictCursor
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.models.exercises.exercise import ExerciseData, MyPlanResponse
 from app.dal.exercise_repository import ExerciseRepository
 from app.db.session import get_db
-from app.models.exercises.exercise import ExerciseReport
+from app.models.exercises.exercise import (
+    ExerciseData,
+    ExerciseReport,
+    MyPlanResponse,
+    WeeklyPlanResponse,
+)
 from app.services.exercise_services import ExerciseServices
 
 exercise_router = APIRouter()
 
 
 @exercise_router.get("/{patient_id}", tags=["Exercises"], response_model=MyPlanResponse)
-async def get_petient_exercises(patient_id: str, db: DictCursor = Depends(get_db)) -> MyPlanResponse:
+async def get_petient_exercises(
+    patient_id: str, db: DictCursor = Depends(get_db)
+) -> MyPlanResponse:
     """Return all exercises in today's active plan for a patient.
 
     Args:
@@ -26,8 +32,32 @@ async def get_petient_exercises(patient_id: str, db: DictCursor = Depends(get_db
     exercise_service = ExerciseServices(repository=exercise_repository)
     return await exercise_service.get_patient_plan(patient_id=patient_id)
 
-@exercise_router.get("/{exercise_id}/{patient_id}", tags=["Exercises"], response_model=ExerciseData)
-async def get_exercise(exercise_id: str, patient_id: str, db: DictCursor = Depends(get_db)) -> ExerciseData:
+
+@exercise_router.get(
+    "/{patient_id}/weekly", tags=["Exercises"], response_model=WeeklyPlanResponse
+)
+async def get_weekly_plan(
+    patient_id: str, db: DictCursor = Depends(get_db)
+) -> WeeklyPlanResponse:
+    """Return exercises grouped by day for the rest of the week (day+2 through day+6).
+
+    Args:
+        patient_id: Identifier of the patient.
+
+    Returns:
+        Weekly plan grouped by calendar day.
+    """
+    exercise_repository = ExerciseRepository(db=db)
+    exercise_service = ExerciseServices(repository=exercise_repository)
+    return await exercise_service.get_weekly_plan(patient_id=patient_id)
+
+
+@exercise_router.get(
+    "/{exercise_id}/{patient_id}", tags=["Exercises"], response_model=ExerciseData
+)
+async def get_exercise(
+    exercise_id: str, patient_id: str, db: DictCursor = Depends(get_db)
+) -> ExerciseData:
     """Return today's exercise details for a patient.
 
     Args:
@@ -42,11 +72,20 @@ async def get_exercise(exercise_id: str, patient_id: str, db: DictCursor = Depen
     """
     exercise_repository = ExerciseRepository(db=db)
     exercise_service = ExerciseServices(repository=exercise_repository)
-    return await exercise_service.get_exercise(exercise_id=exercise_id, patient_id=patient_id)
+    return await exercise_service.get_exercise(
+        exercise_id=exercise_id, patient_id=patient_id
+    )
 
 
-@exercise_router.post("/{exercise_id}/{patient_id}", tags=["Exercises"], response_model=None)
-async def post_exercise_report(exercise_id: str, patient_id: str, report: ExerciseReport, db: DictCursor = Depends(get_db)) -> None:
+@exercise_router.post(
+    "/{exercise_id}/{patient_id}", tags=["Exercises"], response_model=None
+)
+async def post_exercise_report(
+    exercise_id: str,
+    patient_id: str,
+    report: ExerciseReport,
+    db: DictCursor = Depends(get_db),
+) -> None:
     """Persist a patient report for an assigned exercise (completion, pain, effort).
 
     Args:
@@ -60,6 +99,8 @@ async def post_exercise_report(exercise_id: str, patient_id: str, report: Exerci
     exercise_repository = ExerciseRepository(db=db)
     exercise_service = ExerciseServices(repository=exercise_repository)
     try:
-        await exercise_service.post_exercise_report(exercise_id=exercise_id, patient_id=patient_id, report=report)
+        await exercise_service.post_exercise_report(
+            exercise_id=exercise_id, patient_id=patient_id, report=report
+        )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

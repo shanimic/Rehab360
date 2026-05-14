@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, ChevronLeft, Lock } from 'lucide-react'
+import { Plus, ChevronLeft, ChevronDown, ChevronUp } from 'lucide-react'
 import './MyPlan.css'
 import PatientTopNav from '@/components/PatientTopNav'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import { useGetMyPlan } from '@/hooks/paitent/useGetMyPlan'
+import { useGetWeeklyPlan } from '@/hooks/paitent/useGetWeeklyPlan'
 import type { MyPlan } from '@/types/patient'
 import ExerciseCard from '@/components/ExerciseCard'
 
@@ -13,6 +15,8 @@ export default function MyPlanPage() {
   const navigate = useNavigate()
   const user = useAtomValue(authAtom)
   const { data, isLoading, error } = useGetMyPlan()
+  const [showWeeklyView, setShowWeeklyView] = useState(false)
+  const { data: weeklyData, isLoading: weeklyLoading } = useGetWeeklyPlan(showWeeklyView)
 
   const todayActive = data?.today_exercises.filter(ex => !ex.execution_status) ?? []
   const todayCompleted = data?.today_exercises.filter(ex => ex.execution_status) ?? []
@@ -56,7 +60,18 @@ export default function MyPlanPage() {
           <section className="mp-section">
             <div className="mp-section__header">
               <h2 className="mp-section__title">Today plan</h2>
-              <button className="mp-section__view-all" type="button">View All</button>
+              <button
+                className="mp-section__view-all"
+                type="button"
+                onClick={() => setShowWeeklyView(v => !v)}
+                aria-expanded={showWeeklyView}
+              >
+                {showWeeklyView ? (
+                  <>Show Less <ChevronUp size={13} className="mp-section__view-all-icon" /></>
+                ) : (
+                  <>View All <ChevronDown size={13} className="mp-section__view-all-icon" /></>
+                )}
+              </button>
             </div>
 
             {isLoading && <p className="mp-empty__text">Loading exercises…</p>}
@@ -108,8 +123,41 @@ export default function MyPlanPage() {
             )}
           </section>
         </div>
-      </main>
 
+        {/* Weekly view — expands when "View All" is clicked */}
+        <div className={`mp-week-view${showWeeklyView ? ' mp-week-view--visible' : ''}`}>
+          <div className="mp-week-view__inner">
+            <h2 className="mp-week-view__title">Rest of This Week</h2>
+
+            {weeklyLoading && (
+              <p className="mp-empty__text">Loading weekly schedule…</p>
+            )}
+
+            {!weeklyLoading && weeklyData && weeklyData.days.length === 0 && (
+              <div className="mp-empty">
+                <span className="mp-empty__icon">🏖️</span>
+                <p className="mp-empty__text">No more exercises scheduled this week.</p>
+              </div>
+            )}
+
+            {!weeklyLoading && weeklyData && weeklyData.days.map(day => (
+              <div key={day.date} className="mp-week-day">
+                <div className="mp-week-day__header">
+                  <span className="mp-week-day__label">{day.day_label}</span>
+                  <span className="mp-week-day__pill">
+                    {day.exercises.length} exercise{day.exercises.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="mp-section__list">
+                  {day.exercises.map(ex => (
+                    <ExerciseCard key={`${day.date}-${ex.exercise_id}`} exercise={ex} tomorrow />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
     </div>
   )
 }

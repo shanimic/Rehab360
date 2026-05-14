@@ -86,3 +86,17 @@ class MyPlanResponse(BaseModel):
 
     today_exercises: list[DailyExerciseItem] = []
     tomorrow_exercises: list[DailyExerciseItem] = []
+
+
+class WeeklyDayPlan(BaseModel):
+    """Exercises grouped under a single calendar day."""
+
+    date: str
+    day_label: str
+    exercises: list[DailyExerciseItem]
+
+
+class WeeklyPlanResponse(BaseModel):
+    """Response model for the rest-of-week exercise view."""
+
+    days: list[WeeklyDayPlan] = []
