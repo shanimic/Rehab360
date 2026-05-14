@@ -78,7 +78,7 @@ def _make_create_request(**overrides) -> CreateVisitSummaryRequest:
     return CreateVisitSummaryRequest(**defaults)
 
 
-class VisitSummaryServicesTest(unittest.TestCase):
+class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-public-methods
 
     # ------------------------------------------------------------------ #
     # get_patient_details                                                   #

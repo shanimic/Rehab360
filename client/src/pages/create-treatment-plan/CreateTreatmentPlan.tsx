@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation, useBlocker } from 'react-router-dom'
 import { ChevronLeft, Target, Dumbbell, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useAtomValue } from 'jotai'
@@ -80,12 +80,12 @@ export default function CreateTreatmentPlan() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [ensurePlanError, setEnsurePlanError] = useState<string | null>(null)
 
-  const planSaved = useRef(false)
+  const [planSaved, setPlanSaved] = useState(false)
   const ensurePlan = useEnsurePlan()
 
   // Block in-app navigation when a session exists but no plan has been saved yet.
   // On block: auto-copy the previous plan, or show an error if this is a first visit.
-  const blocker = useBlocker(sessionId !== null && !planSaved.current)
+  const blocker = useBlocker(sessionId !== null && !planSaved)
 
   useEffect(() => {
     if (blocker.state !== 'blocked') return
@@ -170,7 +170,7 @@ export default function CreateTreatmentPlan() {
       { sessionId, body },
       {
         onSuccess: () => {
-          planSaved.current = true
+          setPlanSaved(true)
           navigate(`/patient/${patientId}/visit-summaries`)
         },
         onError: (err) => {
