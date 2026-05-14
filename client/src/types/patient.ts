@@ -99,3 +99,13 @@ export interface MyPlanResponse {
   today_exercises: MyPlan[]
   tomorrow_exercises: MyPlan[]
 }
+
+export interface WeeklyDayPlan {
+  date: string
+  day_label: string
+  exercises: MyPlan[]
+}
+
+export interface WeeklyPlanResponse {
+  days: WeeklyDayPlan[]
+}
