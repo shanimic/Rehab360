@@ -645,51 +645,28 @@ class AiSearchServicesTest(unittest.TestCase):
 
     def test_verify_content_fitness_trainer_role(self) -> None:
         """
-        Given a content row exists and user_role is FITNESS_TRAINER with verified=True,
-        When verify_content is called,
-        Then update_verified_flag is called with 'FITNESS_TRAINER' and True.
+        Given a content row exists and user_role is FITNESS_TRAINER,
+        When verify_content is called with verified=True then verified=False,
+        Then update_verified_flag is called with 'FITNESS_TRAINER' and the correct value each time.
         """
-        # PREPARE
-        repo = mock(AiSearchRepository)
-        service = AiSearchServices(repository=repo)
-        request = _make_verify_request(user_role="FITNESS_TRAINER", user_id="F300")
+        for verified in (True, False):
+            # PREPARE
+            repo = mock(AiSearchRepository)
+            service = AiSearchServices(repository=repo)
+            request = _make_verify_request(user_role="FITNESS_TRAINER", user_id="F300", verified=verified)
 
-        # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
-        ).thenReturn({"content_id": 2})
-        expect(repo, times=1).update_verified_flag(
-            request.url, "FITNESS_TRAINER", True
-        ).thenReturn(None)
+            # MOCK
+            expect(repo, times=1).get_content_by_url_and_query(
+                request.url, request.query_id
+            ).thenReturn({"content_id": 2})
+            expect(repo, times=1).update_verified_flag(
+                request.url, "FITNESS_TRAINER", verified
+            ).thenReturn(None)
 
-        # ACT
-        asyncio.run(service.verify_content(request))
+            # ACT
+            asyncio.run(service.verify_content(request))
 
-        # ASSERT — verified by expect(times=1)
-
-    def test_verify_content_unverify_fitness_trainer(self) -> None:
-        """
-        Given a content row exists and user_role is FITNESS_TRAINER with verified=False,
-        When verify_content is called,
-        Then update_verified_flag is called with 'FITNESS_TRAINER' and False.
-        """
-        # PREPARE
-        repo = mock(AiSearchRepository)
-        service = AiSearchServices(repository=repo)
-        request = _make_verify_request(user_role="FITNESS_TRAINER", user_id="F300", verified=False)
-
-        # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
-        ).thenReturn({"content_id": 2})
-        expect(repo, times=1).update_verified_flag(
-            request.url, "FITNESS_TRAINER", False
-        ).thenReturn(None)
-
-        # ACT
-        asyncio.run(service.verify_content(request))
-
-        # ASSERT — verified by expect(times=1)
+            # ASSERT — verified by expect(times=1)
 
     def test_verify_content_patient_raises_403(self) -> None:
         """
