@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Plus, ChevronLeft } from 'lucide-react'
+import { Plus, ChevronLeft, Lock } from 'lucide-react'
 import './MyPlan.css'
 import PatientTopNav from '@/components/PatientTopNav'
 import { useAtomValue } from 'jotai'
@@ -85,7 +85,9 @@ export default function MyPlanPage() {
           {/* Tomorrow */}
           <section className="mp-section">
             <div className="mp-section__header">
-              <h2 className="mp-section__title">Tomorrow plan</h2>
+              <div className="mp-section__title-group">
+                <h2 className="mp-section__title">Tomorrow plan</h2>
+              </div>
             </div>
 
             {isLoading && <p className="mp-empty__text">Loading exercises…</p>}

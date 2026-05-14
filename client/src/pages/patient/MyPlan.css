@@ -249,11 +249,38 @@
   margin-bottom: 14px;
 }
 
+.mp-section__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mp-section__title-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .mp-section__title {
   font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;
+}
+
+.mp-section__lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  letter-spacing: 0.2px;
+  user-select: none;
 }
 
 .mp-section__view-all {
@@ -307,15 +334,26 @@
 
 /* Tomorrow cards — not clickable */
 .mp-card--tomorrow {
-  cursor: default;
-  background: #e2e8f0;
+  cursor: not-allowed;
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-border);
   box-shadow: none;
+  opacity: 0.6;
 }
 
 .mp-card--tomorrow:hover {
   transform: none;
   box-shadow: none;
-  background: #e2e8f0;
+  background: var(--color-surface);
+}
+
+.mp-card--tomorrow .mp-card__name {
+  color: var(--color-text-secondary);
+}
+
+.mp-card__lock-icon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
 }
 
 /* Completed exercise card — stays in list, non-clickable */

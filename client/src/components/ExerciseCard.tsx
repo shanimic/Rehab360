@@ -1,4 +1,4 @@
-import { ChevronRight, CheckCircle2 } from 'lucide-react'
+import { ChevronRight, CheckCircle2, Lock } from 'lucide-react'
 import type { MyPlan } from '@/types/patient'
 
 interface ExerciseCardProps {
@@ -31,7 +31,8 @@ export default function ExerciseCard({ exercise, onClick, completed = false, tom
         <span className="mp-card__sets">{exercise.reps} reps × {exercise.num_sets} sets</span>
         <span className="mp-card__desc">{exercise.text_instructions}</span>
       </div>
-      {!completed && <ChevronRight size={18} className="mp-card__arrow" />}
+      {!completed && !tomorrow && <ChevronRight size={18} className="mp-card__arrow" />}
+      {tomorrow && <Lock size={15} className="mp-card__lock-icon" />}
     </button>
   )
 }
