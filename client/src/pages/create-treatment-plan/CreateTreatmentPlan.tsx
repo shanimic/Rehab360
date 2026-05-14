@@ -89,9 +89,11 @@ export default function CreateTreatmentPlan() {
 
   useEffect(() => {
     if (blocker.state !== 'blocked') return
-    setEnsurePlanError(null)
     ensurePlan.mutate(sessionId!, {
-      onSuccess: () => blocker.proceed(),
+      onSuccess: () => {
+        setEnsurePlanError(null)
+        blocker.proceed()
+      },
       onError: (err) => {
         const is409 = axios.isAxiosError(err) && err.response?.status === 409
         setEnsurePlanError(
