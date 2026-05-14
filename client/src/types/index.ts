@@ -161,8 +161,8 @@ export interface SavedContent {
   content_text: string | null
   content_type: ContentType
   source_url: string
-  verified_by_physio: boolean
-  verified_by_trainer: boolean
+  physio_verification_count: number
+  trainer_verification_count: number
   created_at: string
 }
 
@@ -171,8 +171,8 @@ export interface SourceCard {
   url: string
   description: string
   content_type: ContentType
-  verified_by_physio: boolean
-  verified_by_trainer: boolean
+  physio_verification_count: number
+  trainer_verification_count: number
 }
 
 export interface AiExchange {

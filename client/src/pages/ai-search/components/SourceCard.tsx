@@ -45,20 +45,14 @@ export default function SourceCard({
   const url = saved ? source.source_url : source.url
   const description = saved ? source.content_text : source.description
 
-  const serverVerifiedByPhysio = saved ? source.verified_by_physio : source.verified_by_physio
-  const serverVerifiedByTrainer = saved ? source.verified_by_trainer : source.verified_by_trainer
+  const [localPhysioCount, setLocalPhysioCount] = useState(source.physio_verification_count)
+  const [localTrainerCount, setLocalTrainerCount] = useState(source.trainer_verification_count)
 
-  const [localVerifiedByPhysio, setLocalVerifiedByPhysio] = useState(serverVerifiedByPhysio)
-  const [localVerifiedByTrainer, setLocalVerifiedByTrainer] = useState(serverVerifiedByTrainer)
-
-  const verifiedByPhysio = localVerifiedByPhysio
-  const verifiedByTrainer = localVerifiedByTrainer
-  const isVerified = verifiedByPhysio || verifiedByTrainer
-
+  const isVerified = localPhysioCount > 0 || localTrainerCount > 0
   const isSaved = localSaved || (savedIds?.has(url) ?? false)
   const canVerify = userRole === 'PHYSIOTHERAPIST' || userRole === 'FITNESS_TRAINER'
   const isPhysio = userRole === 'PHYSIOTHERAPIST'
-  const myVerified = isPhysio ? verifiedByPhysio : verifiedByTrainer
+  const myVerified = isPhysio ? localPhysioCount > 0 : localTrainerCount > 0
   const ContentIcon = CONTENT_TYPE_ICON[source.content_type] ?? FileText
 
   function handleSave() {
@@ -76,8 +70,8 @@ export default function SourceCard({
   function handleVerify() {
     if (!onVerify) return
     const next = !myVerified
-    if (isPhysio) setLocalVerifiedByPhysio(next)
-    else setLocalVerifiedByTrainer(next)
+    if (isPhysio) setLocalPhysioCount((c) => next ? c + 1 : Math.max(c - 1, 0))
+    else setLocalTrainerCount((c) => next ? c + 1 : Math.max(c - 1, 0))
     onVerify(url, next)
   }
 
@@ -97,8 +91,8 @@ export default function SourceCard({
               {source.content_type}
             </span>
             <VerificationBadge
-              verified_by_physio={verifiedByPhysio}
-              verified_by_trainer={verifiedByTrainer}
+              physio_verification_count={localPhysioCount}
+              trainer_verification_count={localTrainerCount}
             />
           </div>
         </div>

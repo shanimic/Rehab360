@@ -9,6 +9,7 @@ import { useQueryHistory } from '@/hooks/useQueryHistory'
 import { useDeleteQuery } from '@/hooks/useDeleteQuery'
 import { useSavedContent } from '@/hooks/useSavedContent'
 import { errMsg } from '@/lib/utils'
+import { resolveSearchError } from '@/lib/aiSearchUtils'
 import { Button } from '@/components/ui/button'
 import PatientTopNav from '@/components/PatientTopNav'
 import QueryChips from './components/QueryChips'
@@ -107,7 +108,7 @@ export default function AiSearchPage() {
                 </div>
                 {searchMutation.isError && (
                   <p className="ais-page__field-error">
-                    {(searchMutation.error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Something went wrong. Please try again.'}
+                    {resolveSearchError(searchMutation.error)}
                   </p>
                 )}
               </form>

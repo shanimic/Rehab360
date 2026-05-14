@@ -104,8 +104,127 @@ class AiSearchServicesTest(unittest.TestCase):
         self.assertEqual(result.query_id, 1)
         self.assertEqual(result.summary, "Test summary")
         self.assertEqual(len(result.sources), 1)
-        self.assertFalse(result.sources[0].verified_by_physio)
-        self.assertFalse(result.sources[0].verified_by_trainer)
+        self.assertEqual(result.sources[0].physio_verification_count, 0)
+        self.assertEqual(result.sources[0].trainer_verification_count, 0)
+
+    def test_search_source_with_multiple_verifications(self) -> None:
+        """
+        Given get_verified_content_url_flags returns physio=3, trainer=2 for a source URL,
+        When search is called,
+        Then the matching source card has physio_verification_count=3 and trainer_verification_count=2.
+        """
+        # PREPARE
+        verified_url = "https://example.com/acl-guide"
+        repo = mock(AiSearchRepository)
+        service = AiSearchServices(repository=repo)
+        request = _make_search_request()
+        mock_client = mock()
+        mock_models = mock()
+        mock_client.models = mock_models
+        gemini_response = _mock_gemini_response()
+        flags = {verified_url: {"physio": 3, "trainer": 2}}
+
+        # MOCK
+        expect(repo, times=1).insert_query(
+            request.query_text, request.user_id, request.user_role
+        ).thenReturn(1)
+        expect(genai_module, times=1).Client(...).thenReturn(mock_client)
+        expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
+        expect(repo, times=1).get_verified_content_url_flags().thenReturn(flags)
+
+        # ACT
+        result = asyncio.run(service.search(request))
+
+        # ASSERT
+        self.assertEqual(result.sources[0].physio_verification_count, 3)
+        self.assertEqual(result.sources[0].trainer_verification_count, 2)
+
+    def test_search_unverified_source_gets_zero_counts(self) -> None:
+        """
+        Given get_verified_content_url_flags returns flags for a different URL,
+        When search is called,
+        Then the returned source card has both counts equal to 0.
+        """
+        # PREPARE
+        repo = mock(AiSearchRepository)
+        service = AiSearchServices(repository=repo)
+        request = _make_search_request()
+        mock_client = mock()
+        mock_models = mock()
+        mock_client.models = mock_models
+        gemini_response = _mock_gemini_response()
+        flags = {"https://other.example.com/guide": {"physio": 1, "trainer": 0}}
+
+        # MOCK
+        expect(repo, times=1).insert_query(
+            request.query_text, request.user_id, request.user_role
+        ).thenReturn(1)
+        expect(genai_module, times=1).Client(...).thenReturn(mock_client)
+        expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
+        expect(repo, times=1).get_verified_content_url_flags().thenReturn(flags)
+
+        # ACT
+        result = asyncio.run(service.search(request))
+
+        # ASSERT
+        self.assertEqual(result.sources[0].physio_verification_count, 0)
+        self.assertEqual(result.sources[0].trainer_verification_count, 0)
+
+    def test_search_raises_502_on_gemini_api_exception(self) -> None:
+        """
+        Given generate_content raises a generic RuntimeError,
+        When search is called,
+        Then an HTTPException with status 502 Bad Gateway is raised.
+        """
+        # PREPARE
+        repo = mock(AiSearchRepository)
+        service = AiSearchServices(repository=repo)
+        request = _make_search_request()
+        mock_client = mock()
+        mock_models = mock()
+        mock_client.models = mock_models
+
+        # MOCK
+        expect(repo, times=1).insert_query(
+            request.query_text, request.user_id, request.user_role
+        ).thenReturn(1)
+        expect(genai_module, times=1).Client(...).thenReturn(mock_client)
+        expect(mock_models, times=1).generate_content(...).thenRaise(
+            RuntimeError("network error")
+        )
+
+        # ACT / ASSERT
+        with self.assertRaises(HTTPException) as ctx:
+            asyncio.run(service.search(request))
+        self.assertEqual(ctx.exception.status_code, 502)
+
+    def test_search_raises_503_on_gemini_unavailable(self) -> None:
+        """
+        Given generate_content raises an exception containing 'UNAVAILABLE',
+        When search is called,
+        Then an HTTPException with status 503 Service Unavailable is raised.
+        """
+        # PREPARE
+        repo = mock(AiSearchRepository)
+        service = AiSearchServices(repository=repo)
+        request = _make_search_request()
+        mock_client = mock()
+        mock_models = mock()
+        mock_client.models = mock_models
+
+        # MOCK
+        expect(repo, times=1).insert_query(
+            request.query_text, request.user_id, request.user_role
+        ).thenReturn(1)
+        expect(genai_module, times=1).Client(...).thenReturn(mock_client)
+        expect(mock_models, times=1).generate_content(...).thenRaise(
+            RuntimeError("503 UNAVAILABLE. This model is currently experiencing high demand.")
+        )
+
+        # ACT / ASSERT
+        with self.assertRaises(HTTPException) as ctx:
+            asyncio.run(service.search(request))
+        self.assertEqual(ctx.exception.status_code, 503)
 
     def test_search_raises_502_on_bad_json(self) -> None:
         """
@@ -139,7 +258,7 @@ class AiSearchServicesTest(unittest.TestCase):
         """
         Given Gemini returns a source whose URL is physio-verified in the flags dict,
         When search is called,
-        Then the matching source card has verified_by_physio=True and verified_by_trainer=False.
+        Then the matching source card has physio_verification_count=1 and trainer_verification_count=0.
         """
         # PREPARE
         verified_url = "https://example.com/verified-guide"
@@ -159,7 +278,7 @@ class AiSearchServicesTest(unittest.TestCase):
                 }
             ]
         )
-        flags = {verified_url: {"physio": True, "trainer": False}}
+        flags = {verified_url: {"physio": 1, "trainer": 0}}
 
         # MOCK
         expect(repo, times=1).insert_query(
@@ -174,8 +293,8 @@ class AiSearchServicesTest(unittest.TestCase):
 
         # ASSERT
         self.assertEqual(len(result.sources), 1)
-        self.assertTrue(result.sources[0].verified_by_physio)
-        self.assertFalse(result.sources[0].verified_by_trainer)
+        self.assertEqual(result.sources[0].physio_verification_count, 1)
+        self.assertEqual(result.sources[0].trainer_verification_count, 0)
 
     # ------------------------------------------------------------------ #
     # get_query_history                                                    #
@@ -265,7 +384,7 @@ class AiSearchServicesTest(unittest.TestCase):
         expect(repo, times=1).insert_content(expected_data).thenReturn(5)
         expect(repo, times=1).get_verification_flags_by_url(
             request.url
-        ).thenReturn({"physio": False, "trainer": False})
+        ).thenReturn({"physio": 0, "trainer": 0})
         expect(repo, times=1).get_recommendation_by_content_and_user(
             5, request.user_id
         ).thenReturn(None)
@@ -304,10 +423,8 @@ class AiSearchServicesTest(unittest.TestCase):
         expect(repo, times=1).insert_content(expected_data).thenReturn(5)
         expect(repo, times=1).get_verification_flags_by_url(
             request.url
-        ).thenReturn({"physio": True, "trainer": False})
-        expect(repo, times=1).update_verified_flag(
-            request.url, "PHYSIOTHERAPIST", True
-        ).thenReturn(None)
+        ).thenReturn({"physio": 1, "trainer": 0})
+        expect(repo, times=1).set_content_verification_counts(5, 1, 0).thenReturn(None)
         expect(repo, times=1).get_recommendation_by_content_and_user(
             5, request.user_id
         ).thenReturn(None)
@@ -472,6 +589,102 @@ class AiSearchServicesTest(unittest.TestCase):
             request.url, request.query_id
         ).thenReturn({"content_id": 2})
         expect(repo, times=1).update_verified_flag(request.url, request.user_role, False).thenReturn(None)
+
+        # ACT
+        asyncio.run(service.verify_content(request))
+
+        # ASSERT — verified by expect(times=1)
+
+    def test_get_saved_content_returns_items(self) -> None:
+        """
+        Given the repository returns two saved content rows with integer verification counts,
+        When get_saved_content is called,
+        Then a list of two SavedContentItem instances is returned with correct count values.
+        """
+        # PREPARE
+        repo = mock(AiSearchRepository)
+        service = AiSearchServices(repository=repo)
+        rows = [
+            {
+                "saving_id": 2,
+                "content_id": 10,
+                "query_id": 1,
+                "content_title": "ACL Guide",
+                "source_url": "https://example.com/acl-guide",
+                "content_text": "A guide to ACL recovery.",
+                "content_type": "Article",
+                "physio_verification_count": 2,
+                "trainer_verification_count": 1,
+                "created_at": datetime.date(2026, 5, 1),
+            },
+            {
+                "saving_id": 1,
+                "content_id": 9,
+                "query_id": 1,
+                "content_title": "RICE Method",
+                "source_url": "https://webmd.com/rice",
+                "content_text": None,
+                "content_type": "Article",
+                "physio_verification_count": 0,
+                "trainer_verification_count": 0,
+                "created_at": datetime.date(2026, 4, 30),
+            },
+        ]
+
+        # MOCK
+        expect(repo, times=1).get_saved_content_by_user("P100").thenReturn(rows)
+
+        # ACT
+        result = asyncio.run(service.get_saved_content("P100"))
+
+        # ASSERT
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].physio_verification_count, 2)
+        self.assertEqual(result[0].trainer_verification_count, 1)
+        self.assertEqual(result[1].physio_verification_count, 0)
+
+    def test_verify_content_fitness_trainer_role(self) -> None:
+        """
+        Given a content row exists and user_role is FITNESS_TRAINER with verified=True,
+        When verify_content is called,
+        Then update_verified_flag is called with 'FITNESS_TRAINER' and True.
+        """
+        # PREPARE
+        repo = mock(AiSearchRepository)
+        service = AiSearchServices(repository=repo)
+        request = _make_verify_request(user_role="FITNESS_TRAINER", user_id="F300")
+
+        # MOCK
+        expect(repo, times=1).get_content_by_url_and_query(
+            request.url, request.query_id
+        ).thenReturn({"content_id": 2})
+        expect(repo, times=1).update_verified_flag(
+            request.url, "FITNESS_TRAINER", True
+        ).thenReturn(None)
+
+        # ACT
+        asyncio.run(service.verify_content(request))
+
+        # ASSERT — verified by expect(times=1)
+
+    def test_verify_content_unverify_fitness_trainer(self) -> None:
+        """
+        Given a content row exists and user_role is FITNESS_TRAINER with verified=False,
+        When verify_content is called,
+        Then update_verified_flag is called with 'FITNESS_TRAINER' and False.
+        """
+        # PREPARE
+        repo = mock(AiSearchRepository)
+        service = AiSearchServices(repository=repo)
+        request = _make_verify_request(user_role="FITNESS_TRAINER", user_id="F300", verified=False)
+
+        # MOCK
+        expect(repo, times=1).get_content_by_url_and_query(
+            request.url, request.query_id
+        ).thenReturn({"content_id": 2})
+        expect(repo, times=1).update_verified_flag(
+            request.url, "FITNESS_TRAINER", False
+        ).thenReturn(None)
 
         # ACT
         asyncio.run(service.verify_content(request))

@@ -28,13 +28,13 @@ export function useVerifyContent() {
     onSuccess: ({ url, verified }) => {
       if (!conversation) return
       const isPhysio = auth?.role === 'PHYSIOTHERAPIST'
+      const field = isPhysio ? 'physio_verification_count' : 'trainer_verification_count'
       const updated: AiConversation = conversation.map((exchange) => ({
         ...exchange,
         sources: exchange.sources.map((source) => {
           if (source.url !== url) return source
-          return isPhysio
-            ? { ...source, verified_by_physio: verified }
-            : { ...source, verified_by_trainer: verified }
+          const current = source[field]
+          return { ...source, [field]: verified ? current + 1 : Math.max(current - 1, 0) }
         }),
       }))
       setConversation(updated)
