@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import apiClient from '@/lib/apiClient'
-import type { SessionListItem, VisitSummaryDetails, VisitSummaryPatientData } from '@/types'
+import type { HasPreviousPlanResponse, SessionListItem, VisitSummaryDetails, VisitSummaryPatientData } from '@/types'
 
 export function useVisitSummaries(patientId: string | undefined) {
   return useQuery<SessionListItem[]>({
@@ -33,5 +33,28 @@ export function useVisitSummaryDetail(sessionId: number | undefined) {
       return res.data
     },
     enabled: typeof sessionId === 'number' && !Number.isNaN(sessionId),
+  })
+}
+
+export function useHasPreviousPlan(
+  patientId: string | undefined,
+  visitType: string | undefined,
+) {
+  return useQuery<HasPreviousPlanResponse>({
+    queryKey: ['hasPreviousPlan', patientId, visitType],
+    queryFn: async () => {
+      const res = await apiClient.get<HasPreviousPlanResponse>(
+        `/visit-summary/has-previous-plan/${patientId}?visit_type=${visitType}`,
+      )
+      return res.data
+    },
+    enabled: !!patientId && !!visitType,
+  })
+}
+
+export function useEnsurePlan() {
+  return useMutation({
+    mutationFn: (sessionId: number) =>
+      apiClient.post(`/visit-summary/ensure-plan/${sessionId}`),
   })
 }

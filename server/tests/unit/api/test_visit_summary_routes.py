@@ -172,16 +172,93 @@ class VisitSummaryRoutesTest(unittest.TestCase):
         assert response.status_code == 200
         assert response.json() == []
 
+    # ── GET /visit-summary/has-previous-plan/{patient_id} ────────────────────
+
+    def test_has_previous_plan_true_when_active_session_with_plan_exists(self) -> None:
+        """
+        Given an active session with a linked plan exists for the patient,
+        When GET /visit-summary/has-previous-plan/{patient_id}?visit_type=PHYSIOTHERAPIST is called,
+        Then 200 is returned with has_previous_plan=true.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[{"session_id": 10, "plan_id": 5}]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get(
+            "/visit-summary/has-previous-plan/P100?visit_type=PHYSIOTHERAPIST"
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == {"has_previous_plan": True}
+
+    def test_has_previous_plan_false_when_no_active_session(self) -> None:
+        """
+        Given no active session exists for the patient and visit type,
+        When GET /visit-summary/has-previous-plan/{patient_id}?visit_type=FITNESS is called,
+        Then 200 is returned with has_previous_plan=false.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[None])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get(
+            "/visit-summary/has-previous-plan/P100?visit_type=FITNESS"
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == {"has_previous_plan": False}
+
+    def test_has_previous_plan_false_when_no_session_has_plan(self) -> None:
+        """
+        Given no session for the patient and visit type has any linked plan,
+        When GET /visit-summary/has-previous-plan/{patient_id} is called,
+        Then 200 is returned with has_previous_plan=false.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[None])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.get(
+            "/visit-summary/has-previous-plan/P100?visit_type=PHYSIOTHERAPIST"
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == {"has_previous_plan": False}
+
     # ── POST /visit-summary ───────────────────────────────────────────────────
 
     def test_create_visit_summary_physiotherapist_returns_session_id(self) -> None:
         """
-        Given a PHYSIOTHERAPIST therapist_role,
+        Given a PHYSIOTHERAPIST therapist_role with no copy flag,
         When POST /visit-summary is called with valid fields,
         Then 200 is returned with the new session_id.
         """
         # PREPARE
-        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 201}])
+        # fetchone queue: [get_active_session_with_plan result, LAST_INSERT_ID result]
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[None, {"session_id": 201}])
 
         async def override_get_db():
             yield cursor
@@ -208,12 +285,12 @@ class VisitSummaryRoutesTest(unittest.TestCase):
 
     def test_create_visit_summary_fitness_trainer_returns_session_id(self) -> None:
         """
-        Given a FITNESS_TRAINER therapist_role,
+        Given a FITNESS_TRAINER therapist_role with no copy flag,
         When POST /visit-summary is called with valid fields,
         Then 200 is returned with the new session_id.
         """
         # PREPARE
-        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 202}])
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[None, {"session_id": 202}])
 
         async def override_get_db():
             yield cursor
@@ -245,7 +322,7 @@ class VisitSummaryRoutesTest(unittest.TestCase):
         Then 200 is returned with the new session_id.
         """
         # PREPARE
-        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 203}])
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[None, {"session_id": 203}])
 
         async def override_get_db():
             yield cursor
@@ -322,6 +399,80 @@ class VisitSummaryRoutesTest(unittest.TestCase):
 
         # ASSERT
         assert response.status_code == 422
+
+    def test_create_visit_summary_copy_previous_plan_true_copies_plan(self) -> None:
+        """
+        Given copy_previous_plan is True and a previous active plan exists,
+        When POST /visit-summary is called,
+        Then 200 is returned with the new session_id and the plan copy executes.
+        """
+        # PREPARE
+        # fetchone queue: [get_active_session_with_plan, LAST_INSERT_ID(session), LAST_INSERT_ID(plan)]
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[
+                {"session_id": 10, "plan_id": 3},
+                {"session_id": 210},
+                {"plan_id": 20},
+            ]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/visit-summary",
+            json={
+                "treatment_area": "Knee",
+                "medical_diagnosis": "ACL tear",
+                "description": "Follow-up",
+                "patient_id": "P100",
+                "therapist_id": "T001",
+                "therapist_role": "PHYSIOTHERAPIST",
+                "copy_previous_plan": True,
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 200
+        assert response.json() == {"session_id": 210}
+
+    def test_create_visit_summary_copy_previous_plan_true_no_previous_plan_returns_409(
+        self,
+    ) -> None:
+        """
+        Given copy_previous_plan is True but no previous plan exists,
+        When POST /visit-summary is called,
+        Then 409 Conflict is returned.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[None])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post(
+            "/visit-summary",
+            json={
+                "treatment_area": "Knee",
+                "medical_diagnosis": "ACL tear",
+                "description": "Follow-up",
+                "patient_id": "P100",
+                "therapist_id": "T001",
+                "therapist_role": "PHYSIOTHERAPIST",
+                "copy_previous_plan": True,
+            },
+        )
+
+        # ASSERT
+        assert response.status_code == 409
 
     # ── GET /visit-summary/{session_id} ──────────────────────────────────────
 
@@ -597,3 +748,82 @@ class VisitSummaryRoutesTest(unittest.TestCase):
 
         # ASSERT
         assert response.status_code == 422
+
+    # ── POST /visit-summary/ensure-plan/{session_id} ──────────────────────────
+
+    def test_ensure_plan_plan_already_exists_returns_204(self) -> None:
+        """
+        Given a plan already exists for the session,
+        When POST /visit-summary/ensure-plan/{session_id} is called,
+        Then 204 No Content is returned and no copy is performed.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"plan_id": 5}])
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post("/visit-summary/ensure-plan/42")
+
+        # ASSERT
+        assert response.status_code == 204
+
+    def test_ensure_plan_no_previous_plan_returns_409(self) -> None:
+        """
+        Given no plan exists for the session and no previous plan is available,
+        When POST /visit-summary/ensure-plan/{session_id} is called,
+        Then 409 Conflict is returned so the user must create a plan manually.
+        """
+        # PREPARE
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[
+                None,  # plan_exists_for_session → no plan
+                {"patient_id": "P100", "visit_type": "PHYSIOTHERAPIST"},
+                None,  # get_latest_session_with_plan → no previous plan
+            ]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post("/visit-summary/ensure-plan/42")
+
+        # ASSERT
+        assert response.status_code == 409
+
+    def test_ensure_plan_copies_previous_plan_returns_204(self) -> None:
+        """
+        Given no plan exists for the session but a previous plan is available,
+        When POST /visit-summary/ensure-plan/{session_id} is called,
+        Then the plan is copied and 204 No Content is returned.
+        """
+        # PREPARE
+        # fetchone order: plan_exists(→None), session_info, previous_plan, LAST_INSERT_ID
+        cursor = _VisitSummaryStubCursor(
+            fetchone_rows=[
+                None,  # plan_exists_for_session → no plan
+                {"patient_id": "P100", "visit_type": "PHYSIOTHERAPIST"},
+                {"session_id": 101, "plan_id": 3},  # get_latest_session_with_plan
+                {"plan_id": 99},  # LAST_INSERT_ID after copy_plan_to_session
+            ]
+        )
+
+        async def override_get_db():
+            yield cursor
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        # ACT
+        client = TestClient(app)
+        response = client.post("/visit-summary/ensure-plan/42")
+
+        # ASSERT
+        assert response.status_code == 204

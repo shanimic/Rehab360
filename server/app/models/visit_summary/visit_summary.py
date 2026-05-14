@@ -32,6 +32,7 @@ class CreateVisitSummaryRequest(BaseModel):
     patient_id: str
     therapist_id: str
     therapist_role: Role
+    copy_previous_plan: bool = False
 
     @field_validator("medical_diagnosis")
     @classmethod
@@ -133,6 +134,12 @@ class VisitSummaryDetails(BaseModel):
                 total_seconds % 60,
             )
         return value
+
+
+class HasPreviousPlanResponse(BaseModel):
+    """Response indicating whether a previous active plan exists for a patient and visit type."""
+
+    has_previous_plan: bool
 
 
 class CreatePlanRequest(BaseModel):

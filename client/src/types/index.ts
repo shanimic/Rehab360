@@ -190,6 +190,11 @@ export const VisitType = {
 
 // ── Visit Summary domain types ────────────────────────────────────────────────
 
+export interface HasPreviousPlanResponse {
+  has_previous_plan: boolean
+}
+
+
 export interface VisitSummaryPatientData {
   patient_id: string
   patient_first_name: string
