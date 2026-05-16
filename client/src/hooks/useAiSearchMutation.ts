@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
 import { useSetAtom, useAtomValue } from 'jotai'
 import { searchResultsAtom } from '@/store/aiSearchAtom'
 import { authAtom } from '@/store/authAtom'
@@ -15,15 +14,20 @@ interface AiSearchApiResponse {
 export function useAiSearchMutation() {
   const queryClient = useQueryClient()
   const setSearchResults = useSetAtom(searchResultsAtom)
-  const navigate = useNavigate()
+  const searchResults = useAtomValue(searchResultsAtom)
   const auth = useAtomValue(authAtom)
 
   return useMutation({
     mutationFn: async (queryContent: string): Promise<AiConversation> => {
+      const history = (searchResults ?? []).map((ex) => ({
+        query: ex.query_content,
+        answer: ex.ai_summary,
+      }))
       const response = await apiClient.post<AiSearchApiResponse>('/ai-search/queries', {
         query_text: queryContent,
         user_id: auth?.id,
         user_role: auth?.role,
+        conversation_history: history,
       })
       const { query_id, summary, sources } = response.data
       const exchange: AiExchange = {
@@ -37,7 +41,6 @@ export function useAiSearchMutation() {
     onSuccess: (newExchanges) => {
       setSearchResults((prev) => [...(prev ?? []), ...newExchanges])
       queryClient.invalidateQueries({ queryKey: ['query-history'] })
-      navigate('/ai-search/results')
     },
     onError: (error) => {
       console.error('[AI Search] mutation failed:', error)

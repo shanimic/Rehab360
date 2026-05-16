@@ -145,7 +145,7 @@ export interface PatientDetails extends Patient {
 
 // ── AI Search domain types ────────────────────────────────────────────────────
 
-export type ContentType = 'Article' | 'Clinical Guideline' | 'Exercise Guide'
+export type ContentType = 'Article' | 'Clinical Guideline' | 'Exercise Guide' | 'Video'
 
 export interface AiQuery {
   query_id: number
@@ -183,6 +183,11 @@ export interface AiExchange {
 }
 
 export type AiConversation = AiExchange[]
+
+export interface HistoryExchange {
+  query: string
+  answer: string
+}
 export const VisitType = {
   PHYSIOTHERAPIST: "PHYSIOTHERAPIST",
   FITNESS: "FITNESS"

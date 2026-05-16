@@ -1,7 +1,9 @@
 import { useAtomValue } from 'jotai'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 
 import PatientTopNav from '@/components/PatientTopNav'
+import TopNav from '@/components/TopNav'
+import BackButton from '@/components/ui/BackButton'
 import { authAtom } from '@/store/authAtom'
 import type { ApiRole } from '@/types'
 
@@ -9,19 +11,29 @@ import ActivityCard from './components/ActivityCard'
 import PersonalInfoCard from './components/PersonalInfoCard'
 import './ProfilePage.css'
 
+const HOME_ROUTE: Record<ApiRole, string> = {
+  PATIENT: '/patient',
+  PHYSIOTHERAPIST: '/physiotherapist',
+  FITNESS_TRAINER: '/fitness',
+}
+
 export default function ProfilePage() {
   const [searchParams] = useSearchParams()
   const auth = useAtomValue(authAtom)
+  const navigate = useNavigate()
 
   const firstName = auth?.first_name ?? 'Guest'
   const role: ApiRole = auth?.role ?? (searchParams.get('role') as ApiRole) ?? 'PATIENT'
 
+  const handleBack = () => navigate(HOME_ROUTE[role] ?? '/')
+
   return (
     <div className="pp-page pt-16">
-      <PatientTopNav patientName={firstName} />
+      {role === 'PATIENT' ? <PatientTopNav patientName={firstName} /> : <TopNav />}
 
       <main className="pp-main">
         <div className="pp-title-row max-w-2xl mx-auto">
+          <BackButton onClick={handleBack} />
           <h1 className="pp-title">My Profile</h1>
         </div>
 

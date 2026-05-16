@@ -3,12 +3,20 @@ import datetime
 from pydantic import BaseModel
 
 
+class HistoryExchange(BaseModel):
+    """A single prior exchange passed as conversation context."""
+
+    query: str
+    answer: str
+
+
 class AiSearchRequest(BaseModel):
     """Request body for submitting an AI search query."""
 
     query_text: str
     user_id: str
     user_role: str
+    conversation_history: list[HistoryExchange] | None = None
 
 
 class SourceCard(BaseModel):

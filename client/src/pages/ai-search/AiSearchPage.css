@@ -9,22 +9,12 @@
   padding: 2rem 1rem 4rem;
 }
 
-.ais-page__layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
-
-@media (min-width: 1024px) {
-  .ais-page__layout {
-    grid-template-columns: 1fr 320px;
-    gap: 2.5rem;
-  }
-
-  .ais-page__right {
-    border-left: 1px solid var(--color-border);
-    padding-left: 2rem;
-  }
+/* ─── Title row ─── */
+.ais-page__title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 0.5rem;
 }
 
 /* ─── Hero ─── */
@@ -116,4 +106,162 @@
   font-size: 0.75rem;
   color: var(--color-text-muted);
   flex: 1;
+}
+
+/* ─── Results container ─── */
+.ais-page__results-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+
+/* ─── Chat (exchange list) ─── */
+.ais-page__chat {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ─── User query bubble ─── */
+.ais-bubble {
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-card);
+  border-bottom-right-radius: 4px;
+  max-width: 75%;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* ─── ExchangeBlock styles ─── */
+.ais-exchange-wrapper {
+  position: relative;
+  padding-top: 14px;
+  padding-left: 14px;
+  align-self: flex-start;
+  max-width: 95%;
+  width: 100%;
+}
+
+.ais-exchange-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.ais-exchange-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .ais-exchange-card {
+    padding: 1.5rem;
+  }
+}
+
+/* ─── Follow-up bar — fixed floating prompt bar ─── */
+.ais-followup-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(calc(-50% - 10px));
+  width: calc(100% - 2rem);
+  max-width: 800px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.06);
+  padding: 0.75rem 1.25rem;
+  z-index: 10;
+}
+
+/* ─── Scroll-to-bottom button ─── */
+.ais-scroll-btn {
+  position: fixed;
+  bottom: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  z-index: 11;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.ais-scroll-btn:hover {
+  background: var(--color-background);
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* ─── Skeletons ─── */
+.ais-page__skeleton-response {
+  height: 180px;
+  background: #e5e7eb;
+  border-radius: 12px;
+}
+
+.ais-page__skeleton-card {
+  height: 80px;
+  background: #e5e7eb;
+  border-radius: 12px;
+}
+
+/* ─── Results header ─── */
+.ais-page__results-header {
+  max-width: 800px;
+  margin: 0 auto 1rem;
+  padding: 0 1rem;
+}
+
+.ais-page__new-chat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: none;
+  border-radius: 999px;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  padding: 0 0.875rem;
+  height: 38px;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.ais-page__new-chat-btn:hover {
+  background: var(--color-input-bg);
+  transform: translateY(-1px);
+}
+
+.ais-page__new-chat-btn:active {
+  transform: scale(0.96);
 }
