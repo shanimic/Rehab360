@@ -1,4 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useAtomValue } from 'jotai'
+import { authAtom } from '@/store/authAtom'
 import './BottomNav.css'
 
 interface NavTab {
@@ -50,19 +52,28 @@ const TABS: NavTab[] = [
   },
 ]
 
+const HOME_PATTERN = /^\/(?:physiotherapist|fitness)\/home$/
+
 export default function BottomNav() {
+  const auth = useAtomValue(authAtom)
   const navigate = useNavigate()
   const { pathname } = useLocation()
+
+  const homePath = auth?.role === 'PHYSIOTHERAPIST'
+    ? '/physiotherapist/home'
+    : '/fitness/home'
 
   return (
     <nav className="bottom-nav">
       {TABS.map((tab) => {
-        const isActive = tab.activePattern.test(pathname)
+        const path = tab.id === 'home' ? homePath : tab.path
+        const activePattern = tab.id === 'home' ? HOME_PATTERN : tab.activePattern
+        const isActive = activePattern.test(pathname)
         return (
           <button
             key={tab.id}
             className={`bottom-nav__tab${isActive ? ' bottom-nav__tab--active' : ''}`}
-            onClick={() => navigate(tab.path)}
+            onClick={() => navigate(path)}
             aria-label={tab.label}
           >
             <span className="bottom-nav__icon">{tab.icon}</span>

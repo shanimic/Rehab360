@@ -36,7 +36,8 @@ function AnimatedRoutes() {
       <Route path="/signup" element={<PageTransition><SignUp /></PageTransition>} />
       <Route path="/set-password" element={<PageTransition><SetPassword /></PageTransition>} />
       <Route path="/patient" element={<PageTransition><PatientHome /></PageTransition>} />
-      <Route path="/home" element={<PageTransition><HomePage /></PageTransition>} />
+      <Route path="/physiotherapist/home" element={<PageTransition><HomePage /></PageTransition>} />
+      <Route path="/fitness/home" element={<PageTransition><HomePage /></PageTransition>} />
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
       <Route path="/ai-search" element={<PageTransition><AiSearchPage /></PageTransition>} />
       <Route path="/ai-search/results" element={<PageTransition><AiSearchResultsPage /></PageTransition>} />

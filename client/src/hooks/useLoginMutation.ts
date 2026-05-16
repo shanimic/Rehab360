@@ -26,8 +26,8 @@ function navigateToHome(role: ApiRole, navigate: NavigateFunction): void {
   if (role === 'PATIENT') {
     navigate('/patient')
   } else if (role === 'PHYSIOTHERAPIST') {
-    navigate('/home')
+    navigate('/physiotherapist/home')
   } else if (role === 'FITNESS_TRAINER') {
-    navigate('/home')
+    navigate('/fitness/home')
   }
 }
