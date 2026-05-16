@@ -89,6 +89,21 @@ export interface ActivePlan {
 
 // ── Physiotherapist domain types ──────────────────────────────────────────────
 
+export interface HomePatientCard {
+  patient_id: string
+  first_name: string
+  last_name: string
+  medical_diagnosis: string
+  progress_percentage: number
+  last_progress_update: string | null
+}
+
+export interface AllPatientItem {
+  patient_id: string
+  first_name: string
+  last_name: string
+}
+
 export type PainTrend = 'improving' | 'stable' | 'worsening'
 export type AlertType = 'pain_spike' | 'inactivity' | 'stuck' | 'milestone' | 'overexertion'
 export type AlertSeverity = 'critical' | 'warning' | 'info'

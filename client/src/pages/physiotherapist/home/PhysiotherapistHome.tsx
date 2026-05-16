@@ -5,6 +5,7 @@ import AlertItem from './components/AlertItem'
 import ScheduleCard from './components/ScheduleCard'
 import PatientsCarousel from './components/PatientsCarousel'
 import { usePatientsList } from '@/hooks/usePatientsList'
+import type { HomePatientCard } from '@/types'
 
 function getGreeting() {
   const hour = new Date().getHours()
@@ -19,6 +20,14 @@ export default function PhysiotherapistHome() {
   const auth = useAtomValue(authAtom)
   const displayName = auth ? `${auth.first_name} ${auth.last_name}`.trim() : 'Doctor'
   const { alerts, patients, schedule } = usePatientsList()
+  const carouselPatients: HomePatientCard[] = patients.map((p) => ({
+    patient_id: p.id,
+    first_name: p.name.split(' ')[0] ?? p.name,
+    last_name: p.name.split(' ').slice(1).join(' '),
+    medical_diagnosis: p.medicalDiagnosis,
+    progress_percentage: p.weeklyCompliance,
+    last_progress_update: null,
+  }))
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -80,7 +89,7 @@ export default function PhysiotherapistHome() {
               </span>
             </div>
             <div className="px-4 py-4">
-              <PatientsCarousel patients={patients} onPatientClick={() => {}} />
+              <PatientsCarousel patients={carouselPatients} onPatientClick={() => {}} />
             </div>
           </div>
 
