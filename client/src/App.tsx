@@ -8,7 +8,7 @@ import SignUp from './pages/auth/register/SignUp'
 import SetPassword from './pages/auth/login/SetPassword'
 import PatientDetails from './pages/patient-details/PatientDetails'
 import PatientHome from './pages/patient/PatientHome'
-import PhysiotherapistHome from './pages/physiotherapist/home/PhysiotherapistHome'
+import HomePage from './pages/home/HomePage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import AiSearchPage from './pages/ai-search/AiSearchPage'
 import AiSearchResultsPage from './pages/ai-search/AiSearchResultsPage'
@@ -36,7 +36,7 @@ function AnimatedRoutes() {
       <Route path="/signup" element={<PageTransition><SignUp /></PageTransition>} />
       <Route path="/set-password" element={<PageTransition><SetPassword /></PageTransition>} />
       <Route path="/patient" element={<PageTransition><PatientHome /></PageTransition>} />
-      <Route path="/physiotherapist" element={<PageTransition><PhysiotherapistHome /></PageTransition>} />
+      <Route path="/home" element={<PageTransition><HomePage /></PageTransition>} />
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
       <Route path="/ai-search" element={<PageTransition><AiSearchPage /></PageTransition>} />
       <Route path="/ai-search/results" element={<PageTransition><AiSearchResultsPage /></PageTransition>} />
@@ -52,7 +52,6 @@ function AnimatedRoutes() {
       <Route path="/patient/:id/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
       <Route path="/patient/:id/treatment-plans" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
       <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
-      <Route path="/fitness/" element={<PageTransition><PhysiotherapistHome /></PageTransition>} />
       <Route path="/dev-login" element={<DevLogin />} />{/* DEV ONLY */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
