@@ -1,13 +1,26 @@
 import { cn } from '@/lib/utils'
-import type { Patient } from '@/types'
+import type { HomePatientCard } from '@/types'
 
 interface PatientCardProps {
-  patient: Patient
+  patient: HomePatientCard
   featured?: boolean
   onClick: () => void
 }
 
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return 'No reports yet'
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
 export default function PatientCard({ patient, featured = false, onClick }: PatientCardProps) {
+  const name = `${patient.first_name} ${patient.last_name}`.trim()
+  const progress = patient.progress_percentage ?? 0
+
   return (
     <button
       onClick={onClick}
@@ -21,10 +34,10 @@ export default function PatientCard({ patient, featured = false, onClick }: Pati
       {/* Name + diagnosis */}
       <div className="mb-4">
         <p className={cn('font-bold text-lg leading-snug', featured ? 'text-white' : 'text-slate-800')}>
-          {patient.name}
+          {name}
         </p>
         <p className={cn('text-sm mt-0.5 truncate', featured ? 'text-blue-200' : 'text-slate-500')}>
-          {patient.medicalDiagnosis}
+          {patient.medical_diagnosis}
         </p>
       </div>
 
@@ -32,13 +45,13 @@ export default function PatientCard({ patient, featured = false, onClick }: Pati
       <div className="mb-4">
         <div className="flex justify-end mb-1.5">
           <span className={cn('text-base font-bold', featured ? 'text-white' : 'text-slate-800')}>
-            {patient.weeklyCompliance}%
+            {progress}%
           </span>
         </div>
         <div className={cn('w-full h-2 rounded-full', featured ? 'bg-blue-500' : 'bg-slate-100')}>
           <div
             className={cn('h-2 rounded-full transition-all', featured ? 'bg-white' : 'bg-blue-600')}
-            style={{ width: `${patient.weeklyCompliance}%` }}
+            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
@@ -46,7 +59,7 @@ export default function PatientCard({ patient, featured = false, onClick }: Pati
       {/* Last updated */}
       <div className="flex justify-end">
         <span className={cn('text-xs', featured ? 'text-blue-200' : 'text-slate-400')}>
-          {patient.lastReport}
+          {formatDate(patient.last_progress_update)}
         </span>
       </div>
     </button>

@@ -1,10 +1,10 @@
 import { useRef, useState, useEffect } from 'react'
 import PatientCard from './PatientCard'
-import type { Patient } from '@/types'
+import type { HomePatientCard } from '@/types'
 import './PatientsCarousel.css'
 
 interface PatientsCarouselProps {
-  patients: Patient[]
+  patients: HomePatientCard[]
   onPatientClick: (patientId: string) => void
 }
 
@@ -43,10 +43,10 @@ export default function PatientsCarousel({ patients, onPatientClick }: PatientsC
 
       <div className="patients-carousel__track" ref={trackRef}>
         {patients.map((patient) => (
-          <div key={patient.id} className="patients-carousel__item">
+          <div key={patient.patient_id} className="patients-carousel__item">
             <PatientCard
               patient={patient}
-              onClick={() => onPatientClick(patient.id)}
+              onClick={() => onPatientClick(patient.patient_id)}
             />
           </div>
         ))}

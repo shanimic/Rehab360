@@ -7,6 +7,8 @@ import AlertItem from '../physiotherapist/home/components/AlertItem'
 import ScheduleCard from '../physiotherapist/home/components/ScheduleCard'
 import PatientsCarousel from '../physiotherapist/home/components/PatientsCarousel'
 import { usePatientsList } from '@/hooks/usePatientsList'
+import { useHomePatients } from '@/hooks/useHomePatients'
+import { useAllPatients } from '@/hooks/useAllPatients'
 
 function getGreeting() {
   const hour = new Date().getHours()
@@ -29,20 +31,25 @@ export default function HomePage() {
   const auth = useAtomValue(authAtom)
   console.log('Auth data in HomePage:', auth) // Debugging line to check auth data
   const displayName = auth ? `${auth.first_name} ${auth.last_name}`.trim() : 'Doctor'
-  const { alerts, patients, schedule } = usePatientsList()
+
+  const { alerts, schedule } = usePatientsList()
+  const { data: homePatients = [], isLoading: patientsLoading, isError: patientsError } = useHomePatients()
+  const { data: allPatients = [] } = useAllPatients()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalSearch, setModalSearch] = useState('')
 
   const q = searchQuery.toLowerCase()
-  const filteredPatients = patients.filter((p) => p.name.toLowerCase().includes(q))
+  const filteredPatients = homePatients.filter((p) =>
+    `${p.first_name} ${p.last_name}`.toLowerCase().includes(q)
+  )
 
   const mq = modalSearch.toLowerCase()
-  const modalPatients = patients.filter(
+  const modalPatients = allPatients.filter(
     (p) =>
-      p.name.toLowerCase().includes(mq) ||
-      p.id.toLowerCase().includes(mq),
+      `${p.first_name} ${p.last_name}`.toLowerCase().includes(mq) ||
+      p.patient_id.toLowerCase().includes(mq),
   )
 
   const handlePatientSelect = (patientId: string) => {
@@ -125,9 +132,13 @@ export default function HomePage() {
               </div>
             </div>
             <div className="px-4 py-4 min-h-[160px] flex items-center justify-center">
-              {filteredPatients.length === 0 ? (
+              {patientsLoading ? (
+                <p className="text-sm text-slate-400">Loading patients…</p>
+              ) : patientsError ? (
+                <p className="text-sm text-red-400">Failed to load patients.</p>
+              ) : filteredPatients.length === 0 ? (
                 <div className="flex flex-col items-center gap-1 py-6">
-                  <p className="text-sm font-medium text-slate-600">No patients found</p>
+                  <p className="text-sm font-medium text-slate-600">No results found</p>
                   <p className="text-xs text-slate-400">Try searching by another patient name.</p>
                 </div>
               ) : (
@@ -190,13 +201,15 @@ export default function HomePage() {
               ) : (
                 modalPatients.map((patient) => (
                   <button
-                    key={patient.id}
-                    onClick={() => handlePatientSelect(patient.id)}
+                    key={patient.patient_id}
+                    onClick={() => handlePatientSelect(patient.patient_id)}
                     className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors text-left cursor-pointer"
                   >
-                    <span className="font-semibold text-sm text-slate-800">{patient.name}</span>
+                    <span className="font-semibold text-sm text-slate-800">
+                      {patient.first_name} {patient.last_name}
+                    </span>
                     <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-medium">
-                      ID {patient.id}
+                      ID {patient.patient_id}
                     </span>
                   </button>
                 ))
