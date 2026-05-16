@@ -19,7 +19,7 @@ export interface LoginResponse {
   email: string
   role: ApiRole
   first_name: string
-  last_name: string
+  last_name?: string
   token?: string
 }
 
