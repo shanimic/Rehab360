@@ -8,7 +8,7 @@ import './TopNav.css'
 const MENU_ITEMS = [
   {
     label: 'Home',
-    path: '/physiotherapist',
+    path: '', // resolved to role-specific path at render time
     icon: (
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
         <path d="M3 12L12 3l9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -41,9 +41,16 @@ const MENU_ITEMS = [
   },
 ]
 
+function getHomePath(role: string | undefined): string {
+  if (role === 'PHYSIOTHERAPIST') return '/physiotherapist/home'
+  if (role === 'FITNESS_TRAINER') return '/fitness/home'
+  return '/'
+}
+
 export default function TopNav() {
   const auth = useAtomValue(authAtom)
   const displayName = auth ? `${auth.first_name} ${auth.last_name}`.trim() : ''
+  const homePath = getHomePath(auth?.role)
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -115,7 +122,7 @@ export default function TopNav() {
                 <li key={item.label}>
                   <button
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-medium text-sm text-left hover:bg-slate-50 active:bg-blue-50 active:text-blue-700 active:scale-[0.98] transition-all border-0 bg-transparent cursor-pointer"
-                    onClick={() => { navigate(item.path); closeMenu() }}
+                    onClick={() => { navigate(item.label === 'Home' ? homePath : item.path); closeMenu() }}
                   >
                     <span className="text-slate-400">{item.icon}</span>
                     {item.label}
