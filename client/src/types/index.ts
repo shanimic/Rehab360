@@ -105,7 +105,7 @@ export interface PatientAlert {
 export interface Patient {
   id: string
   name: string
-  rehabType: string
+  medicalDiagnosis: string
   weeklyCompliance: number
   painTrend: PainTrend
   lastReport: string

@@ -5,7 +5,7 @@ const MOCK_PATIENTS: Patient[] = [
   {
     id: '1',
     name: 'John Smith',
-    rehabType: 'Shoulder Rehabilitation',
+    medicalDiagnosis: 'Shoulder Rehabilitation',
     weeklyCompliance: 82,
     painTrend: 'improving',
     lastReport: '2 hours ago',
@@ -19,7 +19,7 @@ const MOCK_PATIENTS: Patient[] = [
   {
     id: '2',
     name: 'Dana Lopez',
-    rehabType: 'Knee Rehabilitation',
+    medicalDiagnosis: 'Knee Rehabilitation',
     weeklyCompliance: 65,
     painTrend: 'stable',
     lastReport: '1 day ago',
@@ -33,7 +33,7 @@ const MOCK_PATIENTS: Patient[] = [
   {
     id: '3',
     name: 'Ron Klein',
-    rehabType: 'Lower Back Rehabilitation',
+    medicalDiagnosis: 'Lower Back Rehabilitation',
     weeklyCompliance: 40,
     painTrend: 'worsening',
     lastReport: '3 days ago',
@@ -47,7 +47,7 @@ const MOCK_PATIENTS: Patient[] = [
   {
     id: '4',
     name: 'Maya Cohen',
-    rehabType: 'Hip Rehabilitation',
+    medicalDiagnosis: 'Hip Rehabilitation',
     weeklyCompliance: 95,
     painTrend: 'worsening',
     lastReport: '30 min ago',
@@ -61,7 +61,7 @@ const MOCK_PATIENTS: Patient[] = [
   {
     id: '5',
     name: 'Eli Zamir',
-    rehabType: 'Ankle Rehabilitation',
+    medicalDiagnosis: 'Ankle Rehabilitation',
     weeklyCompliance: 73,
     painTrend: 'stable',
     lastReport: '5 hours ago',
@@ -154,10 +154,16 @@ function computeAlerts(patients: Patient[]): PatientAlert[] {
       }
     })
   })
-  return alerts.sort((a, b) => {
+  const sorted = alerts.sort((a, b) => {
     const severityDiff = SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]
     if (severityDiff !== 0) return severityDiff
     return TYPE_ORDER[a.type] - TYPE_ORDER[b.type]
+  })
+  const seen = new Set<AlertType>()
+  return sorted.filter((a) => {
+    if (seen.has(a.type)) return false
+    seen.add(a.type)
+    return true
   })
 }
 
