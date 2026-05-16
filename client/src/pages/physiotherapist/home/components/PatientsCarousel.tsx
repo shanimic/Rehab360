@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import PatientCard from './PatientCard'
 import type { Patient } from '@/types'
 import './PatientsCarousel.css'
@@ -10,16 +10,29 @@ interface PatientsCarouselProps {
 
 export default function PatientsCarousel({ patients, onPatientClick }: PatientsCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
+  const [hasOverflow, setHasOverflow] = useState(false)
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    const check = () => setHasOverflow(track.scrollWidth > track.clientWidth)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(track)
+    return () => ro.disconnect()
+  }, [patients])
 
   const scroll = (dir: 'left' | 'right') => {
     trackRef.current?.scrollBy({ left: dir === 'right' ? 280 : -280, behavior: 'smooth' })
   }
 
+  const arrowStyle: React.CSSProperties = { visibility: hasOverflow ? 'visible' : 'hidden' }
+
   return (
     <div className="patients-carousel">
-      {/* Left arrow */}
       <button
         className="patients-carousel__arrow"
+        style={arrowStyle}
         onClick={() => scroll('left')}
         aria-label="Scroll left"
       >
@@ -28,7 +41,6 @@ export default function PatientsCarousel({ patients, onPatientClick }: PatientsC
         </svg>
       </button>
 
-      {/* Scrollable track */}
       <div className="patients-carousel__track" ref={trackRef}>
         {patients.map((patient) => (
           <div key={patient.id} className="patients-carousel__item">
@@ -40,9 +52,9 @@ export default function PatientsCarousel({ patients, onPatientClick }: PatientsC
         ))}
       </div>
 
-      {/* Right arrow */}
       <button
         className="patients-carousel__arrow"
+        style={arrowStyle}
         onClick={() => scroll('right')}
         aria-label="Scroll right"
       >
