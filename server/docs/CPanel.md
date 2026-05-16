@@ -47,7 +47,7 @@ Expected tables: `content`, `exercise_completion`, `exercises`, `plan_exercises`
 
 ## Environment Variables
 
-The `.env` file is not in version control. After every fresh clone, recreate it manually:
+The `.env` file holds all secrets and environment-specific config. It is intentionally excluded from version control (`.gitignore`) so credentials are never committed. After every fresh clone or full redeployment, recreate it manually:
 
 ```bash
 nano ~/Rehab360/server/.env
@@ -60,6 +60,11 @@ DB_PASSWORD=
 DB_NAME=shanimi2_rehab360_db
 GEMINI_API_KEY=
 ```
+
+| Variable | Purpose |
+|---|---|
+| `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | MySQL connection — the backend uses these to connect to the cPanel database. |
+| `GEMINI_API_KEY` | Google Gemini API key — required for the AI-powered search feature (Process 2). Without it, all `/api/ai-search` endpoints will fail. Obtain a key from [Google AI Studio](https://aistudio.google.com/app/apikey). |
 
 ---
 
