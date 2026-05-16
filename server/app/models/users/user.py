@@ -9,6 +9,7 @@ class LoginResponse(BaseModel):
     password: str = Field(exclude=True)
     role: Role
     first_name: str
+    last_name: str | None = None
 
 class LoginRequest(BaseModel):
     email: str

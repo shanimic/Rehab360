@@ -41,6 +41,7 @@ class UserRoutesTest(unittest.TestCase):
                     "password": hashed,
                     "role": "PATIENT",
                     "first_name": "Route",
+                    "last_name": "Tester",
                 }
             )
         )
@@ -59,6 +60,7 @@ class UserRoutesTest(unittest.TestCase):
             "email": "route@test.com",
             "role": "PATIENT",
             "first_name": "Route",
+            "last_name": "Tester",
         }
 
     def test_login_no_user_returns_401(self) -> None:
