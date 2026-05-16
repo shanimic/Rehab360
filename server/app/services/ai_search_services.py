@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 
 from fastapi import HTTPException, status
 from google import genai
@@ -18,13 +19,32 @@ from app.models.ai_search.ai_search import (
 
 _GEMINI_SYSTEM_INSTRUCTION = (
     "You are a rehabilitation and physiotherapy expert. "
+    "Use the Google Search tool to find current, publicly accessible sources. "
+    "Only include the real, direct URL of the source webpage — for example "
+    "'https://www.physio.org/article/knee-rehab'. "
+    "NEVER include vertexaisearch.cloud.google.com redirect URLs or any other "
+    "tracking/redirect URLs. "
+    "Do not invent or recall URLs from memory. "
     "Given a user query, respond ONLY with a valid JSON object in this exact shape: "
     '{"summary": "<2-3 sentence plain-language answer>", '
-    '"sources": [{"title": "<source title>", "url": "<full URL>", '
+    '"sources": [{"title": "<source title>", "url": "<full direct URL>", '
     '"description": "<1-2 sentence description>", '
     '"content_type": "<one of: Article, Clinical Guideline, Exercise Guide, Video>"}]}. '
-    "Return 3-5 real, publicly accessible sources. Do not include any text outside the JSON."
+    "Return 3-5 sources. "
+    "Do not wrap the JSON in markdown code blocks. Do not include any text outside the JSON."
 )
+
+
+def _parse_gemini_response(text: str) -> dict:
+    """Extract and parse the JSON object from a Gemini response string."""
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1]
+        text = text.rsplit("```", 1)[0].strip()
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if not match:
+        raise json.JSONDecodeError("No JSON object found", text, 0)
+    return json.loads(match.group())
 
 
 class AiSearchServices:
@@ -51,18 +71,38 @@ class AiSearchServices:
 
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
         try:
+            contents: list[genai.types.Content] = []
+            for exchange in request.conversation_history or []:
+                contents.append(
+                    genai.types.Content(
+                        role="user", parts=[genai.types.Part(text=exchange.query)]
+                    )
+                )
+                contents.append(
+                    genai.types.Content(
+                        role="model", parts=[genai.types.Part(text=exchange.answer)]
+                    )
+                )
+            contents.append(
+                genai.types.Content(
+                    role="user", parts=[genai.types.Part(text=request.query_text)]
+                )
+            )
             response = await asyncio.to_thread(
                 client.models.generate_content,
                 model="gemini-2.5-flash",
-                contents=request.query_text,
+                contents=contents,
                 config=genai.types.GenerateContentConfig(
                     system_instruction=_GEMINI_SYSTEM_INSTRUCTION,
-                    response_mime_type="application/json",
+                    tools=[genai.types.Tool(google_search=genai.types.GoogleSearch())],
                 ),
             )
-            data = json.loads(response.text)
+            data = _parse_gemini_response(response.text or "")
             summary = data["summary"]
-            raw_sources = data["sources"]
+            raw_sources = [
+                s for s in data["sources"]
+                if "vertexaisearch.cloud.google.com" not in s.get("url", "")
+            ]
         except (json.JSONDecodeError, KeyError) as exc:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
@@ -74,6 +114,11 @@ class AiSearchServices:
                 raise HTTPException(
                     status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                     detail="The AI service is temporarily unavailable. Please try again in a moment.",
+                ) from exc
+            if "RESOURCE_EXHAUSTED" in exc_str or "429" in exc_str:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="AI search quota exceeded. Please try again tomorrow.",
                 ) from exc
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
