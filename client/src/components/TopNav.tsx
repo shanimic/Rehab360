@@ -39,6 +39,25 @@ const MENU_ITEMS = [
       </svg>
     ),
   },
+  {
+    label: 'Saved Content',
+    path: '/ai-search/saved',
+    icon: (
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'My Profile',
+    path: '/profile',
+    icon: (
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]
 
 export default function TopNav() {

@@ -7,16 +7,12 @@ import { useAtom, useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import { currentQueryAtom, searchResultsAtom } from '@/store/aiSearchAtom'
 import { useAiSearchMutation } from '@/hooks/useAiSearchMutation'
-import { useQueryHistory } from '@/hooks/useQueryHistory'
-import { useDeleteQuery } from '@/hooks/useDeleteQuery'
-import { useSavedContent } from '@/hooks/useSavedContent'
 import { errMsg } from '@/lib/utils'
 import { resolveSearchError } from '@/lib/aiSearchUtils'
 import { Button } from '@/components/ui/button'
 import BackButton from '@/components/ui/BackButton'
 import PatientTopNav from '@/components/PatientTopNav'
 import QueryChips from './components/QueryChips'
-import HistoryPanel from './components/HistoryPanel'
 import SearchResultsArea from './components/SearchResultsArea'
 import FollowUpBar from './components/FollowUpBar'
 import ScrollToBottomButton from './components/ScrollToBottomButton'
@@ -33,9 +29,6 @@ export default function AiSearchPage() {
   const [currentQuery, setCurrentQuery] = useAtom(currentQueryAtom)
   const [searchResults, setSearchResults] = useAtom(searchResultsAtom)
   const searchMutation = useAiSearchMutation()
-  const history = useQueryHistory()
-  const savedContent = useSavedContent()
-  const deleteQuery = useDeleteQuery(() => {})
 
   const navigate = useNavigate()
   const isIdle = searchResults === null && !searchMutation.isPending
@@ -55,22 +48,18 @@ export default function AiSearchPage() {
     form.setFieldValue('query', chip)
   }
 
-  function handleHistoryDelete(queryId: number) {
-    deleteQuery.mutate(queryId)
-  }
-
   return (
     <div className="ais-page pt-16">
       <PatientTopNav patientName={auth?.first_name} />
 
       <main className="ais-page__main">
         {isIdle ? (
-          <div className="ais-page__layout">
-            {/* ─── Left column ─── */}
-            <div className="ais-page__left">
-              <BackButton onClick={() => navigate('/patient')} aria-label="Back to home" />
-              <div className="ais-page__hero">
+          <div className="ais-page__left">
+              <div className="ais-page__title-row">
+                <BackButton onClick={() => navigate('/patient')} aria-label="Back to home" />
                 <h1 className="ais-page__headline">AI Search</h1>
+              </div>
+              <div className="ais-page__hero">
                 <p className="ais-page__subtagline">
                   Get answers powered by Gemini AI, enriched with content your clinic&apos;s professionals have already reviewed and approved.
                 </p>
@@ -123,21 +112,6 @@ export default function AiSearchPage() {
               </div>
 
               <QueryChips onSelect={handleChipSelect} />
-            </div>
-
-            {/* ─── Right column (history panel) ─── */}
-            <div className="ais-page__right">
-              <HistoryPanel
-                history={history}
-                onSelect={(queryText) => {
-                  setCurrentQuery(queryText)
-                  form.setFieldValue('query', queryText)
-                }}
-                onDelete={handleHistoryDelete}
-                onClearAll={() => history.forEach((q) => deleteQuery.mutate(q.query_id))}
-                savedCount={savedContent.length}
-              />
-            </div>
           </div>
         ) : (
           <>
