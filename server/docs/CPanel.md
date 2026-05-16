@@ -58,6 +58,7 @@ DB_HOST=localhost
 DB_USER=shanimi2_u1
 DB_PASSWORD=
 DB_NAME=shanimi2_rehab360_db
+GEMINI_API_KEY=
 ```
 
 ---
