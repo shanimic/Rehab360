@@ -15,7 +15,6 @@ import { useSaveWeeklySchedule } from '@/hooks/paitent/useSaveWeeklySchedule'
 /* ── Types ── */
 export interface ScheduledExercise {
   exerciseId: number
-  sets: 1 | 2 | 3
   reminderDate: string
   reminderTime: string
 }
@@ -100,7 +99,6 @@ export default function ExerciseSchedule() {
     const next: ScheduledExercise[] = [...pickerSelected].map(id =>
       existingMap.get(id) ?? {
         exerciseId: id,
-        sets: 1,
         reminderDate: '',
         reminderTime: '',
       }
@@ -144,7 +142,7 @@ export default function ExerciseSchedule() {
           return {
             exercise_id: e.exerciseId,
             day_index: Number(dayIndex),
-            sets: e.sets,
+            sets: ex?.num_sets ?? 1,
             reminder_date: e.reminderDate || null,
             reminder_time: remindersEnabled ? (e.reminderTime || null) : null,
             session_id: ex?.session_id ?? undefined,
@@ -175,7 +173,7 @@ export default function ExerciseSchedule() {
             exerciseName: ex?.exercise_name ?? `Exercise ${e.exerciseId}`,
             date: e.reminderDate,
             time: e.reminderTime,
-            sets: e.sets,
+            sets: ex?.num_sets ?? 1,
           }
         })
       setShowValidation(false)
@@ -232,7 +230,6 @@ export default function ExerciseSchedule() {
                 remindersEnabled={remindersEnabled}
                 onAddClick={() => openPicker(idx)}
                 onRemove={exId => removeExercise(idx, exId)}
-                onUpdateSets={(exId, sets) => updateEntry(idx, exId, { sets })}
                 onUpdateReminderDate={(exId, date) => updateEntry(idx, exId, { reminderDate: date })}
                 onUpdateReminderTime={(exId, time) => updateEntry(idx, exId, { reminderTime: time })}
                 showValidation={showValidation}

@@ -2,8 +2,6 @@ import { Plus, CheckCircle2, X, Bell } from 'lucide-react'
 import type { WeeklyScheduleItem } from '@/types/patient'
 import type { ScheduledExercise } from '../ExerciseSchedule'
 
-const SETS: Array<1 | 2 | 3> = [1, 2, 3]
-
 interface DayCardProps {
   dayName: string
   exercises: ScheduledExercise[]
@@ -11,7 +9,6 @@ interface DayCardProps {
   remindersEnabled: boolean
   onAddClick: () => void
   onRemove: (exerciseId: number) => void
-  onUpdateSets: (exerciseId: number, sets: 1 | 2 | 3) => void
   onUpdateReminderDate: (exerciseId: number, date: string) => void
   onUpdateReminderTime: (exerciseId: number, time: string) => void
   showValidation: boolean
@@ -24,7 +21,6 @@ export default function DayCard({
   remindersEnabled,
   onAddClick,
   onRemove,
-  onUpdateSets,
   onUpdateReminderDate,
   onUpdateReminderTime,
   showValidation,
@@ -70,25 +66,6 @@ export default function DayCard({
                   >
                     <X size={14} />
                   </button>
-                </div>
-
-                {/* Sets */}
-                <div className="es-ex-row__setting">
-                  <span className="es-ex-row__setting-label">Sets</span>
-                  <div className="es-pill-group" role="group" aria-label="Number of sets">
-                    {SETS.map(n => (
-                      <button
-                        key={n}
-                        type="button"
-                        className={`es-pill${entry.sets === n ? ' es-pill--active' : ''}`}
-                        onClick={() => onUpdateSets(entry.exerciseId, n)}
-                        aria-pressed={entry.sets === n}
-                        aria-label={`${n} set${n > 1 ? 's' : ''}`}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Reminder */}
