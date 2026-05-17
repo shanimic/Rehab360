@@ -47,7 +47,11 @@ export default function DayCard({
             const ex = getExercise(entry.exerciseId)
             if (!ex) return null
             const reminderMissing =
-              showValidation && remindersEnabled && (!entry.reminderDate || !entry.reminderTime)
+              showValidation && (
+                remindersEnabled
+                  ? !entry.reminderDate || !entry.reminderTime
+                  : !entry.reminderDate
+              )
 
             return (
               <li key={entry.exerciseId} className="es-ex-row">
@@ -82,18 +86,19 @@ export default function DayCard({
                       onChange={e => onUpdateReminderDate(entry.exerciseId, e.target.value)}
                       aria-label={`Reminder date for ${ex.exercise_name}`}
                     />
-                    <input
-                      type="time"
-                      className="es-reminder__input"
-                      value={entry.reminderTime}
-                      onChange={e => onUpdateReminderTime(entry.exerciseId, e.target.value)}
-                      disabled={!remindersEnabled}
-                      aria-label={`Reminder time for ${ex.exercise_name}`}
-                    />
+                    {remindersEnabled && (
+                      <input
+                        type="time"
+                        className="es-reminder__input"
+                        value={entry.reminderTime}
+                        onChange={e => onUpdateReminderTime(entry.exerciseId, e.target.value)}
+                        aria-label={`Reminder time for ${ex.exercise_name}`}
+                      />
+                    )}
                   </div>
                   {reminderMissing && (
                     <p className="es-reminder__warning" role="alert">
-                      ⚠ Please set a reminder date and time
+                      ⚠ {remindersEnabled ? 'Please set a reminder date and time' : 'Please set a date'}
                     </p>
                   )}
                 </div>

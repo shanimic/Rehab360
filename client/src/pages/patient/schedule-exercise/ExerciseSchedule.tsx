@@ -35,6 +35,7 @@ export default function ExerciseSchedule() {
   const [pickerSelected, setPickerSelected] = useState<Set<number>>(new Set())
   const [showValidation, setShowValidation] = useState(false)
   const [calendarItems, setCalendarItems] = useState<CalendarItem[] | null>(null)
+  const [showUnscheduledConfirm, setShowUnscheduledConfirm] = useState(false)
 
   /* ── Auto-populate daily exercises into all 7 days ── */
   useEffect(() => {
@@ -131,6 +132,9 @@ export default function ExerciseSchedule() {
   const totalExercises = Object.values(schedule).reduce((sum, arr) => sum + arr.length, 0)
   const isSaveDisabled = totalExercises === 0
 
+  const scheduledIds = new Set(Object.values(schedule).flat().map(e => e.exerciseId))
+  const unscheduledExercises = data.filter(ex => !scheduledIds.has(ex.exercise_id))
+
   function doSave() {
     setCalendarItems(null)
     setShowValidation(false)
@@ -153,17 +157,8 @@ export default function ExerciseSchedule() {
     })
   }
 
-  function handleSave() {
-    if (isSaveDisabled) return
-
+  function openCalendarOrSave() {
     if (remindersEnabled) {
-      const hasMissingReminder = Object.values(schedule).some(day =>
-        day.some(e => !e.reminderDate || !e.reminderTime)
-      )
-      if (hasMissingReminder) {
-        setShowValidation(true)
-        return
-      }
       const items: CalendarItem[] = Object.values(schedule)
         .flat()
         .filter(e => e.reminderDate && e.reminderTime)
@@ -178,10 +173,43 @@ export default function ExerciseSchedule() {
         })
       setShowValidation(false)
       setCalendarItems(items)
+    } else {
+      doSave()
+    }
+  }
+
+  function handleUnscheduledConfirm() {
+    setShowUnscheduledConfirm(false)
+    openCalendarOrSave()
+  }
+
+  function handleSave() {
+    if (isSaveDisabled) return
+
+    if (remindersEnabled) {
+      const hasMissingReminder = Object.values(schedule).some(day =>
+        day.some(e => !e.reminderDate || !e.reminderTime)
+      )
+      if (hasMissingReminder) {
+        setShowValidation(true)
+        return
+      }
+    } else {
+      const hasMissingDate = Object.values(schedule).some(day =>
+        day.some(e => !e.reminderDate)
+      )
+      if (hasMissingDate) {
+        setShowValidation(true)
+        return
+      }
+    }
+
+    if (unscheduledExercises.length > 0) {
+      setShowUnscheduledConfirm(true)
       return
     }
 
-    doSave()
+    openCalendarOrSave()
   }
 
   return (
@@ -261,6 +289,52 @@ export default function ExerciseSchedule() {
           onSave={doSave}
           onClose={() => setCalendarItems(null)}
         />
+      )}
+
+      {/* ── Unscheduled Exercises Confirmation ── */}
+      {showUnscheduledConfirm && (
+        <div
+          className="es-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="unscheduled-title"
+        >
+          <div className="es-modal">
+            <header className="es-modal__header">
+              <h3 className="es-modal__title" id="unscheduled-title">
+                Some exercises are unscheduled
+              </h3>
+            </header>
+            <div className="es-modal__body">
+              <p className="es-modal__desc">
+                The following exercises haven't been added to any day. Are you sure you want to save without them?
+              </p>
+              <ul className="es-modal__unscheduled-list">
+                {unscheduledExercises.map(ex => (
+                  <li key={ex.exercise_id} className="es-modal__unscheduled-item">
+                    {ex.exercise_name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <footer className="es-modal__footer">
+              <button
+                className="es-modal__cancel"
+                onClick={() => setShowUnscheduledConfirm(false)}
+                type="button"
+              >
+                Go back
+              </button>
+              <button
+                className="es-modal__confirm"
+                onClick={handleUnscheduledConfirm}
+                type="button"
+              >
+                Save anyway
+              </button>
+            </footer>
+          </div>
+        </div>
       )}
 
       {/* ── Exercise Picker Modal ── */}

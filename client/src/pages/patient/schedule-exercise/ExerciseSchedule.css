@@ -779,6 +779,35 @@
   cursor: not-allowed;
 }
 
+.es-modal__body {
+  padding: 0 20px 4px;
+}
+
+.es-modal__desc {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.es-modal__unscheduled-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.es-modal__unscheduled-item {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  padding: 8px 12px;
+  background: var(--color-input-bg);
+  border-radius: 8px;
+}
+
 /* =========================================
    Calendar Links Modal
    ========================================= */
