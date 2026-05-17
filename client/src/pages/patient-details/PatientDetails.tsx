@@ -32,6 +32,9 @@ const MOCK: MockData = {
     phone: '+972-50-000-0001',
     email: 'john.smith@example.com',
   },
+  alerts: [
+    { id: 'a1', patientId: '1', type: 'warning', message: 'Missed last session — please reschedule.' },
+  ],
   visitSummary: {
     date: '2026-03-28',
     therapistName: 'Dr. Liran Cohen',
@@ -78,10 +81,11 @@ export default function PatientDetails() {
   const navigate = useNavigate()
   const { id: routePatientId } = useParams<{ id: string }>()
   const [showTrainingComingSoon, setShowTrainingComingSoon] = useState(false)
-  const { patient, visitSummary, treatmentPlan, trainingPlan } = MOCK
+  const { patient, alerts, visitSummary, treatmentPlan, trainingPlan } = MOCK
 
   console.log('[DEBUG] PatientDetails route param id:', routePatientId)
 
+  const patientAlerts = alerts.filter((a) => a.patientId === patient.id)
   const age = calculateAge(patient.birthDate)
 
   return (
@@ -125,6 +129,18 @@ export default function PatientDetails() {
             </div>
           </div>
 
+          {/* Priority alerts — filtered for this patient */}
+          {patientAlerts.length > 0 && (
+            <section className="patient-alerts">
+              <h2 className="patient-alerts__heading">Priority Alerts</h2>
+              <div className="patient-alerts__list">
+                {patientAlerts.map((alert) => (
+                  <AlertCard key={alert.id} type={alert.type} message={alert.message} />
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Three main cards */}
           <div className="patient-cards-grid">
             {/* Visit Summaries */}
@@ -161,9 +177,9 @@ export default function PatientDetails() {
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
                     <Activity size={14} />
-                    Medical Diagnosis
+                    Plan
                   </span>
-                  <span className="patient-plan__value">{treatmentPlan.condition}</span>
+                  <span className="patient-plan__value">{treatmentPlan.name}</span>
                 </div>
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
@@ -185,10 +201,10 @@ export default function PatientDetails() {
               </div>
             </InfoCard>
 
-            {/* Fitness Plan */}
+            {/* Training Plan */}
             <InfoCard
-              title="Fitness Plan"
-              actionLabel="Go to Current Fitness Plan"
+              title="Training Plan"
+              actionLabel="Go to Current Training Plan"
               onAction={() => {
                 setShowTrainingComingSoon(true)
                 setTimeout(() => setShowTrainingComingSoon(false), 3000)
@@ -198,9 +214,9 @@ export default function PatientDetails() {
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
                     <Activity size={14} />
-                    Medical Diagnosis
+                    Plan
                   </span>
-                  <span className="patient-plan__value">{trainingPlan.condition}</span>
+                  <span className="patient-plan__value">{trainingPlan.name}</span>
                 </div>
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
