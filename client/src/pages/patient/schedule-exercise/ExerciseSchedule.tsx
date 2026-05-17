@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { X, ArrowLeft } from 'lucide-react'
 import ExerciseCard from './components/ExerciseCard'
 import DayCard from './components/DayCard'
@@ -15,7 +15,6 @@ import { useSaveWeeklySchedule } from '@/hooks/paitent/useSaveWeeklySchedule'
 /* ── Types ── */
 export interface ScheduledExercise {
   exerciseId: number
-  sets: 1 | 2 | 3
   reminderDate: string
   reminderTime: string
 }
@@ -29,13 +28,36 @@ export default function ExerciseSchedule() {
   const { data = [] } = useGetWeeklySchedule()
   const saveSchedule = useSaveWeeklySchedule()
 
-  // dayIndex (0–6) → array of scheduled exercises
-  const [schedule, setSchedule] = useState<Record<number, ScheduledExercise[]>>({})
   const [remindersEnabled, setRemindersEnabled] = useState(true)
   const [pickerDay, setPickerDay] = useState<number | null>(null)
   const [pickerSelected, setPickerSelected] = useState<Set<number>>(new Set())
   const [showValidation, setShowValidation] = useState(false)
   const [calendarItems, setCalendarItems] = useState<CalendarItem[] | null>(null)
+  const [showUnscheduledConfirm, setShowUnscheduledConfirm] = useState(false)
+
+  // dayIndex → Set of exercise IDs the user has explicitly chosen for that day.
+  // undefined means "not yet customised" → show all daily exercises by default.
+  const [explicitSelection, setExplicitSelection] = useState<Record<number, Set<number>>>({})
+  // Reminder data keyed by `${dayIndex}-${exerciseId}`
+  const [reminderData, setReminderData] = useState<Record<string, { reminderDate: string; reminderTime: string }>>({})
+
+  /* ── Derive effective schedule during render (no setState-in-effect) ── */
+  const schedule = useMemo((): Record<number, ScheduledExercise[]> => {
+    const dailyIds = data
+      .filter(ex => ex.time_unit?.toLowerCase() === 'daily')
+      .map(ex => ex.exercise_id)
+    const result: Record<number, ScheduledExercise[]> = {}
+    for (let day = 0; day < 7; day++) {
+      const selected = explicitSelection[day]
+      const ids = selected !== undefined ? [...selected] : dailyIds
+      result[day] = ids.map(id => {
+        const key = `${day}-${id}`
+        const r = reminderData[key] ?? { reminderDate: '', reminderTime: '' }
+        return { exerciseId: id, reminderDate: r.reminderDate, reminderTime: r.reminderTime }
+      })
+    }
+    return result
+  }, [data, explicitSelection, reminderData])
 
   /* ── Helpers ── */
   function getDay(dayIndex: number): ScheduledExercise[] {
@@ -67,26 +89,26 @@ export default function ExerciseSchedule() {
 
   function confirmPicker() {
     if (pickerDay === null) return
-    const existing = getDay(pickerDay)
-    const existingMap = new Map(existing.map(e => [e.exerciseId, e]))
-
-    const next: ScheduledExercise[] = [...pickerSelected].map(id =>
-      existingMap.get(id) ?? {
-        exerciseId: id,
-        sets: 1,
-        reminderDate: '',
-        reminderTime: '',
-      }
-    )
-    setSchedule(prev => ({ ...prev, [pickerDay]: next }))
+    setExplicitSelection(prev => ({ ...prev, [pickerDay]: new Set(pickerSelected) }))
     closePicker()
   }
 
   function removeExercise(dayIndex: number, exerciseId: number) {
-    setSchedule(prev => ({
-      ...prev,
-      [dayIndex]: (prev[dayIndex] ?? []).filter(e => e.exerciseId !== exerciseId),
-    }))
+    setExplicitSelection(prev => {
+      const dailyIds = data
+        .filter(ex => ex.time_unit?.toLowerCase() === 'daily')
+        .map(ex => ex.exercise_id)
+      const current = prev[dayIndex] ?? new Set(dailyIds)
+      const next = new Set(current)
+      next.delete(exerciseId)
+      return { ...prev, [dayIndex]: next }
+    })
+    setReminderData(prev => {
+      const key = `${dayIndex}-${exerciseId}`
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
   }
 
   function updateEntry(
@@ -94,17 +116,25 @@ export default function ExerciseSchedule() {
     exerciseId: number,
     patch: Partial<Omit<ScheduledExercise, 'exerciseId'>>
   ) {
-    setSchedule(prev => ({
-      ...prev,
-      [dayIndex]: (prev[dayIndex] ?? []).map(e =>
-        e.exerciseId === exerciseId ? { ...e, ...patch } : e
-      ),
-    }))
+    const key = `${dayIndex}-${exerciseId}`
+    setReminderData(prev => {
+      const current = prev[key] ?? { reminderDate: '', reminderTime: '' }
+      return {
+        ...prev,
+        [key]: {
+          reminderDate: patch.reminderDate !== undefined ? patch.reminderDate : current.reminderDate,
+          reminderTime: patch.reminderTime !== undefined ? patch.reminderTime : current.reminderTime,
+        },
+      }
+    })
   }
 
   /* ── Validation & save ── */
   const totalExercises = Object.values(schedule).reduce((sum, arr) => sum + arr.length, 0)
   const isSaveDisabled = totalExercises === 0
+
+  const scheduledIds = new Set(Object.values(schedule).flat().map(e => e.exerciseId))
+  const unscheduledExercises = data.filter(ex => !scheduledIds.has(ex.exercise_id))
 
   function doSave() {
     setCalendarItems(null)
@@ -117,7 +147,7 @@ export default function ExerciseSchedule() {
           return {
             exercise_id: e.exerciseId,
             day_index: Number(dayIndex),
-            sets: e.sets,
+            sets: ex?.num_sets ?? 1,
             reminder_date: e.reminderDate || null,
             reminder_time: remindersEnabled ? (e.reminderTime || null) : null,
             session_id: ex?.session_id ?? undefined,
@@ -126,6 +156,32 @@ export default function ExerciseSchedule() {
         })
       ),
     })
+  }
+
+  function openCalendarOrSave() {
+    if (remindersEnabled) {
+      const items: CalendarItem[] = Object.values(schedule)
+        .flat()
+        .filter(e => e.reminderDate && e.reminderTime)
+        .map(e => {
+          const ex = data.find(d => d.exercise_id === e.exerciseId)
+          return {
+            exerciseName: ex?.exercise_name ?? `Exercise ${e.exerciseId}`,
+            date: e.reminderDate,
+            time: e.reminderTime,
+            sets: ex?.num_sets ?? 1,
+          }
+        })
+      setShowValidation(false)
+      setCalendarItems(items)
+    } else {
+      doSave()
+    }
+  }
+
+  function handleUnscheduledConfirm() {
+    setShowUnscheduledConfirm(false)
+    openCalendarOrSave()
   }
 
   function handleSave() {
@@ -139,24 +195,22 @@ export default function ExerciseSchedule() {
         setShowValidation(true)
         return
       }
-      const items: CalendarItem[] = Object.values(schedule)
-        .flat()
-        .filter(e => e.reminderDate && e.reminderTime)
-        .map(e => {
-          const ex = data.find(d => d.exercise_id === e.exerciseId)
-          return {
-            exerciseName: ex?.exercise_name ?? `Exercise ${e.exerciseId}`,
-            date: e.reminderDate,
-            time: e.reminderTime,
-            sets: e.sets,
-          }
-        })
-      setShowValidation(false)
-      setCalendarItems(items)
+    } else {
+      const hasMissingDate = Object.values(schedule).some(day =>
+        day.some(e => !e.reminderDate)
+      )
+      if (hasMissingDate) {
+        setShowValidation(true)
+        return
+      }
+    }
+
+    if (unscheduledExercises.length > 0) {
+      setShowUnscheduledConfirm(true)
       return
     }
 
-    doSave()
+    openCalendarOrSave()
   }
 
   return (
@@ -205,7 +259,6 @@ export default function ExerciseSchedule() {
                 remindersEnabled={remindersEnabled}
                 onAddClick={() => openPicker(idx)}
                 onRemove={exId => removeExercise(idx, exId)}
-                onUpdateSets={(exId, sets) => updateEntry(idx, exId, { sets })}
                 onUpdateReminderDate={(exId, date) => updateEntry(idx, exId, { reminderDate: date })}
                 onUpdateReminderTime={(exId, time) => updateEntry(idx, exId, { reminderTime: time })}
                 showValidation={showValidation}
@@ -237,6 +290,52 @@ export default function ExerciseSchedule() {
           onSave={doSave}
           onClose={() => setCalendarItems(null)}
         />
+      )}
+
+      {/* ── Unscheduled Exercises Confirmation ── */}
+      {showUnscheduledConfirm && (
+        <div
+          className="es-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="unscheduled-title"
+        >
+          <div className="es-modal">
+            <header className="es-modal__header">
+              <h3 className="es-modal__title" id="unscheduled-title">
+                Some exercises are unscheduled
+              </h3>
+            </header>
+            <div className="es-modal__body">
+              <p className="es-modal__desc">
+                The following exercises haven't been added to any day. Are you sure you want to save without them?
+              </p>
+              <ul className="es-modal__unscheduled-list">
+                {unscheduledExercises.map(ex => (
+                  <li key={ex.exercise_id} className="es-modal__unscheduled-item">
+                    {ex.exercise_name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <footer className="es-modal__footer">
+              <button
+                className="es-modal__cancel"
+                onClick={() => setShowUnscheduledConfirm(false)}
+                type="button"
+              >
+                Go back
+              </button>
+              <button
+                className="es-modal__confirm"
+                onClick={handleUnscheduledConfirm}
+                type="button"
+              >
+                Save anyway
+              </button>
+            </footer>
+          </div>
+        </div>
       )}
 
       {/* ── Exercise Picker Modal ── */}
@@ -284,7 +383,13 @@ export default function ExerciseSchedule() {
                       />
                       <div className="es-modal__info">
                         <span className="es-modal__ex-name">{ex.exercise_name}</span>
-                        <span className="es-modal__ex-desc">{`${ex.num_sets} sets · ${ex.reps} reps`}</span>
+                        <span className="es-modal__ex-desc">
+                          {[
+                            `${ex.num_sets} sets · ${ex.reps} reps`,
+                            (ex.weight ?? 0) > 0 ? `${ex.weight} kg` : null,
+                            (ex.time_duration ?? 0) > 0 ? `${ex.time_duration} ${ex.time_unit?.toLowerCase()}` : null,
+                          ].filter(Boolean).join(' · ')}
+                        </span>
                       </div>
                       <span
                         className={`es-modal__badge${isPhysio ? ' es-modal__badge--treatment' : ' es-modal__badge--training'}`}

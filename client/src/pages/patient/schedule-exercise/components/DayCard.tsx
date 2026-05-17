@@ -2,8 +2,6 @@ import { Plus, CheckCircle2, X, Bell } from 'lucide-react'
 import type { WeeklyScheduleItem } from '@/types/patient'
 import type { ScheduledExercise } from '../ExerciseSchedule'
 
-const SETS: Array<1 | 2 | 3> = [1, 2, 3]
-
 interface DayCardProps {
   dayName: string
   exercises: ScheduledExercise[]
@@ -11,7 +9,6 @@ interface DayCardProps {
   remindersEnabled: boolean
   onAddClick: () => void
   onRemove: (exerciseId: number) => void
-  onUpdateSets: (exerciseId: number, sets: 1 | 2 | 3) => void
   onUpdateReminderDate: (exerciseId: number, date: string) => void
   onUpdateReminderTime: (exerciseId: number, time: string) => void
   showValidation: boolean
@@ -24,7 +21,6 @@ export default function DayCard({
   remindersEnabled,
   onAddClick,
   onRemove,
-  onUpdateSets,
   onUpdateReminderDate,
   onUpdateReminderTime,
   showValidation,
@@ -51,7 +47,11 @@ export default function DayCard({
             const ex = getExercise(entry.exerciseId)
             if (!ex) return null
             const reminderMissing =
-              showValidation && remindersEnabled && (!entry.reminderDate || !entry.reminderTime)
+              showValidation && (
+                remindersEnabled
+                  ? !entry.reminderDate || !entry.reminderTime
+                  : !entry.reminderDate
+              )
 
             return (
               <li key={entry.exerciseId} className="es-ex-row">
@@ -72,25 +72,6 @@ export default function DayCard({
                   </button>
                 </div>
 
-                {/* Sets */}
-                <div className="es-ex-row__setting">
-                  <span className="es-ex-row__setting-label">Sets</span>
-                  <div className="es-pill-group" role="group" aria-label="Number of sets">
-                    {SETS.map(n => (
-                      <button
-                        key={n}
-                        type="button"
-                        className={`es-pill${entry.sets === n ? ' es-pill--active' : ''}`}
-                        onClick={() => onUpdateSets(entry.exerciseId, n)}
-                        aria-pressed={entry.sets === n}
-                        aria-label={`${n} set${n > 1 ? 's' : ''}`}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Reminder */}
                 <div className="es-reminder">
                   <span className="es-reminder__label">
@@ -105,18 +86,19 @@ export default function DayCard({
                       onChange={e => onUpdateReminderDate(entry.exerciseId, e.target.value)}
                       aria-label={`Reminder date for ${ex.exercise_name}`}
                     />
-                    <input
-                      type="time"
-                      className="es-reminder__input"
-                      value={entry.reminderTime}
-                      onChange={e => onUpdateReminderTime(entry.exerciseId, e.target.value)}
-                      disabled={!remindersEnabled}
-                      aria-label={`Reminder time for ${ex.exercise_name}`}
-                    />
+                    {remindersEnabled && (
+                      <input
+                        type="time"
+                        className="es-reminder__input"
+                        value={entry.reminderTime}
+                        onChange={e => onUpdateReminderTime(entry.exerciseId, e.target.value)}
+                        aria-label={`Reminder time for ${ex.exercise_name}`}
+                      />
+                    )}
                   </div>
                   {reminderMissing && (
                     <p className="es-reminder__warning" role="alert">
-                      ⚠ Please set a reminder date and time
+                      ⚠ {remindersEnabled ? 'Please set a reminder date and time' : 'Please set a date'}
                     </p>
                   )}
                 </div>
