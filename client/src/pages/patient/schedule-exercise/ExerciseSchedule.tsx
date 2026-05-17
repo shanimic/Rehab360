@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, ArrowLeft } from 'lucide-react'
 import ExerciseCard from './components/ExerciseCard'
 import DayCard from './components/DayCard'
@@ -36,6 +36,33 @@ export default function ExerciseSchedule() {
   const [pickerSelected, setPickerSelected] = useState<Set<number>>(new Set())
   const [showValidation, setShowValidation] = useState(false)
   const [calendarItems, setCalendarItems] = useState<CalendarItem[] | null>(null)
+
+  /* ── Auto-populate daily exercises into all 7 days ── */
+  useEffect(() => {
+    if (data.length === 0) return
+    const dailyExercises = data.filter(ex => ex.time_unit?.toLowerCase() === 'daily')
+    if (dailyExercises.length === 0) return
+
+    setSchedule(prev => {
+      const next = { ...prev }
+      for (let day = 0; day < 7; day++) {
+        const existing = prev[day] ?? []
+        const existingIds = new Set(existing.map(e => e.exerciseId))
+        const toAdd = dailyExercises
+          .filter(ex => !existingIds.has(ex.exercise_id))
+          .map(ex => ({
+            exerciseId: ex.exercise_id,
+            sets: 1 as const,
+            reminderDate: '',
+            reminderTime: '',
+          }))
+        if (toAdd.length > 0) {
+          next[day] = [...existing, ...toAdd]
+        }
+      }
+      return next
+    })
+  }, [data])
 
   /* ── Helpers ── */
   function getDay(dayIndex: number): ScheduledExercise[] {
