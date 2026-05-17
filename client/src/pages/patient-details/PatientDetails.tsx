@@ -32,9 +32,6 @@ const MOCK: MockData = {
     phone: '+972-50-000-0001',
     email: 'john.smith@example.com',
   },
-  alerts: [
-    { id: 'a1', patientId: '1', type: 'warning', message: 'Missed last session — please reschedule.' },
-  ],
   visitSummary: {
     date: '2026-03-28',
     therapistName: 'Dr. Liran Cohen',
@@ -81,11 +78,10 @@ export default function PatientDetails() {
   const navigate = useNavigate()
   const { id: routePatientId } = useParams<{ id: string }>()
   const [showTrainingComingSoon, setShowTrainingComingSoon] = useState(false)
-  const { patient, alerts, visitSummary, treatmentPlan, trainingPlan } = MOCK
+  const { patient, visitSummary, treatmentPlan, trainingPlan } = MOCK
 
   console.log('[DEBUG] PatientDetails route param id:', routePatientId)
 
-  const patientAlerts = alerts.filter((a) => a.patientId === patient.id)
   const age = calculateAge(patient.birthDate)
 
   return (
@@ -128,18 +124,6 @@ export default function PatientDetails() {
               </div>
             </div>
           </div>
-
-          {/* Priority alerts — filtered for this patient */}
-          {patientAlerts.length > 0 && (
-            <section className="patient-alerts">
-              <h2 className="patient-alerts__heading">Priority Alerts</h2>
-              <div className="patient-alerts__list">
-                {patientAlerts.map((alert) => (
-                  <AlertCard key={alert.id} type={alert.type} message={alert.message} />
-                ))}
-              </div>
-            </section>
-          )}
 
           {/* Three main cards */}
           <div className="patient-cards-grid">
