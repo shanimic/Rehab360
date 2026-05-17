@@ -3,9 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Phone, Mail, Calendar, User, Activity } from 'lucide-react'
 import TopNav from '@/components/TopNav'
 import InfoCard from '@/components/InfoCard'
-import ProgressBar from '@/components/ui/progress-bar'
-import AlertCard from '@/components/AlertCard'
-import type { Plan, VisitSummary, PatientAlert } from '@/types/patient'
+import type { Plan, VisitSummary } from '@/types/patient'
 import './PatientDetails.css'
 
 interface PatientInfo {
@@ -19,7 +17,6 @@ interface PatientInfo {
 
 interface MockData {
   patient: PatientInfo
-  alerts: PatientAlert[]
   visitSummary: VisitSummary
   treatmentPlan: Plan
   trainingPlan: Plan
@@ -34,9 +31,6 @@ const MOCK: MockData = {
     phone: '+972-50-000-0001',
     email: 'john.smith@example.com',
   },
-  alerts: [
-    { id: 'a1', patientId: '1', type: 'warning', message: 'Missed last session — please reschedule.' },
-  ],
   visitSummary: {
     date: '2026-03-28',
     therapistName: 'Dr. Liran Cohen',
@@ -83,11 +77,10 @@ export default function PatientDetails() {
   const navigate = useNavigate()
   const { id: routePatientId } = useParams<{ id: string }>()
   const [showTrainingComingSoon, setShowTrainingComingSoon] = useState(false)
-  const { patient, alerts, visitSummary, treatmentPlan, trainingPlan } = MOCK
+  const { patient, visitSummary, treatmentPlan, trainingPlan } = MOCK
 
   console.log('[DEBUG] PatientDetails route param id:', routePatientId)
 
-  const patientAlerts = alerts.filter((a) => a.patientId === patient.id)
   const age = calculateAge(patient.birthDate)
 
   return (
@@ -131,18 +124,6 @@ export default function PatientDetails() {
             </div>
           </div>
 
-          {/* Priority alerts — filtered for this patient */}
-          {patientAlerts.length > 0 && (
-            <section className="patient-alerts">
-              <h2 className="patient-alerts__heading">Priority Alerts</h2>
-              <div className="patient-alerts__list">
-                {patientAlerts.map((alert) => (
-                  <AlertCard key={alert.id} type={alert.type} message={alert.message} />
-                ))}
-              </div>
-            </section>
-          )}
-
           {/* Three main cards */}
           <div className="patient-cards-grid">
             {/* Visit Summaries */}
@@ -179,9 +160,9 @@ export default function PatientDetails() {
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
                     <Activity size={14} />
-                    Plan
+                    Medical Diagnosis
                   </span>
-                  <span className="patient-plan__value">{treatmentPlan.name}</span>
+                  <span className="patient-plan__value">{treatmentPlan.condition}</span>
                 </div>
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
@@ -198,15 +179,12 @@ export default function PatientDetails() {
                   <span className="patient-plan__value">{treatmentPlan.endDate}</span>
                 </div>
               </div>
-              <div className="patient-plan__progress">
-                <ProgressBar value={treatmentPlan.progressPercent} showLabel />
-              </div>
             </InfoCard>
 
-            {/* Training Plan */}
+            {/* Fitness Plan */}
             <InfoCard
-              title="Training Plan"
-              actionLabel="Go to Current Training Plan"
+              title="Fitness Plan"
+              actionLabel="Go to Current Fitness Plan"
               onAction={() => {
                 setShowTrainingComingSoon(true)
                 setTimeout(() => setShowTrainingComingSoon(false), 3000)
@@ -216,9 +194,9 @@ export default function PatientDetails() {
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
                     <Activity size={14} />
-                    Plan
+                    Medical Diagnosis
                   </span>
-                  <span className="patient-plan__value">{trainingPlan.name}</span>
+                  <span className="patient-plan__value">{trainingPlan.condition}</span>
                 </div>
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
@@ -234,9 +212,6 @@ export default function PatientDetails() {
                   </span>
                   <span className="patient-plan__value">{trainingPlan.endDate}</span>
                 </div>
-              </div>
-              <div className="patient-plan__progress">
-                <ProgressBar value={trainingPlan.progressPercent} showLabel />
               </div>
             </InfoCard>
 
