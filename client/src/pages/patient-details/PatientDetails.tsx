@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Phone, Mail, Calendar, User, Activity } from 'lucide-react'
 import TopNav from '@/components/TopNav'
 import InfoCard from '@/components/InfoCard'
+import ProgressBar from '@/components/ui/progress-bar'
 import type { Plan, VisitSummary } from '@/types/patient'
 import './PatientDetails.css'
 
@@ -179,6 +180,9 @@ export default function PatientDetails() {
                   <span className="patient-plan__value">{treatmentPlan.endDate}</span>
                 </div>
               </div>
+              <div className="patient-plan__progress">
+                <ProgressBar value={treatmentPlan.progressPercent} showLabel />
+              </div>
             </InfoCard>
 
             {/* Fitness Plan */}
@@ -212,6 +216,9 @@ export default function PatientDetails() {
                   </span>
                   <span className="patient-plan__value">{trainingPlan.endDate}</span>
                 </div>
+              </div>
+              <div className="patient-plan__progress">
+                <ProgressBar value={trainingPlan.progressPercent} showLabel />
               </div>
             </InfoCard>
 
