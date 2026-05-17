@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Phone, Mail, Calendar, User, Activity } from 'lucide-react'
 import TopNav from '@/components/TopNav'
 import InfoCard from '@/components/InfoCard'
+import ProgressBar from '@/components/ui/progress-bar'
 import type { Plan, VisitSummary } from '@/types/patient'
 import './PatientDetails.css'
 
@@ -160,9 +161,9 @@ export default function PatientDetails() {
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
                     <Activity size={14} />
-                    Medical Diagnosis
+                    Plan
                   </span>
-                  <span className="patient-plan__value">{treatmentPlan.condition}</span>
+                  <span className="patient-plan__value">{treatmentPlan.name}</span>
                 </div>
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
@@ -179,12 +180,15 @@ export default function PatientDetails() {
                   <span className="patient-plan__value">{treatmentPlan.endDate}</span>
                 </div>
               </div>
+              <div className="patient-plan__progress">
+                <ProgressBar value={treatmentPlan.progressPercent} showLabel />
+              </div>
             </InfoCard>
 
-            {/* Fitness Plan */}
+            {/* Training Plan */}
             <InfoCard
-              title="Fitness Plan"
-              actionLabel="Go to Current Fitness Plan"
+              title="Training Plan"
+              actionLabel="Go to Current Training Plan"
               onAction={() => {
                 setShowTrainingComingSoon(true)
                 setTimeout(() => setShowTrainingComingSoon(false), 3000)
@@ -194,9 +198,9 @@ export default function PatientDetails() {
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
                     <Activity size={14} />
-                    Medical Diagnosis
+                    Plan
                   </span>
-                  <span className="patient-plan__value">{trainingPlan.condition}</span>
+                  <span className="patient-plan__value">{trainingPlan.name}</span>
                 </div>
                 <div className="patient-plan__row">
                   <span className="patient-plan__label">
@@ -212,6 +216,9 @@ export default function PatientDetails() {
                   </span>
                   <span className="patient-plan__value">{trainingPlan.endDate}</span>
                 </div>
+              </div>
+              <div className="patient-plan__progress">
+                <ProgressBar value={trainingPlan.progressPercent} showLabel />
               </div>
             </InfoCard>
 
