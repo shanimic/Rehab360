@@ -284,7 +284,13 @@ export default function ExerciseSchedule() {
                       />
                       <div className="es-modal__info">
                         <span className="es-modal__ex-name">{ex.exercise_name}</span>
-                        <span className="es-modal__ex-desc">{`${ex.num_sets} sets · ${ex.reps} reps`}</span>
+                        <span className="es-modal__ex-desc">
+                          {[
+                            `${ex.num_sets} sets · ${ex.reps} reps`,
+                            (ex.weight ?? 0) > 0 ? `${ex.weight} kg` : null,
+                            (ex.time_duration ?? 0) > 0 ? `${ex.time_duration} ${ex.time_unit?.toLowerCase()}` : null,
+                          ].filter(Boolean).join(' · ')}
+                        </span>
                       </div>
                       <span
                         className={`es-modal__badge${isPhysio ? ' es-modal__badge--treatment' : ' es-modal__badge--training'}`}

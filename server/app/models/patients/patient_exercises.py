@@ -33,6 +33,7 @@ class WeeklyScheduleItem(BaseModel):
     visit_type: VisitType
     reps: int
     num_sets: int
+    weight: float = 0.0
     time_duration: int
     time_unit: str
     session_id: int | None = None

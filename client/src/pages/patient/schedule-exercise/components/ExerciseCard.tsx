@@ -9,6 +9,11 @@ export default function ExerciseCard({ exercise }: ExerciseCardProps) {
   const isPhysio = exercise.visit_type?.toLowerCase() === 'physiotherapist'
   const description = `${exercise.num_sets} sets · ${exercise.reps} reps`
 
+  const details: string[] = []
+  if ((exercise.weight ?? 0) > 0) details.push(`${exercise.weight} kg`)
+  if ((exercise.time_duration ?? 0) > 0)
+    details.push(`${exercise.time_duration} ${exercise.time_unit?.toLowerCase()}`)
+
   return (
     <article className="es-pool-card" aria-label={exercise.exercise_name}>
       <div
@@ -29,6 +34,9 @@ export default function ExerciseCard({ exercise }: ExerciseCardProps) {
           {isPhysio ? 'Physio' : 'Fitness'}
         </span>
         <span className="es-pool-card__desc">{description}</span>
+        {details.length > 0 && (
+          <span className="es-pool-card__detail">{details.join(' · ')}</span>
+        )}
       </div>
     </article>
   )

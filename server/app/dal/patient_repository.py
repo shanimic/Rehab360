@@ -192,6 +192,7 @@ class PatientRepository:
                     SELECT e.exercise_id,
                            reps,
                            num_sets,
+                           pe.weight,
                            time_duration,
                            time_unit,
                            e.exercise_name,

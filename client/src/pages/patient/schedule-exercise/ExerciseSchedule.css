@@ -119,7 +119,7 @@
 .es-pool-card {
   flex-shrink: 0;
   width: 140px;
-  min-height: 170px;
+  height: 170px;
   background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
@@ -136,17 +136,21 @@
 }
 
 .es-pool-card__thumb {
-  height: 72px;
+  flex-shrink: 0;
+  height: 62px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .es-pool-card__body {
-  padding: 10px 10px 12px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .es-pool-card__name {
@@ -182,6 +186,13 @@
 .es-pool-card__desc {
   font-size: 11px;
   color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.es-pool-card__detail {
+  font-size: 11px;
+  color: var(--color-text-primary);
+  font-weight: 700;
   line-height: 1.3;
 }
 
@@ -849,11 +860,11 @@
   /* Pool: let cards grow a bit */
   .es-pool-card {
     width: 160px;
-    min-height: 180px;
+    height: 180px;
   }
 
   .es-pool-card__thumb {
-    height: 84px;
+    height: 72px;
   }
 
   .es-section-title {
@@ -887,7 +898,7 @@
 
   .es-pool-card {
     width: 160px;
-    min-height: 180px;
+    height: 180px;
   }
 
   .es-section-title {

@@ -89,6 +89,7 @@ export interface WeeklyScheduleItem {
   visit_type: VisitType
   reps: number
   num_sets: number
+  weight?: number
   time_duration: number
   time_unit: string
   session_id?: number
