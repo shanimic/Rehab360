@@ -56,7 +56,14 @@ export default function AiSearchPage() {
         {isIdle ? (
           <div className="ais-page__left">
               <div className="ais-page__title-row">
-                <BackButton onClick={() => navigate('/patient')} aria-label="Back to home" />
+                <BackButton
+                  onClick={() => navigate(
+                    auth?.role === 'PHYSIOTHERAPIST' ? '/physiotherapist/home'
+                    : auth?.role === 'FITNESS_TRAINER' ? '/fitness/home'
+                    : '/patient'
+                  )}
+                  aria-label="Back to home"
+                />
                 <h1 className="ais-page__headline">AI Search</h1>
               </div>
               <div className="ais-page__hero">
