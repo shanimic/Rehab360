@@ -13,10 +13,4 @@ export default defineConfig({
     },
     dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
-    css: false,
-  },
 })
