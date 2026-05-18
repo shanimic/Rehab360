@@ -34,6 +34,7 @@ export default function MyPlanPage() {
 
       <main className="mp-main">
         <div className="mp-title-row">
+          <div className="mp-title-group">
           <button className="mp-back-btn" type="button" onClick={() => navigate('/patient')} aria-label="Back to home">
             <ChevronLeft size={20} />
           </button>
@@ -46,6 +47,7 @@ export default function MyPlanPage() {
                   : `${todayActive.length} exercise${todayActive.length !== 1 ? 's' : ''} remaining today`}
               </span>
             )}
+          </div>
           </div>
           <div className="mp-title-actions">
             <button className="mp-new-btn" type="button" onClick={() => navigate('/patient/schedule-exercise')}>
