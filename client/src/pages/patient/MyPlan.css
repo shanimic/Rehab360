@@ -163,6 +163,12 @@
   gap: 12px;
 }
 
+.mp-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .mp-title-left {
   display: flex;
   flex-direction: column;

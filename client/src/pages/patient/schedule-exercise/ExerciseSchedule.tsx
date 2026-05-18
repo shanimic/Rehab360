@@ -221,15 +221,15 @@ export default function ExerciseSchedule() {
 
       <main className="es-main">
 
-        {/* ── Back button ── */}
-        <button className="es-back-btn" onClick={() => navigate('/patient/my-plan')} type="button" aria-label="Go back">
-          <ArrowLeft size={18} />
-        </button>
-
-        {/* ── Page title ── */}
-        <div className="es-page-header">
-          <h1 className="es-page-title">Weekly Schedule</h1>
-          <p className="es-page-sub">Plan your exercises for each day</p>
+        {/* ── Back button + Page title ── */}
+        <div className="es-page-header-row">
+          <button className="es-back-btn" onClick={() => navigate('/patient/my-plan')} type="button" aria-label="Go back">
+            <ArrowLeft size={18} />
+          </button>
+          <div className="es-page-header">
+            <h1 className="es-page-title">Weekly Schedule</h1>
+            <p className="es-page-sub">Plan your exercises for each day</p>
+          </div>
         </div>
 
         {/* ── Exercise Pool ── */}

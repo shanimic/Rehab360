@@ -54,6 +54,12 @@
 /* =========================================
    Page header
    ========================================= */
+.es-page-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .es-back-btn {
   flex-shrink: 0;
   background: var(--color-surface);
@@ -67,7 +73,6 @@
   cursor: pointer;
   color: var(--color-text-primary);
   box-shadow: var(--shadow-card);
-  margin-bottom: 4px;
   transition: background 0.15s, transform 0.1s;
 }
 
