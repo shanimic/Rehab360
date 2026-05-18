@@ -286,3 +286,14 @@
   padding-top: 14px;
   border-top: 1px solid #f1f5f9;
 }
+
+/* ── Empty / loading states ──────────────────────── */
+.patient-empty-state {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  padding: 8px 0;
+}
+
+.patient-empty-state--error {
+  color: var(--color-error, #e53e3e);
+}

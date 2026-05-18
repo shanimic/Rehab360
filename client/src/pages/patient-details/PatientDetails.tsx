@@ -1,59 +1,13 @@
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useAtomValue } from 'jotai'
 import { ChevronLeft, Phone, Mail, Calendar, User, Activity } from 'lucide-react'
-import TopNav from '@/components/TopNav'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import InfoCard from '@/components/InfoCard'
+import TopNav from '@/components/TopNav'
 import ProgressBar from '@/components/ui/progress-bar'
-import type { Plan, VisitSummary } from '@/types/patient'
+import { usePatientDetails } from '@/hooks/usePatientDetails'
+import { authAtom } from '@/store/authAtom'
 import './PatientDetails.css'
-
-interface PatientInfo {
-  id: string
-  firstName: string
-  lastName: string
-  birthDate: string
-  phone: string
-  email: string
-}
-
-interface MockData {
-  patient: PatientInfo
-  visitSummary: VisitSummary
-  treatmentPlan: Plan
-  trainingPlan: Plan
-}
-
-const MOCK: MockData = {
-  patient: {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Smith',
-    birthDate: '1981-03-15',
-    phone: '+972-50-000-0001',
-    email: 'john.smith@example.com',
-  },
-  visitSummary: {
-    date: '2026-03-28',
-    therapistName: 'Dr. Liran Cohen',
-    noteSnippet: 'Patient reports reduced pain in left shoulder after last session.',
-  },
-  treatmentPlan: {
-    name: 'Shoulder Rehab',
-    condition: 'Shoulder Rehabilitation',
-    startDate: 'Jan 1, 2025',
-    endDate: 'Jan 31, 2025',
-    progressPercent: 78,
-    nextSession: 'Tomorrow, 10:00 AM',
-  },
-  trainingPlan: {
-    name: 'Strength Recovery',
-    condition: 'Shoulder Rehabilitation',
-    startDate: 'Jan 1, 2025',
-    endDate: 'Jan 31, 2025',
-    progressPercent: 45,
-    nextSession: 'Tomorrow, 10:00 AM',
-  },
-}
 
 function calculateAge(birthDate: string): number {
   const today = new Date()
@@ -77,12 +31,41 @@ function formatDate(iso: string): string {
 export default function PatientDetails() {
   const navigate = useNavigate()
   const { id: routePatientId } = useParams<{ id: string }>()
-  const [showTrainingComingSoon, setShowTrainingComingSoon] = useState(false)
-  const { patient, visitSummary, treatmentPlan, trainingPlan } = MOCK
+  const auth = useAtomValue(authAtom)
+  const { data, isLoading, isError } = usePatientDetails(routePatientId)
 
-  console.log('[DEBUG] PatientDetails route param id:', routePatientId)
+  const pageTitle = auth?.role === 'PATIENT' ? 'My Process' : 'Patient Details'
 
-  const age = calculateAge(patient.birthDate)
+  if (isLoading) {
+    return (
+      <div className="patient-page">
+        <TopNav />
+        <main className="pt-16">
+          <div className="patient-body">
+            <p className="patient-empty-state">Loading patient data…</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="patient-page">
+        <TopNav />
+        <main className="pt-16">
+          <div className="patient-body">
+            <p className="patient-empty-state patient-empty-state--error">
+              Failed to load patient data. Please try again.
+            </p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  const { patient, latest_visit_summary, treatment_plan, fitness_plan } = data
+  const age = calculateAge(patient.birth_date)
 
   return (
     <div className="patient-page">
@@ -93,22 +76,22 @@ export default function PatientDetails() {
           <button type="button" className="patient-nav__back" onClick={() => navigate(-1)}>
             <ChevronLeft size={20} />
           </button>
-          <h1 className="patient-nav__title">Patient Details</h1>
+          <h1 className="patient-nav__title">{pageTitle}</h1>
         </div>
 
         {/* ── Body ── */}
         <div className="patient-body">
-          {/* Profile header card */}
+          {/* Profile header */}
           <div className="patient-profile-card">
             <div className="patient-profile-card__avatar">
-              {getInitials(patient.firstName, patient.lastName)}
+              {getInitials(patient.first_name, patient.last_name)}
             </div>
             <div className="patient-profile-card__info">
               <p className="patient-profile-card__name">
-                {patient.firstName} {patient.lastName}
+                {patient.first_name} {patient.last_name}
               </p>
               <div className="patient-profile-card__meta-row">
-                <span>ID: #{patient.id}</span>
+                <span>ID: #{patient.user_id}</span>
                 <span className="patient-profile-card__sep">|</span>
                 <span>{age} years old</span>
                 <span className="patient-profile-card__sep">|</span>
@@ -128,105 +111,132 @@ export default function PatientDetails() {
           {/* Three main cards */}
           <div className="patient-cards-grid">
             {/* Visit Summaries */}
-            <InfoCard title="Visit Summaries" actionLabel="View All Summaries" onAction={() => navigate(`/patient/${routePatientId}/visit-summaries`)}>
-              <div className="patient-visit__rows">
-                <div className="patient-visit__row">
-                  <span className="patient-visit__label">
-                    <Calendar size={14} />
-                    Last Visit
-                  </span>
-                  <span className="patient-visit__value">{formatDate(visitSummary.date)}</span>
-                </div>
-                <div className="patient-visit__row">
-                  <span className="patient-visit__label">
-                    <User size={14} />
-                    Therapist
-                  </span>
-                  <span className="patient-visit__value">{visitSummary.therapistName}</span>
-                </div>
-              </div>
-              <div className="patient-visit__note">
-                <span className="patient-visit__note-label">Clinical Note</span>
-                <p className="patient-visit__note-text">{visitSummary.noteSnippet}</p>
-              </div>
+            <InfoCard
+              title="Visit Summaries"
+              actionLabel="View All Summaries"
+              onAction={() => navigate(`/patient/${routePatientId}/visit-summaries`)}
+            >
+              {latest_visit_summary ? (
+                <>
+                  <div className="patient-visit__rows">
+                    <div className="patient-visit__row">
+                      <span className="patient-visit__label">
+                        <Calendar size={14} />
+                        Last Visit
+                      </span>
+                      <span className="patient-visit__value">
+                        {formatDate(latest_visit_summary.visit_date)}
+                      </span>
+                    </div>
+                    <div className="patient-visit__row">
+                      <span className="patient-visit__label">
+                        <User size={14} />
+                        Therapist
+                      </span>
+                      <span className="patient-visit__value">
+                        {latest_visit_summary.therapist_name}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="patient-visit__note">
+                    <span className="patient-visit__note-label">Clinical Note</span>
+                    <p className="patient-visit__note-text">
+                      {latest_visit_summary.description ?? 'No notes recorded.'}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <p className="patient-empty-state">No visit summary on record.</p>
+              )}
             </InfoCard>
 
             {/* Treatment Plan */}
             <InfoCard
               title="Treatment Plan"
-              actionLabel="Go to Current Treatment Plan"
-              onAction={() => navigate(`/patient/${routePatientId}/treatment-plans`)}
+              actionLabel={treatment_plan ? 'Go to Current Treatment Plan' : undefined}
+              onAction={
+                treatment_plan
+                  ? () => navigate(`/patient/${routePatientId}/treatment-plans/${treatment_plan.plan_id}`)
+                  : undefined
+              }
             >
-              <div className="patient-plan__rows">
-                <div className="patient-plan__row">
-                  <span className="patient-plan__label">
-                    <Activity size={14} />
-                    Plan
-                  </span>
-                  <span className="patient-plan__value">{treatmentPlan.name}</span>
-                </div>
-                <div className="patient-plan__row">
-                  <span className="patient-plan__label">
-                    <Calendar size={14} />
-                    Start Date
-                  </span>
-                  <span className="patient-plan__value">{treatmentPlan.startDate}</span>
-                </div>
-                <div className="patient-plan__row">
-                  <span className="patient-plan__label">
-                    <Calendar size={14} />
-                    End Date
-                  </span>
-                  <span className="patient-plan__value">{treatmentPlan.endDate}</span>
-                </div>
-              </div>
-              <div className="patient-plan__progress">
-                <ProgressBar value={treatmentPlan.progressPercent} showLabel />
-              </div>
+              {treatment_plan ? (
+                <>
+                  <div className="patient-plan__rows">
+                    <div className="patient-plan__row">
+                      <span className="patient-plan__label">
+                        <Activity size={14} />
+                        Diagnosis
+                      </span>
+                      <span className="patient-plan__value">{treatment_plan.medical_diagnosis}</span>
+                    </div>
+                    <div className="patient-plan__row">
+                      <span className="patient-plan__label">
+                        <Calendar size={14} />
+                        Start Date
+                      </span>
+                      <span className="patient-plan__value">{formatDate(treatment_plan.start_date)}</span>
+                    </div>
+                    <div className="patient-plan__row">
+                      <span className="patient-plan__label">
+                        <Calendar size={14} />
+                        End Date
+                      </span>
+                      <span className="patient-plan__value">{formatDate(treatment_plan.end_date)}</span>
+                    </div>
+                  </div>
+                  <div className="patient-plan__progress">
+                    <ProgressBar value={Math.round(treatment_plan.progress_percentage)} showLabel />
+                  </div>
+                </>
+              ) : (
+                <p className="patient-empty-state">No active treatment plan.</p>
+              )}
             </InfoCard>
 
-            {/* Training Plan */}
+            {/* Fitness Plan */}
             <InfoCard
-              title="Training Plan"
-              actionLabel="Go to Current Training Plan"
-              onAction={() => {
-                setShowTrainingComingSoon(true)
-                setTimeout(() => setShowTrainingComingSoon(false), 3000)
-              }}
+              title="Fitness Plan"
+              actionLabel={fitness_plan ? 'Go to Current Fitness Plan' : undefined}
+              onAction={
+                fitness_plan
+                  ? () => navigate(`/patient/${routePatientId}/treatment-plans/${fitness_plan.plan_id}`)
+                  : undefined
+              }
             >
-              <div className="patient-plan__rows">
-                <div className="patient-plan__row">
-                  <span className="patient-plan__label">
-                    <Activity size={14} />
-                    Plan
-                  </span>
-                  <span className="patient-plan__value">{trainingPlan.name}</span>
-                </div>
-                <div className="patient-plan__row">
-                  <span className="patient-plan__label">
-                    <Calendar size={14} />
-                    Start Date
-                  </span>
-                  <span className="patient-plan__value">{trainingPlan.startDate}</span>
-                </div>
-                <div className="patient-plan__row">
-                  <span className="patient-plan__label">
-                    <Calendar size={14} />
-                    End Date
-                  </span>
-                  <span className="patient-plan__value">{trainingPlan.endDate}</span>
-                </div>
-              </div>
-              <div className="patient-plan__progress">
-                <ProgressBar value={trainingPlan.progressPercent} showLabel />
-              </div>
+              {fitness_plan ? (
+                <>
+                  <div className="patient-plan__rows">
+                    <div className="patient-plan__row">
+                      <span className="patient-plan__label">
+                        <Activity size={14} />
+                        Diagnosis
+                      </span>
+                      <span className="patient-plan__value">{fitness_plan.medical_diagnosis}</span>
+                    </div>
+                    <div className="patient-plan__row">
+                      <span className="patient-plan__label">
+                        <Calendar size={14} />
+                        Start Date
+                      </span>
+                      <span className="patient-plan__value">{formatDate(fitness_plan.start_date)}</span>
+                    </div>
+                    <div className="patient-plan__row">
+                      <span className="patient-plan__label">
+                        <Calendar size={14} />
+                        End Date
+                      </span>
+                      <span className="patient-plan__value">{formatDate(fitness_plan.end_date)}</span>
+                    </div>
+                  </div>
+                  <div className="patient-plan__progress">
+                    <ProgressBar value={Math.round(fitness_plan.progress_percentage)} showLabel />
+                  </div>
+                </>
+              ) : (
+                <p className="patient-empty-state">No active fitness plan.</p>
+              )}
             </InfoCard>
-
-            {showTrainingComingSoon && (
-              <div className="patient-coming-soon">
-                Fitness Plan view is coming soon
-              </div>
-            )}
           </div>
         </div>
       </main>

@@ -317,3 +317,41 @@ export interface TreatmentPlanDetailsResponse {
   notes: string | null
   exercises: TreatmentPlanExerciseItem[]
 }
+
+// ── Patient Details domain types ──────────────────────────────────────────────
+
+export interface PatientBasicInfo {
+  user_id: string
+  first_name: string
+  last_name: string
+  phone: string
+  birth_date: string
+  email: string
+}
+
+export interface LatestVisitSummary {
+  session_id: number
+  visit_date: string
+  visit_time: string
+  visit_type: string
+  therapist_name: string
+  description: string | null
+}
+
+export interface CurrentPlanWithProgress {
+  plan_id: number
+  session_id: number
+  medical_diagnosis: string
+  start_date: string
+  end_date: string
+  progress_percentage: number
+  last_progress_update: string | null
+}
+
+export interface PatientDetailsResponse {
+  patient: PatientBasicInfo
+  latest_visit_summary: LatestVisitSummary | null
+  treatment_plan: CurrentPlanWithProgress | null
+  fitness_plan: CurrentPlanWithProgress | null
+  viewer_role: string | null
+}

@@ -29,7 +29,6 @@ const SearchIcon = () => (
 export default function HomePage() {
   const navigate = useNavigate()
   const auth = useAtomValue(authAtom)
-  console.log('Auth data in HomePage:', auth) // Debugging line to check auth data
   const displayName = auth ? `${auth.first_name} ${auth.last_name}`.trim() : 'Doctor'
 
   const { alerts, schedule } = usePatientsList()
@@ -143,7 +142,7 @@ export default function HomePage() {
                 </div>
               ) : (
                 <div className="w-full">
-                  <PatientsCarousel patients={filteredPatients} onPatientClick={() => { }} />
+                  <PatientsCarousel patients={filteredPatients} onPatientClick={(patientId) => navigate(`/patient/${patientId}`)} />
                 </div>
               )}
             </div>

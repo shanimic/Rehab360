@@ -11,6 +11,7 @@ from app.api.exercise_routes import exercise_router
 from app.api.treatment_plan_routes import treatment_plan_router
 from app.api.ai_search_routes import ai_search_router
 from app.api.homepage_routes import homepage_router
+from app.api.patient_details_routes import patient_details_router
 
 def get_application() -> FastAPI:
     _app = FastAPI(
@@ -35,6 +36,7 @@ def get_application() -> FastAPI:
     _app.include_router(treatment_plan_router, prefix="/treatment-plan")
     _app.include_router(ai_search_router, prefix="/ai-search")
     _app.include_router(homepage_router, prefix="/home")
+    _app.include_router(patient_details_router, prefix="/patient-details")
 
     return _app
 

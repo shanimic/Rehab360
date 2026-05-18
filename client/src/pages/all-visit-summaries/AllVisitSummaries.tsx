@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Phone, Mail } from 'lucide-react'
+import { useAtomValue } from 'jotai'
 import TopNav from '@/components/TopNav'
 import { useVisitSummaries } from '@/hooks/useVisitSummaries'
+import { authAtom } from '@/store/authAtom'
 import type { SessionListItem } from '@/types'
 
 import '../patient-details/PatientDetails.css'
@@ -105,9 +107,10 @@ export default function AllVisitSummaries() {
   const { id } = useParams<{ id: string }>()
   const [activeFilter, setActiveFilter] = useState<FilterTab>('All Sessions')
 
-  const { data: sessions, isLoading, isError } = useVisitSummaries(id)
+  const auth = useAtomValue(authAtom)
+  const canCreateSummary = auth?.role === 'PHYSIOTHERAPIST' || auth?.role === 'FITNESS_TRAINER'
 
-  console.log('[DEBUG] AllVisitSummaries GET /visit-summary/sessions response:', sessions)
+  const { data: sessions, isLoading, isError } = useVisitSummaries(id)
 
   const age = calculateAge(PATIENT.birthDate)
 
@@ -174,17 +177,16 @@ export default function AllVisitSummaries() {
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              className="avs-new-btn"
-              onClick={() => {
-                console.log('[DEBUG] AllVisitSummaries navigating to new visit, id:', id)
-                navigate(`/patient/${id}/visit-summaries/new`)
-              }}
-            >
-              <span className="avs-new-btn__icon">+</span>
-              New Summary
-            </button>
+            {canCreateSummary && (
+              <button
+                type="button"
+                className="avs-new-btn"
+                onClick={() => navigate(`/patient/${id}/visit-summaries/new`)}
+              >
+                <span className="avs-new-btn__icon">+</span>
+                New Summary
+              </button>
+            )}
           </div>
 
           {/* ── Visit cards list ── */}

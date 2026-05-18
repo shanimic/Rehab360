@@ -21,7 +21,7 @@ function formatDate(iso: string): string {
 
 // ── Shell ─────────────────────────────────────────────────────────────────────
 
-function PageShell({ onBack, children }: { onBack: () => void; children: React.ReactNode }) {
+function PageShell({ onBack, title = 'Treatment Plan', children }: { onBack: () => void; title?: string; children: React.ReactNode }) {
   return (
     <div className="vtp-page">
       <TopNav />
@@ -30,7 +30,7 @@ function PageShell({ onBack, children }: { onBack: () => void; children: React.R
           <button type="button" className="patient-nav__back" onClick={onBack}>
             <ChevronLeft size={20} />
           </button>
-          <h1 className="patient-nav__title">Treatment Plan</h1>
+          <h1 className="patient-nav__title">{title}</h1>
         </div>
         <div className="vtp-body">{children}</div>
       </main>
@@ -68,8 +68,10 @@ export default function ViewTreatmentPlan() {
     )
   }
 
+  const pageTitle = data.visit_type === 'FITNESS' ? 'Fitness Plan' : 'Treatment Plan'
+
   return (
-    <PageShell onBack={() => navigate(-1)}>
+    <PageShell onBack={() => navigate(-1)} title={pageTitle}>
 
       {/* ── Plan Details ── */}
       <div className="vsd-card">
