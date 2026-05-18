@@ -637,6 +637,36 @@
 .ph-bottom-nav__item--active { color: var(--color-primary); }
 .ph-bottom-nav__item:hover:not(.ph-bottom-nav__item--active) { color: var(--color-text-secondary); }
 
+/* ── Exercise empty state ── */
+.ph-exercise-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 36px 20px;
+  text-align: center;
+}
+
+.ph-exercise-empty__icon {
+  color: var(--color-text-muted);
+  opacity: 0.45;
+  margin-bottom: 4px;
+}
+
+.ph-exercise-empty__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.ph-exercise-empty__sub {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
 /* =========================================
    Desktop (≥ 900px)
    ========================================= */

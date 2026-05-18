@@ -205,7 +205,15 @@ export default function PatientHome() {
               <div className="ph-exercise-list">
                 {isLoading
                   ? <p className="ph-loading">Loading exercises…</p>
-                  : dailyExercises.map(ex => <ExerciseItem key={ex.exercise_id} exercise={ex} />)
+                  : dailyExercises.length === 0
+                    ? (
+                        <div className="ph-exercise-empty">
+                          <Dumbbell size={32} className="ph-exercise-empty__icon" />
+                          <p className="ph-exercise-empty__title">No exercises today</p>
+                          <p className="ph-exercise-empty__sub">Your plan for today is empty. Enjoy the rest!</p>
+                        </div>
+                      )
+                    : dailyExercises.map(ex => <ExerciseItem key={ex.exercise_id} exercise={ex} />)
                 }
               </div>
             </section>
