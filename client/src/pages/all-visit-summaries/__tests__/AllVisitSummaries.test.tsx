@@ -23,7 +23,7 @@ function renderPage() {
 }
 
 beforeEach(() => {
-  vi.mocked(useVisitSummaries).mockReturnValue({ data: [], isLoading: false, isError: false } as any)
+  vi.mocked(useVisitSummaries).mockReturnValue({ data: [], isLoading: false, isError: false } as unknown as ReturnType<typeof useVisitSummaries>)
 })
 
 describe('AllVisitSummaries — New Summary button visibility', () => {

@@ -41,7 +41,7 @@ function renderPage() {
 beforeEach(() => {
   vi.mocked(useAtomValue).mockReturnValue({ role: 'PHYSIOTHERAPIST', id: 'T1', first_name: 'Doc', last_name: 'Test' })
   vi.mocked(useHomePatients).mockReturnValue({ data: MOCK_PATIENTS, isLoading: false, isError: false } as ReturnType<typeof useHomePatients>)
-  vi.mocked(useAllPatients).mockReturnValue({ data: [] } as any)
+  vi.mocked(useAllPatients).mockReturnValue({ data: [] } as unknown as ReturnType<typeof useAllPatients>)
   vi.mocked(usePatientsList).mockReturnValue({ alerts: [], patients: [], schedule: [] })
 })
 
