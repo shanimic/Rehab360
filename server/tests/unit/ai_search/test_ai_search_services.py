@@ -95,7 +95,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(repo, times=1).get_verified_content_url_flags().thenReturn({})
+        expect(repo, times=1).get_all_url_verifications().thenReturn({})
 
         # ACT
         result = asyncio.run(service.search(request))
@@ -109,7 +109,7 @@ class AiSearchServicesTest(unittest.TestCase):
 
     def test_search_source_with_multiple_verifications(self) -> None:
         """
-        Given get_verified_content_url_flags returns physio=3, trainer=2 for a source URL,
+        Given get_all_url_verifications returns physio=3, trainer=2 for a source URL,
         When search is called,
         Then the matching source card has physio_verification_count=3 and trainer_verification_count=2.
         """
@@ -130,7 +130,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(repo, times=1).get_verified_content_url_flags().thenReturn(flags)
+        expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
 
         # ACT
         result = asyncio.run(service.search(request))
@@ -141,7 +141,7 @@ class AiSearchServicesTest(unittest.TestCase):
 
     def test_search_unverified_source_gets_zero_counts(self) -> None:
         """
-        Given get_verified_content_url_flags returns flags for a different URL,
+        Given get_all_url_verifications returns flags for a different URL,
         When search is called,
         Then the returned source card has both counts equal to 0.
         """
@@ -161,7 +161,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(repo, times=1).get_verified_content_url_flags().thenReturn(flags)
+        expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
 
         # ACT
         result = asyncio.run(service.search(request))
@@ -286,7 +286,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(repo, times=1).get_verified_content_url_flags().thenReturn(flags)
+        expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
 
         # ACT
         result = asyncio.run(service.search(request))
@@ -361,7 +361,7 @@ class AiSearchServicesTest(unittest.TestCase):
 
     def test_save_content_no_existing_content_inserts_both(self) -> None:
         """
-        Given no content row exists for this URL and query,
+        Given no content row exists for this URL,
         When save_content is called,
         Then insert_content and insert_saved_content are each called exactly once.
         """
@@ -378,53 +378,8 @@ class AiSearchServicesTest(unittest.TestCase):
         )
 
         # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
-        ).thenReturn(None)
+        expect(repo, times=1).get_content_by_url(request.url).thenReturn(None)
         expect(repo, times=1).insert_content(expected_data).thenReturn(5)
-        expect(repo, times=1).get_verification_flags_by_url(
-            request.url
-        ).thenReturn({"physio": 0, "trainer": 0})
-        expect(repo, times=1).get_recommendation_by_content_and_user(
-            5, request.user_id
-        ).thenReturn(None)
-        expect(repo, times=1).insert_saved_content(
-            5, request.user_id, request.user_role
-        ).thenReturn(1)
-
-        # ACT
-        asyncio.run(service.save_content(request))
-
-        # ASSERT — verified by expect(times=1)
-
-    def test_save_content_new_content_inherits_verification_flags(self) -> None:
-        """
-        Given no content row exists for this URL and query,
-        but the URL was already verified by a physio in a different query,
-        When save_content is called,
-        Then the new content row inherits the verified flag via update_verified_flag.
-        """
-        # PREPARE
-        repo = mock(AiSearchRepository)
-        service = AiSearchServices(repository=repo)
-        request = _make_save_request()
-        expected_data = ContentData(
-            title=request.title,
-            url=request.url,
-            content_text=request.content_text,
-            content_type=request.content_type,
-            query_id=request.query_id,
-        )
-
-        # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
-        ).thenReturn(None)
-        expect(repo, times=1).insert_content(expected_data).thenReturn(5)
-        expect(repo, times=1).get_verification_flags_by_url(
-            request.url
-        ).thenReturn({"physio": 1, "trainer": 0})
-        expect(repo, times=1).set_content_verification_counts(5, 1, 0).thenReturn(None)
         expect(repo, times=1).get_recommendation_by_content_and_user(
             5, request.user_id
         ).thenReturn(None)
@@ -439,10 +394,9 @@ class AiSearchServicesTest(unittest.TestCase):
 
     def test_save_content_existing_content_inserts_recommendation(self) -> None:
         """
-        Given a content row already exists but no recommendation for this user,
+        Given a content row already exists for this URL but no recommendation for this user,
         When save_content is called,
-        Then insert_content is NOT called, update_content_metadata and
-        insert_saved_content are each called once.
+        Then insert_content is NOT called and insert_saved_content is called once.
         """
         # PREPARE
         repo = mock(AiSearchRepository)
@@ -450,12 +404,7 @@ class AiSearchServicesTest(unittest.TestCase):
         request = _make_save_request()
 
         # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
-        ).thenReturn({"content_id": 5})
-        expect(repo, times=1).update_content_metadata(
-            5, request.title, request.content_text, request.content_type
-        ).thenReturn(None)
+        expect(repo, times=1).get_content_by_url(request.url).thenReturn({"content_id": 5})
         expect(repo, times=1).get_recommendation_by_content_and_user(
             5, request.user_id
         ).thenReturn(None)
@@ -480,12 +429,7 @@ class AiSearchServicesTest(unittest.TestCase):
         request = _make_save_request()
 
         # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
-        ).thenReturn({"content_id": 5})
-        expect(repo, times=1).update_content_metadata(
-            5, request.title, request.content_text, request.content_type
-        ).thenReturn(None)
+        expect(repo, times=1).get_content_by_url(request.url).thenReturn({"content_id": 5})
         expect(repo, times=1).get_recommendation_by_content_and_user(
             5, request.user_id
         ).thenReturn({"saving_id": 3})
@@ -521,11 +465,11 @@ class AiSearchServicesTest(unittest.TestCase):
     # verify_content                                                       #
     # ------------------------------------------------------------------ #
 
-    def test_verify_content_content_exists(self) -> None:
+    def test_verify_content_calls_upsert(self) -> None:
         """
-        Given a content row already exists for the URL and query,
-        When verify_content is called by a PHYSIOTHERAPIST with verified=True,
-        Then only update_verified_flag is called with the URL — no recommendation inserts.
+        Given a PHYSIOTHERAPIST calls verify with verified=True,
+        When verify_content is called,
+        Then upsert_url_verification is called with the URL, role, and True.
         """
         # PREPARE
         repo = mock(AiSearchRepository)
@@ -533,40 +477,9 @@ class AiSearchServicesTest(unittest.TestCase):
         request = _make_verify_request()
 
         # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
-        ).thenReturn({"content_id": 2})
-        expect(repo, times=1).update_verified_flag(request.url, request.user_role, True).thenReturn(None)
-
-        # ACT
-        asyncio.run(service.verify_content(request))
-
-        # ASSERT — verified by expect(times=1)
-
-    def test_verify_content_nothing_exists(self) -> None:
-        """
-        Given no content row exists for the URL and query,
-        When verify_content is called by a PHYSIOTHERAPIST with verified=True,
-        Then a skeleton content row is inserted and update_verified_flag is called.
-        """
-        # PREPARE
-        repo = mock(AiSearchRepository)
-        service = AiSearchServices(repository=repo)
-        request = _make_verify_request()
-        expected_data = ContentData(
-            title="",
-            url=request.url,
-            content_text=None,
-            content_type="",
-            query_id=request.query_id,
-        )
-
-        # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
+        expect(repo, times=1).upsert_url_verification(
+            request.url, request.user_role, True
         ).thenReturn(None)
-        expect(repo, times=1).insert_content(expected_data).thenReturn(10)
-        expect(repo, times=1).update_verified_flag(request.url, request.user_role, True).thenReturn(None)
 
         # ACT
         asyncio.run(service.verify_content(request))
@@ -575,9 +488,9 @@ class AiSearchServicesTest(unittest.TestCase):
 
     def test_verify_content_unverify(self) -> None:
         """
-        Given a content row exists and verified=False in the request,
+        Given verified=False in the request,
         When verify_content is called by a PHYSIOTHERAPIST,
-        Then update_verified_flag is called with value=False to clear the flag.
+        Then upsert_url_verification is called with value=False to decrement the count.
         """
         # PREPARE
         repo = mock(AiSearchRepository)
@@ -585,10 +498,9 @@ class AiSearchServicesTest(unittest.TestCase):
         request = _make_verify_request(verified=False)
 
         # MOCK
-        expect(repo, times=1).get_content_by_url_and_query(
-            request.url, request.query_id
-        ).thenReturn({"content_id": 2})
-        expect(repo, times=1).update_verified_flag(request.url, request.user_role, False).thenReturn(None)
+        expect(repo, times=1).upsert_url_verification(
+            request.url, request.user_role, False
+        ).thenReturn(None)
 
         # ACT
         asyncio.run(service.verify_content(request))
@@ -645,9 +557,9 @@ class AiSearchServicesTest(unittest.TestCase):
 
     def test_verify_content_fitness_trainer_role(self) -> None:
         """
-        Given a content row exists and user_role is FITNESS_TRAINER,
+        Given user_role is FITNESS_TRAINER,
         When verify_content is called with verified=True then verified=False,
-        Then update_verified_flag is called with 'FITNESS_TRAINER' and the correct value each time.
+        Then upsert_url_verification is called with 'FITNESS_TRAINER' and the correct value each time.
         """
         for verified in (True, False):
             # PREPARE
@@ -656,10 +568,7 @@ class AiSearchServicesTest(unittest.TestCase):
             request = _make_verify_request(user_role="FITNESS_TRAINER", user_id="F300", verified=verified)
 
             # MOCK
-            expect(repo, times=1).get_content_by_url_and_query(
-                request.url, request.query_id
-            ).thenReturn({"content_id": 2})
-            expect(repo, times=1).update_verified_flag(
+            expect(repo, times=1).upsert_url_verification(
                 request.url, "FITNESS_TRAINER", verified
             ).thenReturn(None)
 

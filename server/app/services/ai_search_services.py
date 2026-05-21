@@ -20,11 +20,16 @@ from app.models.ai_search.ai_search import (
 _GEMINI_SYSTEM_INSTRUCTION = (
     "You are a rehabilitation and physiotherapy expert. "
     "Use the Google Search tool to find current, publicly accessible sources. "
+    "Strongly prefer well-known, authoritative domains with stable, long-lived URLs — "
+    "for example: pubmed.ncbi.nlm.nih.gov, www.nhs.uk, www.mayoclinic.org, "
+    "www.physio-pedia.com, www.webmd.com, www.healthline.com, www.spine-health.com, "
+    "www.orthoinfo.aaos.org, www.cochrane.org, or official hospital/university sites. "
+    "Avoid deep article paths on small or obscure websites that are likely to go dead. "
     "Only include the real, direct URL of the source webpage — for example "
-    "'https://www.physio.org/article/knee-rehab'. "
+    "'https://www.physio-pedia.com/Rotator_Cuff'. "
     "NEVER include vertexaisearch.cloud.google.com redirect URLs or any other "
     "tracking/redirect URLs. "
-    "Do not invent or recall URLs from memory. "
+    "Do not invent or recall URLs from memory — only use URLs directly returned by Google Search. "
     "Given a user query, respond ONLY with a valid JSON object in this exact shape: "
     '{"summary": "<2-3 sentence plain-language answer>", '
     '"sources": [{"title": "<source title>", "url": "<full direct URL>", '
@@ -125,7 +130,7 @@ class AiSearchServices:
                 detail=f"Gemini API error: {exc}",
             ) from exc
 
-        verified_flags = await self.repository.get_verified_content_url_flags()
+        verified_flags = await self.repository.get_all_url_verifications()
         sources = [
             SourceCard(
                 title=s["title"],
@@ -163,22 +168,15 @@ class AiSearchServices:
     async def save_content(self, request: SaveContentRequest) -> None:
         """Persist a source card to the user's saved library.
 
-        Reuses an existing content row if one already exists for the same
-        URL and query. If the existing row is a verify-only skeleton (empty title),
-        backfills it with the real title/text/type. Skips inserting a recommendation
-        if one already exists for this user and content.
+        Reuses an existing content row if one already exists for the same URL.
+        Skips inserting a recommendation if one already exists for this user and content.
 
         Args:
             request: The save request with source details and user context.
         """
-        existing_content = await self.repository.get_content_by_url_and_query(
-            request.url, request.query_id
-        )
+        existing_content = await self.repository.get_content_by_url(request.url)
         if existing_content:
             content_id = existing_content["content_id"]
-            await self.repository.update_content_metadata(
-                content_id, request.title, request.content_text, request.content_type
-            )
         else:
             content_id = await self.repository.insert_content(
                 ContentData(
@@ -189,11 +187,6 @@ class AiSearchServices:
                     query_id=request.query_id,
                 )
             )
-            flags = await self.repository.get_verification_flags_by_url(request.url)
-            if flags["physio"] > 0 or flags["trainer"] > 0:
-                await self.repository.set_content_verification_counts(
-                    content_id, flags["physio"], flags["trainer"]
-                )
 
         existing_rec = await self.repository.get_recommendation_by_content_and_user(
             content_id, request.user_id
@@ -226,11 +219,11 @@ class AiSearchServices:
     async def verify_content(self, request: VerifyContentRequest) -> None:
         """Set or clear the verified flag on a content URL for a professional's role.
 
-        Verification is a global quality stamp on the content itself — it does not
-        create a personal saved-content entry for the professional.
+        Verification is a global quality stamp on the URL itself — counts live in
+        url_verifications and are independent of any content row.
 
         Args:
-            request: The verify request with url, query_id, user_id, user_role, and verified.
+            request: The verify request with url, user_id, user_role, and verified.
 
         Raises:
             HTTPException: 403 if the requesting user is not a professional role.
@@ -240,19 +233,6 @@ class AiSearchServices:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only professionals can verify content.",
             )
-
-        existing_content = await self.repository.get_content_by_url_and_query(
-            request.url, request.query_id
+        await self.repository.upsert_url_verification(
+            request.url, request.user_role, request.verified
         )
-        if not existing_content:
-            await self.repository.insert_content(
-                ContentData(
-                    title="",
-                    url=request.url,
-                    content_text=None,
-                    content_type="",
-                    query_id=request.query_id,
-                )
-            )
-
-        await self.repository.update_verified_flag(request.url, request.user_role, request.verified)
