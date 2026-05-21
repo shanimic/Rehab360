@@ -13,8 +13,8 @@ import './ProfilePage.css'
 
 const HOME_ROUTE: Record<ApiRole, string> = {
   PATIENT: '/patient',
-  PHYSIOTHERAPIST: '/physiotherapist',
-  FITNESS_TRAINER: '/fitness',
+  PHYSIOTHERAPIST: '/physiotherapist/home',
+  FITNESS_TRAINER: '/fitness/home',
 }
 
 export default function ProfilePage() {

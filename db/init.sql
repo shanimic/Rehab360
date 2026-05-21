@@ -1,6 +1,7 @@
 CREATE DATABASE IF NOT EXISTS `rehab360`;
 USE `rehab360`;
 
+drop table url_verifications;
 drop table saved_content ;
 drop table content ;
 drop table queries ;
@@ -197,8 +198,8 @@ CREATE TABLE IF NOT EXISTS queries (
     query_id INT PRIMARY KEY auto_increment,
     query_text TEXT NOT NULL,
     query_date DATE NOT NULL,
-    user_id VARCHAR(255),
-    user_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
+    user_id VARCHAR(255) NOT NULL,
+    user_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER') NOT NULL,
     FOREIGN KEY (user_id, user_role) REFERENCES registered_users(user_id, user_role)
 );
 
@@ -213,10 +214,8 @@ CREATE TABLE IF NOT EXISTS content (
     content_text TEXT NULL,
     content_type VARCHAR(50) NOT NULL,
     content_title VARCHAR(255) NOT NULL,
-    content_source_link VARCHAR(255) NOT NULL,
-    physio_verification_count INT NOT NULL DEFAULT 0,
-    trainer_verification_count INT NOT NULL DEFAULT 0,
-    query_id INT,
+    content_source_link VARCHAR(255) NOT NULL UNIQUE,
+    query_id INT NOT NULL,
     FOREIGN KEY (query_id) REFERENCES queries(query_id)
 );
 
@@ -229,9 +228,9 @@ VALUES
 CREATE TABLE IF NOT EXISTS saved_content (
     saving_id INT PRIMARY KEY auto_increment,
     saving_date DATE NOT NULL,
-    content_id INT,
-    user_id VARCHAR(255),
-    user_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER'),
+    content_id INT NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    user_role ENUM('PHYSIOTHERAPIST', 'PATIENT', 'FITNESS_TRAINER') NOT NULL,
     FOREIGN KEY (content_id) REFERENCES content(content_id),
     FOREIGN KEY (user_id, user_role) REFERENCES registered_users(user_id, user_role)
 );
@@ -240,3 +239,15 @@ INSERT INTO saved_content ( saving_date, content_id, user_id, user_role)
 VALUES
 ( '2024-01-13', 1, 'P100', 'PATIENT'),
 ( '2024-01-14', 2, 'T200', 'PHYSIOTHERAPIST');
+
+-- 11. URL Verifications Table
+CREATE TABLE IF NOT EXISTS url_verifications (
+    url                        VARCHAR(255) NOT NULL PRIMARY KEY,
+    physio_verification_count  INT          NOT NULL DEFAULT 0,
+    trainer_verification_count INT          NOT NULL DEFAULT 0
+);
+
+INSERT INTO url_verifications (url, physio_verification_count, trainer_verification_count)
+VALUES
+('https://www.webmd.com/first-aid/rice-method-injuries', 1, 1),
+('https://www.youtube.com/watch?v=kFGB7gW3pQ8', 1, 1);
