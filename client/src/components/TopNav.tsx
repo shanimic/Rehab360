@@ -11,9 +11,9 @@ const STAFF_MENU_ITEMS = [
     path: '',
     icon: (
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-        <path d="M3 12L12 3l9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M9 21V12h6v9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M3 12v9h18v-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3 12L12 3l9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 21V12h6v9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M3 12v9h18v-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -22,9 +22,9 @@ const STAFF_MENU_ITEMS = [
     path: '/placeholder',
     icon: (
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.85" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
+        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.85" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -33,9 +33,9 @@ const STAFF_MENU_ITEMS = [
     path: '/ai-search',
     icon: (
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-        <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M11 8v3M8.5 11H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+        <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M11 8v3M8.5 11H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -44,7 +44,7 @@ const STAFF_MENU_ITEMS = [
     path: '/ai-search/saved',
     icon: (
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -53,23 +53,23 @@ const STAFF_MENU_ITEMS = [
     path: '/profile',
     icon: (
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
+        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
   },
 ]
 
-function getPatientMenuItems(patientId: number | undefined) {
+function getPatientMenuItems(patientId: string | undefined) {
   return [
     {
       label: 'Home',
       path: '/patient',
       icon: (
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <path d="M3 12L12 3l9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M9 21V12h6v9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M3 12v9h18v-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M3 12L12 3l9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9 21V12h6v9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M3 12v9h18v-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
     },
@@ -78,9 +78,9 @@ function getPatientMenuItems(patientId: number | undefined) {
       path: '/patient/my-plan',
       icon: (
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <path d="M6.5 6.5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5S10.38 9 9 9 6.5 7.88 6.5 6.5Z" stroke="currentColor" strokeWidth="2"/>
-          <path d="M4 20v-1a5 5 0 0 1 5-5h.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M15 12v8m-3-3 3 3 3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M6.5 6.5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5S10.38 9 9 9 6.5 7.88 6.5 6.5Z" stroke="currentColor" strokeWidth="2" />
+          <path d="M4 20v-1a5 5 0 0 1 5-5h.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path d="M15 12v8m-3-3 3 3 3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
     },
@@ -89,8 +89,8 @@ function getPatientMenuItems(patientId: number | undefined) {
       path: `/patient/${patientId}`,
       icon: (
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" stroke="currentColor" strokeWidth="2"/>
-          <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" stroke="currentColor" strokeWidth="2" />
+          <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
     },
@@ -99,9 +99,9 @@ function getPatientMenuItems(patientId: number | undefined) {
       path: '/ai-search',
       icon: (
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-          <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M11 8v3M8.5 11H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+          <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path d="M11 8v3M8.5 11H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       ),
     },
@@ -110,7 +110,7 @@ function getPatientMenuItems(patientId: number | undefined) {
       path: '/ai-search/saved',
       icon: (
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
     },
@@ -119,8 +119,8 @@ function getPatientMenuItems(patientId: number | undefined) {
       path: '/profile',
       icon: (
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-          <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
+          <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       ),
     },
@@ -181,7 +181,7 @@ export default function TopNav() {
               aria-label="Open navigation menu"
             >
               <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
           </div>
@@ -210,7 +210,7 @@ export default function TopNav() {
                 aria-label="Close menu"
               >
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
-                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
@@ -237,9 +237,9 @@ export default function TopNav() {
                 >
                   <span>
                     <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M16 17l5-5-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M16 17l5-5-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </span>
                   Logout
