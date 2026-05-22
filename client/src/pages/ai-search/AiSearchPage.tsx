@@ -11,7 +11,7 @@ import { errMsg } from '@/lib/utils'
 import { resolveSearchError } from '@/lib/aiSearchUtils'
 import { Button } from '@/components/ui/button'
 import BackButton from '@/components/ui/BackButton'
-import PatientTopNav from '@/components/PatientTopNav'
+import TopNav from '@/components/TopNav'
 import QueryChips from './components/QueryChips'
 import SearchResultsArea from './components/SearchResultsArea'
 import FollowUpBar from './components/FollowUpBar'
@@ -50,7 +50,7 @@ export default function AiSearchPage() {
 
   return (
     <div className="ais-page pt-16">
-      <PatientTopNav patientName={auth?.first_name} />
+      <TopNav />
 
       <main className="ais-page__main">
         {isIdle ? (

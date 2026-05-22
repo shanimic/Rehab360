@@ -1,7 +1,6 @@
 import { useAtomValue } from 'jotai'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 
-import PatientTopNav from '@/components/PatientTopNav'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/ui/BackButton'
 import { authAtom } from '@/store/authAtom'
@@ -29,7 +28,7 @@ export default function ProfilePage() {
 
   return (
     <div className="pp-page pt-16">
-      {role === 'PATIENT' ? <PatientTopNav patientName={firstName} /> : <TopNav />}
+      <TopNav />
 
       <main className="pp-main">
         <div className="pp-title-row max-w-2xl mx-auto">

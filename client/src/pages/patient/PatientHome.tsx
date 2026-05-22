@@ -7,7 +7,7 @@ import {
 import './PatientHome.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import PatientTopNav from '@/components/PatientTopNav'
+import TopNav from '@/components/TopNav'
 import type { Session } from "@/pages/patient/patient.types.ts"
 import { useNavigate } from "react-router-dom"
 import { useGetPatientHome } from '@/hooks/paitent/useGetPatinetHome'
@@ -132,7 +132,7 @@ export default function PatientHome() {
   return (
     <div className="ph-page pt-16">
 
-      <PatientTopNav patientName={user?.first_name} />
+      <TopNav />
 
       {/* ── Main ── */}
       <main className="ph-main">
@@ -207,12 +207,12 @@ export default function PatientHome() {
                   ? <p className="ph-loading">Loading exercises…</p>
                   : dailyExercises.length === 0
                     ? (
-                        <div className="ph-exercise-empty">
-                          <Dumbbell size={32} className="ph-exercise-empty__icon" />
-                          <p className="ph-exercise-empty__title">No exercises today</p>
-                          <p className="ph-exercise-empty__sub">Your plan for today is empty. Enjoy the rest!</p>
-                        </div>
-                      )
+                      <div className="ph-exercise-empty">
+                        <Dumbbell size={32} className="ph-exercise-empty__icon" />
+                        <p className="ph-exercise-empty__title">No exercises today</p>
+                        <p className="ph-exercise-empty__sub">Your plan for today is empty. Enjoy the rest!</p>
+                      </div>
+                    )
                     : dailyExercises.map(ex => <ExerciseItem key={ex.exercise_id} exercise={ex} />)
                 }
               </div>

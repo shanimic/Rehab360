@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import { useSavedContent } from '@/hooks/useSavedContent'
 import { useUnsaveContent } from '@/hooks/useUnsaveContent'
-import PatientTopNav from '@/components/PatientTopNav'
+import TopNav from '@/components/TopNav'
 import BackButton from '@/components/ui/BackButton'
 import FilterBar from './components/FilterBar'
 import SourceCard from './components/SourceCard'
@@ -40,7 +40,7 @@ export default function SavedContentPage() {
 
   return (
     <div className="ais-saved pt-16">
-      <PatientTopNav patientName={auth?.first_name} />
+      <TopNav />
 
       <main className="ais-saved__main">
         {/* ─── Page title ─── */}

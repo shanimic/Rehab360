@@ -7,7 +7,7 @@ import CalendarLinksModal, { type CalendarItem } from './components/CalendarLink
 import './ExerciseSchedule.css'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import PatientTopNav from '@/components/PatientTopNav'
+import TopNav from '@/components/TopNav'
 import { useNavigate } from 'react-router-dom'
 import { useGetWeeklySchedule } from '@/hooks/paitent/useGetWeeklySchedule'
 import { useSaveWeeklySchedule } from '@/hooks/paitent/useSaveWeeklySchedule'
@@ -217,7 +217,7 @@ export default function ExerciseSchedule() {
     <div className="es-page">
 
       {/* ── Header ── */}
-      <PatientTopNav patientName={user?.first_name} />
+      <TopNav />
 
       <main className="es-main">
 

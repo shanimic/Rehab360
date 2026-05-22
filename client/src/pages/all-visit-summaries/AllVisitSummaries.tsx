@@ -128,7 +128,7 @@ export default function AllVisitSummaries() {
       <main className="pt-16">
         {/* ── Back navigation ── */}
         <div className="patient-nav">
-          <button type="button" className="patient-nav__back" onClick={() => navigate(-1)}>
+          <button type="button" className="patient-nav__back" onClick={() => navigate(`/patient/${id ?? ''}`)}>
             <ChevronLeft size={20} />
           </button>
           <h1 className="patient-nav__title">Visit Summaries</h1>

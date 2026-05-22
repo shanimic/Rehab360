@@ -171,9 +171,6 @@ export default function VisitSummaryDetail() {
     Number.isNaN(sessionId) ? undefined : sessionId,
   )
 
-  const toList = (patientId: string | undefined) =>
-    `/patient/${patientId ?? id ?? ''}/visit-summaries`
-
   useEffect(() => {
     if (Number.isNaN(sessionId)) navigate(`/patient/${id ?? ''}/visit-summaries`)
   }, [sessionId, id, navigate])
@@ -182,7 +179,7 @@ export default function VisitSummaryDetail() {
 
   if (isLoading) {
     return (
-      <PageShell onBack={() => navigate(toList(undefined))}>
+      <PageShell onBack={() => navigate(`/patient/${id ?? ''}`)}>
         <p className="vsd-state-text">Loading...</p>
       </PageShell>
     )
@@ -190,7 +187,7 @@ export default function VisitSummaryDetail() {
 
   if (isError || !data) {
     return (
-      <PageShell onBack={() => navigate(toList(undefined))}>
+      <PageShell onBack={() => navigate(`/patient/${id ?? ''}`)}>
         <p className="vsd-state-text vsd-state-text--error">
           Could not load visit summary. Please try again.
         </p>
@@ -205,7 +202,7 @@ export default function VisitSummaryDetail() {
       : null
 
   return (
-    <PageShell onBack={() => navigate(toList(data.patient_id))}>
+    <PageShell onBack={() => navigate(`/patient/${id ?? ''}/visit-summaries`)}>
       {/* Patient Info Card */}
       <div className="patient-profile-card">
         <div className="patient-profile-card__avatar">
