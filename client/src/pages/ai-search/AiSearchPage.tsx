@@ -7,7 +7,6 @@ import { currentQueryAtom, searchResultsAtom } from '@/store/aiSearchAtom'
 import { useAiSearchMutation } from '@/hooks/useAiSearchMutation'
 import { resolveSearchError } from '@/lib/aiSearchUtils'
 import BackButton from '@/components/ui/BackButton'
-import PatientTopNav from '@/components/PatientTopNav'
 import TopNav from '@/components/TopNav'
 import QueryChips from './components/QueryChips'
 import SearchResultsArea from './components/SearchResultsArea'
@@ -18,7 +17,6 @@ import './AiSearchPage.css'
 
 export default function AiSearchPage() {
   const auth = useAtomValue(authAtom)
-  const role = auth?.role
   const [currentQuery, setCurrentQuery] = useAtom(currentQueryAtom)
   const [searchResults, setSearchResults] = useAtom(searchResultsAtom)
   const searchMutation = useAiSearchMutation()
@@ -41,7 +39,7 @@ export default function AiSearchPage() {
 
   return (
     <div className="ais-page pt-16">
-      {role === 'PATIENT' ? <PatientTopNav patientName={auth?.first_name} /> : <TopNav />}
+      <TopNav />
 
       <main className="ais-page__main">
         {/* ── Idle state: no search submitted yet ── */}

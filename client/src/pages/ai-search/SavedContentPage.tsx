@@ -7,7 +7,6 @@ import type { ApiRole } from '@/types'
 import { useSavedContent } from '@/hooks/useSavedContent'
 import { useUnsaveContent } from '@/hooks/useUnsaveContent'
 import { useVerifyContent } from '@/hooks/useVerifyContent'
-import PatientTopNav from '@/components/PatientTopNav'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/ui/BackButton'
 import FilterBar from './components/FilterBar'
@@ -67,7 +66,7 @@ export default function SavedContentPage() {
 
   return (
     <div className="ais-saved pt-16">
-      {userRole === 'PATIENT' ? <PatientTopNav patientName={auth?.first_name} /> : <TopNav />}
+      <TopNav />
 
       <main className="ais-saved__main">
         {/* ─── Page title ─── */}
