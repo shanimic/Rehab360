@@ -1,7 +1,9 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import { useSaveContent } from '@/hooks/useSaveContent'
+import { useUnsaveContent } from '@/hooks/useUnsaveContent'
+import { useSavedContent } from '@/hooks/useSavedContent'
 import { useVerifyContent } from '@/hooks/useVerifyContent'
 import ExchangeBlock from './ExchangeBlock'
 import type { AiConversation } from '@/types'
@@ -10,15 +12,23 @@ import type { SavePayload } from '@/hooks/useSaveContent'
 interface SearchResultsAreaProps {
   exchanges: AiConversation
   isPending: boolean
+  // Shown as a bubble while loading so the user sees what they submitted
+  pendingQuery?: string
 }
 
-export default function SearchResultsArea({ exchanges, isPending }: SearchResultsAreaProps) {
+export default function SearchResultsArea({ exchanges, isPending, pendingQuery }: SearchResultsAreaProps) {
   const auth = useAtomValue(authAtom)
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
+  const savedContent = useSavedContent()
+  const savedMap = useMemo(
+    () => new Map(savedContent.map((i) => [i.source_url, i.saving_id])),
+    [savedContent],
+  )
   const saveContent = useSaveContent(() => {})
+  const unsaveContent = useUnsaveContent(() => {})
   const verifyContent = useVerifyContent()
 
   const userRole = auth?.role ?? 'PATIENT'
+
   useEffect(() => {
     if (!isPending) return
     requestAnimationFrame(() => {
@@ -27,8 +37,16 @@ export default function SearchResultsArea({ exchanges, isPending }: SearchResult
   }, [isPending])
 
   function handleSave(payload: SavePayload) {
-    setSavedIds((prev) => new Set([...prev, payload.url]))
-    saveContent.mutate(payload)
+    const savingId = savedMap.get(payload.url)
+    if (savingId !== undefined) {
+      unsaveContent.mutate(savingId)
+    } else {
+      saveContent.mutate(payload)
+    }
+  }
+
+  function handleVerify(url: string, queryId: number, currentlyVerified: boolean) {
+    verifyContent.mutate({ url, query_id: queryId, verified: !currentlyVerified })
   }
 
   return (
@@ -42,18 +60,23 @@ export default function SearchResultsArea({ exchanges, isPending }: SearchResult
             exchange={exchange}
             userRole={userRole}
             onSave={handleSave}
-            onVerify={(url, verified) => verifyContent.mutate({ url, query_id: exchange.query_id, verified })}
-            savedIds={savedIds}
+            onVerify={handleVerify}
+            savedMap={savedMap}
           />
         </Fragment>
       ))}
       {isPending && (
-        <div className="animate-pulse">
-          <div className="ais-page__skeleton-response mb-3" />
-          <div className="ais-page__skeleton-card mb-2" />
-          <div className="ais-page__skeleton-card mb-2" />
-          <div className="ais-page__skeleton-card" />
-        </div>
+        <>
+          {pendingQuery && (
+            <div className="flex justify-end">
+              <div className="ais-bubble mr-2 md:mr-4">{pendingQuery}</div>
+            </div>
+          )}
+          <div className="ais-page__skeleton-response ais-skeleton mb-3" />
+          <div className="ais-page__skeleton-card ais-skeleton mb-2" />
+          <div className="ais-page__skeleton-card ais-skeleton mb-2" />
+          <div className="ais-page__skeleton-card ais-skeleton" />
+        </>
       )}
     </div>
   )

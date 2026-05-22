@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { Bookmark } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
+import type { ApiRole } from '@/types'
 import { useSavedContent } from '@/hooks/useSavedContent'
 import { useUnsaveContent } from '@/hooks/useUnsaveContent'
+import { useVerifyContent } from '@/hooks/useVerifyContent'
+import PatientTopNav from '@/components/PatientTopNav'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/ui/BackButton'
 import FilterBar from './components/FilterBar'
@@ -34,18 +37,42 @@ export default function SavedContentPage() {
     setLocalContent((prev) => prev.filter((i) => i.saving_id !== id))
   })
 
+  const userRole = auth?.role ?? 'PATIENT'
+  const verifyContent = useVerifyContent()
+  const canVerify = userRole === 'PHYSIOTHERAPIST' || userRole === 'FITNESS_TRAINER'
+
+  function handleVerify(url: string, queryId: number) {
+    const field = userRole === 'PHYSIOTHERAPIST' ? 'physio_verification_count' : 'trainer_verification_count'
+    const item = localContent.find((i) => i.source_url === url)
+    const currentCount = item?.[field] ?? 0
+    const nextVerified = currentCount === 0
+    setLocalContent((prev) =>
+      prev.map((i) =>
+        i.source_url !== url
+          ? i
+          : { ...i, [field]: nextVerified ? currentCount + 1 : Math.max(currentCount - 1, 0) }
+      )
+    )
+    verifyContent.mutate({ url, query_id: queryId, verified: nextVerified })
+  }
+
   const filtered = applyFilter(localContent, filter)
   const verifiedCount = localContent.filter((i) => i.physio_verification_count > 0 || i.trainer_verification_count > 0).length
-  const userRole = auth?.role ?? 'PATIENT'
+
+  const HOME_ROUTE: Record<ApiRole, string> = {
+    PATIENT: '/patient',
+    PHYSIOTHERAPIST: '/physiotherapist/home',
+    FITNESS_TRAINER: '/fitness/home',
+  }
 
   return (
     <div className="ais-saved pt-16">
-      <TopNav />
+      {userRole === 'PATIENT' ? <PatientTopNav patientName={auth?.first_name} /> : <TopNav />}
 
       <main className="ais-saved__main">
         {/* ─── Page title ─── */}
         <div className="ais-saved__page-title">
-          <BackButton onClick={() => navigate('/ai-search')} aria-label="Back to AI Search" />
+          <BackButton onClick={() => navigate(HOME_ROUTE[userRole])} aria-label="Back to home" />
           <h1 className="ais-saved__title">My Saved Content</h1>
         </div>
 
@@ -82,10 +109,19 @@ export default function SavedContentPage() {
             {filtered.map((item) => (
               <li key={item.saving_id}>
                 <SourceCard
-                  source={item}
+                  title={item.content_title}
+                  url={item.source_url}
+                  description={item.content_text}
+                  contentType={item.content_type}
+                  physioVerificationCount={item.physio_verification_count}
+                  trainerVerificationCount={item.trainer_verification_count}
                   userRole={userRole}
-                  mode="saved"
-                  onUnsave={(id) => unsave.mutate(id)}
+                  isVerifiedByMe={
+                    (userRole === 'PHYSIOTHERAPIST' && item.physio_verification_count > 0) ||
+                    (userRole === 'FITNESS_TRAINER' && item.trainer_verification_count > 0)
+                  }
+                  onVerify={canVerify ? () => handleVerify(item.source_url, item.query_id) : undefined}
+                  onRemove={() => unsave.mutate(item.saving_id)}
                 />
               </li>
             ))}
