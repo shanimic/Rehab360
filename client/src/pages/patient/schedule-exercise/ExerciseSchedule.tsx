@@ -5,8 +5,6 @@ import DayCard from './components/DayCard'
 import ReminderToggle from './components/ReminderToggle'
 import CalendarLinksModal, { type CalendarItem } from './components/CalendarLinksModal'
 import './ExerciseSchedule.css'
-import { useAtomValue } from 'jotai'
-import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
 import { useNavigate } from 'react-router-dom'
 import { useGetWeeklySchedule } from '@/hooks/paitent/useGetWeeklySchedule'
@@ -24,7 +22,6 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 /* ── Page ── */
 export default function ExerciseSchedule() {
   const navigate = useNavigate()
-  const user = useAtomValue(authAtom)
   const { data = [] } = useGetWeeklySchedule()
   const saveSchedule = useSaveWeeklySchedule()
 
