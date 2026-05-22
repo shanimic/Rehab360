@@ -74,7 +74,7 @@ export default function PatientDetails() {
       <main className="pt-16">
         {/* ── Back navigation ── */}
         <div className="patient-nav">
-          <button type="button" className="patient-nav__back" onClick={() => navigate(`/patient/${routePatientId}`)}>
+          <button type="button" className="patient-nav__back" onClick={() => auth?.role === 'PATIENT' ? navigate(`/patient`) : navigate(`${auth?.role}/home`)}>
             <ChevronLeft size={20} />
           </button>
           <h1 className="patient-nav__title">{pageTitle}</h1>
