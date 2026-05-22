@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, ChevronLeft, ChevronDown, ChevronUp } from 'lucide-react'
 import './MyPlan.css'
-import PatientTopNav from '@/components/PatientTopNav'
-import { useAtomValue } from 'jotai'
-import { authAtom } from '@/store/authAtom'
+import TopNav from '@/components/TopNav'
 import { useGetMyPlan } from '@/hooks/paitent/useGetMyPlan'
 import { useGetWeeklyPlan } from '@/hooks/paitent/useGetWeeklyPlan'
 import type { MyPlan } from '@/types/patient'
@@ -13,7 +11,6 @@ import ExerciseCard from '@/components/ExerciseCard'
 
 export default function MyPlanPage() {
   const navigate = useNavigate()
-  const user = useAtomValue(authAtom)
   const { data, isLoading, error } = useGetMyPlan()
   const [showWeeklyView, setShowWeeklyView] = useState(false)
   const { data: weeklyData, isLoading: weeklyLoading } = useGetWeeklyPlan(showWeeklyView)
@@ -30,7 +27,7 @@ export default function MyPlanPage() {
 
   return (
     <div className="mp-page pt-16">
-      <PatientTopNav patientName={user?.first_name} />
+      <TopNav />
 
       <main className="mp-main">
         <div className="mp-title-row">
