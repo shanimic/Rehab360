@@ -14,8 +14,11 @@ class HomepageRepository:
     ) -> list[dict]:
         """Fetch patient rows for the therapist's homepage.
 
-        Returns the most recent session per patient for the given therapist
-        and visit type, ordered newest first.
+        Returns the most recent ACTIVE session per patient for the given
+        therapist and visit type, ordered newest first. Only sessions with
+        status ACTIVE are considered — PENDING_PLAN drafts and NOT ACTIVE
+        (superseded) sessions are both excluded from the result and from
+        the latest-date subquery.
 
         Args:
             therapist_id: The unique identifier of the logged-in therapist.
@@ -37,18 +40,20 @@ class HomepageRepository:
                 JOIN registered_users ru
                     ON ru.user_id   = s.patient_id
                    AND ru.user_role = s.patient_role
-                WHERE s.therapist_id   = %s
-                  AND s.therapist_role = %s
-                  AND s.visit_type     = %s
-                  AND s.patient_role   = 'PATIENT'
+                WHERE s.therapist_id     = %s
+                  AND s.therapist_role   = %s
+                  AND s.visit_type       = %s
+                  AND s.patient_role     = 'PATIENT'
+                  AND s.session_status   = 'ACTIVE'
                   AND CONCAT(s.visit_date, ' ', s.visit_time) = (
                       SELECT MAX(CONCAT(s2.visit_date, ' ', s2.visit_time))
                       FROM sessions s2
-                      WHERE s2.patient_id    = s.patient_id
-                        AND s2.patient_role  = 'PATIENT'
-                        AND s2.therapist_id  = %s
+                      WHERE s2.patient_id     = s.patient_id
+                        AND s2.patient_role   = 'PATIENT'
+                        AND s2.therapist_id   = %s
                         AND s2.therapist_role = %s
-                        AND s2.visit_type    = %s
+                        AND s2.visit_type     = %s
+                        AND s2.session_status = 'ACTIVE'
                   )
                 ORDER BY
                     s.visit_date DESC,

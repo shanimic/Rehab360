@@ -7,6 +7,7 @@ class TreatmentPlanContext(BaseModel):
     """Session context returned for the create-treatment-plan page."""
 
     session_id: int
+    patient_id: str
     medical_diagnosis: str
     visit_type: str
 

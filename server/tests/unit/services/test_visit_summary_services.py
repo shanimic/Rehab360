@@ -207,7 +207,7 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         """
         Given a CreateVisitSummaryRequest with therapist_role PHYSIOTHERAPIST and no copy flag,
         When create_visit_summary is called,
-        Then the repository is called with VisitType.PHYSIOTHERAPIST and the response is returned.
+        Then the session is created as PENDING_PLAN after cleaning up stale pending sessions.
         """
         # PREPARE
         repo = mock(VisitSummaryRepository)
@@ -218,15 +218,12 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         response = CreateVisitSummaryResponse(session_id=42)
 
         # MOCK
-        expect(repo, times=1).get_latest_session_with_plan(
-            "P100", VisitType.PHYSIOTHERAPIST
-        ).thenReturn(None)
         expect(repo, times=1).begin_transaction().thenReturn(None)
-        expect(repo, times=1).deactivate_sessions_by_patient_and_visit_type(
+        expect(repo, times=1).deactivate_pending_sessions_by_patient_and_visit_type(
             "P100", VisitType.PHYSIOTHERAPIST
         ).thenReturn(None)
         expect(repo, times=1).create_visit_summary(
-            request, VisitType.PHYSIOTHERAPIST
+            request, VisitType.PHYSIOTHERAPIST, "PENDING_PLAN"
         ).thenReturn(response)
         expect(repo, times=1).commit().thenReturn(None)
 
@@ -242,7 +239,7 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         """
         Given a CreateVisitSummaryRequest with therapist_role FITNESS_TRAINER and no copy flag,
         When create_visit_summary is called,
-        Then the repository is called with VisitType.FITNESS and the response is returned.
+        Then the session is created as PENDING_PLAN after cleaning up stale pending sessions.
         """
         # PREPARE
         repo = mock(VisitSummaryRepository)
@@ -253,15 +250,12 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         response = CreateVisitSummaryResponse(session_id=99)
 
         # MOCK
-        expect(repo, times=1).get_latest_session_with_plan(
-            "P100", VisitType.FITNESS
-        ).thenReturn(None)
         expect(repo, times=1).begin_transaction().thenReturn(None)
-        expect(repo, times=1).deactivate_sessions_by_patient_and_visit_type(
+        expect(repo, times=1).deactivate_pending_sessions_by_patient_and_visit_type(
             "P100", VisitType.FITNESS
         ).thenReturn(None)
         expect(repo, times=1).create_visit_summary(
-            request, VisitType.FITNESS
+            request, VisitType.FITNESS, "PENDING_PLAN"
         ).thenReturn(response)
         expect(repo, times=1).commit().thenReturn(None)
 
@@ -291,9 +285,10 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         self,
     ) -> None:
         """
-        Given copy_previous_plan is True and a previous active plan exists,
+        Given copy_previous_plan is True and a previous plan exists,
         When create_visit_summary is called,
-        Then the plan and exercises are copied to the new session atomically.
+        Then prior ACTIVE and PENDING sessions are deactivated, the new session is created
+        as ACTIVE, and the plan and exercises are copied atomically.
         """
         # PREPARE
         repo = mock(VisitSummaryRepository)
@@ -304,15 +299,15 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         response = CreateVisitSummaryResponse(session_id=50)
 
         # MOCK
+        expect(repo, times=1).begin_transaction().thenReturn(None)
         expect(repo, times=1).get_latest_session_with_plan(
             "P100", VisitType.PHYSIOTHERAPIST
         ).thenReturn({"session_id": 10, "plan_id": 3})
-        expect(repo, times=1).begin_transaction().thenReturn(None)
         expect(repo, times=1).deactivate_sessions_by_patient_and_visit_type(
             "P100", VisitType.PHYSIOTHERAPIST
         ).thenReturn(None)
         expect(repo, times=1).create_visit_summary(
-            request, VisitType.PHYSIOTHERAPIST
+            request, VisitType.PHYSIOTHERAPIST, "ACTIVE"
         ).thenReturn(response)
         expect(repo, times=1).copy_plan_to_session(3, 50).thenReturn(7)
         expect(repo, times=1).copy_plan_exercises(3, 10, 7, 50).thenReturn(None)
@@ -330,7 +325,7 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         """
         Given copy_previous_plan is True but no previous plan exists,
         When create_visit_summary is called,
-        Then an HTTP 409 Conflict exception is raised and no transaction is started.
+        Then the transaction is rolled back and an HTTP 409 Conflict is raised.
         """
         # PREPARE
         repo = mock(VisitSummaryRepository)
@@ -340,9 +335,11 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         )
 
         # MOCK
+        expect(repo, times=1).begin_transaction().thenReturn(None)
         expect(repo, times=1).get_latest_session_with_plan(
             "P100", VisitType.PHYSIOTHERAPIST
         ).thenReturn(None)
+        expect(repo, times=1).rollback().thenReturn(None)
 
         # ACT / ASSERT
         with self.assertRaises(HTTPException) as ctx:
@@ -353,9 +350,9 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         self,
     ) -> None:
         """
-        Given a PHYSIOTHERAPIST request,
+        Given a PHYSIOTHERAPIST request with copy_previous_plan=False,
         When create_visit_summary is called,
-        Then deactivate is called with VisitType.PHYSIOTHERAPIST only (not FITNESS).
+        Then only the PHYSIOTHERAPIST pending sessions are cleaned up, not FITNESS sessions.
         """
         # PREPARE
         repo = mock(VisitSummaryRepository)
@@ -366,18 +363,15 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         response = CreateVisitSummaryResponse(session_id=55)
 
         # MOCK
-        expect(repo, times=1).get_latest_session_with_plan(
-            "P100", VisitType.PHYSIOTHERAPIST
-        ).thenReturn(None)
         expect(repo, times=1).begin_transaction().thenReturn(None)
-        expect(repo, times=1).deactivate_sessions_by_patient_and_visit_type(
+        expect(repo, times=1).deactivate_pending_sessions_by_patient_and_visit_type(
             "P100", VisitType.PHYSIOTHERAPIST
         ).thenReturn(None)
-        expect(repo, times=0).deactivate_sessions_by_patient_and_visit_type(
+        expect(repo, times=0).deactivate_pending_sessions_by_patient_and_visit_type(
             "P100", VisitType.FITNESS
         ).thenReturn(None)
         expect(repo, times=1).create_visit_summary(
-            request, VisitType.PHYSIOTHERAPIST
+            request, VisitType.PHYSIOTHERAPIST, "PENDING_PLAN"
         ).thenReturn(response)
         expect(repo, times=1).commit().thenReturn(None)
 
@@ -391,9 +385,9 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         self,
     ) -> None:
         """
-        Given a FITNESS_TRAINER request,
+        Given a FITNESS_TRAINER request with copy_previous_plan=False,
         When create_visit_summary is called,
-        Then deactivate is called with VisitType.FITNESS only (not PHYSIOTHERAPIST).
+        Then only the FITNESS pending sessions are cleaned up, not PHYSIOTHERAPIST sessions.
         """
         # PREPARE
         repo = mock(VisitSummaryRepository)
@@ -404,18 +398,15 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         response = CreateVisitSummaryResponse(session_id=66)
 
         # MOCK
-        expect(repo, times=1).get_latest_session_with_plan(
-            "P100", VisitType.FITNESS
-        ).thenReturn(None)
         expect(repo, times=1).begin_transaction().thenReturn(None)
-        expect(repo, times=1).deactivate_sessions_by_patient_and_visit_type(
+        expect(repo, times=1).deactivate_pending_sessions_by_patient_and_visit_type(
             "P100", VisitType.FITNESS
         ).thenReturn(None)
-        expect(repo, times=0).deactivate_sessions_by_patient_and_visit_type(
+        expect(repo, times=0).deactivate_pending_sessions_by_patient_and_visit_type(
             "P100", VisitType.PHYSIOTHERAPIST
         ).thenReturn(None)
         expect(repo, times=1).create_visit_summary(
-            request, VisitType.FITNESS
+            request, VisitType.FITNESS, "PENDING_PLAN"
         ).thenReturn(response)
         expect(repo, times=1).commit().thenReturn(None)
 
@@ -431,7 +422,7 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         """
         Given copy_previous_plan is False and a previous plan exists for the patient,
         When create_visit_summary is called,
-        Then only the session is created and no plan copy methods are invoked.
+        Then the session is created as PENDING_PLAN and no plan copy methods are invoked.
         """
         # PREPARE
         repo = mock(VisitSummaryRepository)
@@ -441,16 +432,13 @@ class VisitSummaryServicesTest(unittest.TestCase):  # pylint: disable=too-many-p
         )
         response = CreateVisitSummaryResponse(session_id=77)
 
-        # MOCK — copy_plan_to_session must NOT be called with source plan_id=3, new session_id=77
-        expect(repo, times=1).get_latest_session_with_plan(
-            "P100", VisitType.PHYSIOTHERAPIST
-        ).thenReturn({"session_id": 10, "plan_id": 3})
+        # MOCK — get_latest_session_with_plan and copy_plan_to_session must NOT be called
         expect(repo, times=1).begin_transaction().thenReturn(None)
-        expect(repo, times=1).deactivate_sessions_by_patient_and_visit_type(
+        expect(repo, times=1).deactivate_pending_sessions_by_patient_and_visit_type(
             "P100", VisitType.PHYSIOTHERAPIST
         ).thenReturn(None)
         expect(repo, times=1).create_visit_summary(
-            request, VisitType.PHYSIOTHERAPIST
+            request, VisitType.PHYSIOTHERAPIST, "PENDING_PLAN"
         ).thenReturn(response)
         expect(repo, times=0).copy_plan_to_session(3, 77).thenReturn(None)
         expect(repo, times=1).commit().thenReturn(None)

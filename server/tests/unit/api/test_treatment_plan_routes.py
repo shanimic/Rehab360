@@ -48,6 +48,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
             fetchone_rows=[
                 {
                     "session_id": 42,
+                    "patient_id": "P100",
                     "medical_diagnosis": "ACL tear",
                     "visit_type": "PHYSIOTHERAPIST",
                 }
@@ -102,6 +103,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
             fetchone_rows=[
                 {
                     "session_id": 55,
+                    "patient_id": "P100",
                     "medical_diagnosis": "Lower back strain",
                     "visit_type": "FITNESS",
                 }
@@ -207,6 +209,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
             fetchone_rows=[
                 {
                     "session_id": 42,
+                    "patient_id": "P100",
                     "medical_diagnosis": "ACL tear",
                     "visit_type": "PHYSIOTHERAPIST",
                 },
@@ -300,6 +303,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
             fetchone_rows=[
                 {
                     "session_id": 42,
+                    "patient_id": "P100",
                     "medical_diagnosis": "ACL tear",
                     "visit_type": "PHYSIOTHERAPIST",
                 },
@@ -353,6 +357,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
             fetchone_rows=[
                 {
                     "session_id": 42,
+                    "patient_id": "P100",
                     "medical_diagnosis": "ACL tear",
                     "visit_type": "PHYSIOTHERAPIST",
                 },
@@ -511,6 +516,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
             fetchone_rows=[
                 {
                     "session_id": 77,
+                    "patient_id": "P100",
                     "medical_diagnosis": "Knee strengthening",
                     "visit_type": "FITNESS",
                 },
@@ -763,6 +769,7 @@ class TreatmentPlanRoutesTest(unittest.TestCase):
             fetchone_rows=[
                 {
                     "session_id": 77,
+                    "patient_id": "P100",
                     "medical_diagnosis": "Knee strengthening",
                     "visit_type": "FITNESS",
                 },

@@ -21,21 +21,26 @@ class TreatmentPlanRepository:
     ) -> TreatmentPlanContext | None:
         """Fetch session context required for the create-treatment-plan page.
 
+        Accepts both ACTIVE and PENDING_PLAN sessions so plan creation works
+        on a session that was created but not yet activated.
+
         Args:
             session_id: The unique identifier of the session.
 
         Returns:
-            A TreatmentPlanContext instance if the session is active, otherwise None.
+            A TreatmentPlanContext instance if the session exists and is not yet
+            fully committed, otherwise None.
         """
         await self.cursor.execute(
             query="""
                 SELECT
                     session_id,
+                    patient_id,
                     medical_diagnosis,
                     visit_type
                 FROM sessions
                 WHERE session_id     = %s
-                  AND session_status = 'ACTIVE'
+                  AND session_status IN ('ACTIVE', 'PENDING_PLAN')
             """,
             args=(session_id,),
         )
@@ -246,3 +251,71 @@ class TreatmentPlanRepository:
         )
         rows = await self.cursor.fetchall()
         return [TreatmentPlanExerciseItem.model_validate(row) for row in rows]
+
+    async def begin_transaction(self) -> None:
+        """Start a database transaction.
+
+        Returns:
+            None
+        """
+        await self.cursor.execute("START TRANSACTION")
+
+    async def commit(self) -> None:
+        """Commit the current transaction.
+
+        Returns:
+            None
+        """
+        await self.cursor.execute("COMMIT")
+
+    async def rollback(self) -> None:
+        """Roll back the current transaction.
+
+        Returns:
+            None
+        """
+        await self.cursor.execute("ROLLBACK")
+
+    async def deactivate_sessions_by_patient_and_visit_type(
+        self, patient_id: str, visit_type: str
+    ) -> None:
+        """Set all ACTIVE and PENDING_PLAN sessions for a patient and visit type to 'NOT ACTIVE'.
+
+        Called inside the plan-save transaction to clear prior sessions before
+        promoting the new session to ACTIVE.
+
+        Args:
+            patient_id: The unique identifier of the patient.
+            visit_type: The visit type whose sessions should be deactivated.
+
+        Returns:
+            None
+        """
+        await self.cursor.execute(
+            query="""
+                UPDATE sessions
+                SET session_status = 'NOT ACTIVE'
+                WHERE patient_id     = %s
+                  AND visit_type     = %s
+                  AND session_status IN ('ACTIVE', 'PENDING_PLAN')
+            """,
+            args=(patient_id, visit_type),
+        )
+
+    async def activate_session(self, session_id: int) -> None:
+        """Promote a PENDING_PLAN session to ACTIVE after its plan has been saved.
+
+        Args:
+            session_id: The unique identifier of the session to activate.
+
+        Returns:
+            None
+        """
+        await self.cursor.execute(
+            query="""
+                UPDATE sessions
+                SET session_status = 'ACTIVE'
+                WHERE session_id = %s
+            """,
+            args=(session_id,),
+        )
