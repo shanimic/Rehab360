@@ -4,6 +4,8 @@ import { authAtom } from '@/store/authAtom'
 import apiClient from '@/lib/apiClient'
 import type { SavedContent } from '@/types'
 
+const EMPTY: SavedContent[] = []
+
 export function useSavedContent(): SavedContent[] {
   const auth = useAtomValue(authAtom)
 
@@ -16,5 +18,5 @@ export function useSavedContent(): SavedContent[] {
     enabled: !!auth?.id,
   })
 
-  return data ?? []
+  return data ?? EMPTY
 }
