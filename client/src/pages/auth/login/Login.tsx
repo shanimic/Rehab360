@@ -1,4 +1,4 @@
-import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import type { AxiosError } from 'axios'
@@ -37,7 +37,10 @@ type LoginValues = z.infer<typeof loginSchema>
 export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
-  const role = (location.state?.role as Role) ?? 'patient'
+  const [searchParams] = useSearchParams()
+  const role = (searchParams.get('role') as Role)
+            ?? (location.state?.role as Role)
+            ?? 'patient'
   const loginMutation = useLoginMutation()
 
   const form = useForm({
