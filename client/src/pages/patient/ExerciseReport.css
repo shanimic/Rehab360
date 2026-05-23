@@ -11,111 +11,6 @@
   font-family: var(--font-family);
 }
 
-/* ── Header ── */
-.er-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: var(--color-surface);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 1px 0 var(--color-border);
-  gap: 12px;
-}
-
-.er-header__logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.er-header__logo-img {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  object-fit: contain;
-}
-
-.er-header__brand {
-  font-family: var(--font-brand);
-  font-size: 20px;
-  font-weight: 100;
-  letter-spacing: 1px;
-  color: var(--color-text-primary);
-}
-
-.er-header__brand span {
-  color: var(--color-primary);
-}
-
-.er-header__nav {
-  display: none;
-}
-
-.er-header__nav-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-  font-family: var(--font-family);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: background 0.15s, color 0.15s;
-}
-
-.er-header__nav-link:hover {
-  background: var(--color-input-bg);
-  color: var(--color-primary);
-}
-
-.er-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.er-header__icon-btn {
-  position: relative;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-  padding: 6px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s;
-}
-
-.er-header__icon-btn:hover {
-  background: var(--color-input-bg);
-  color: var(--color-primary);
-}
-
-.er-header__badge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  background: var(--color-error);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 700;
-  border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 /* ── Main ── */
 .er-main {
@@ -532,22 +427,6 @@
 
 /* ── Desktop breakpoint ── */
 @media (min-width: 900px) {
-  .er-header {
-    padding: 12px 48px;
-  }
-
-  .er-header__nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .er-header__menu-btn {
-    display: none;
-  }
-
   .er-main {
     padding: 32px 48px 40px;
   }
