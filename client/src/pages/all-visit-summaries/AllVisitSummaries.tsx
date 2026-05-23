@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Phone, Mail } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import TopNav from '@/components/TopNav'
-import { useVisitSummaries } from '@/hooks/useVisitSummaries'
+import { useVisitSummaries, useVisitSummary } from '@/hooks/useVisitSummaries'
 import { authAtom } from '@/store/authAtom'
 import type { SessionListItem } from '@/types'
 
@@ -12,15 +12,6 @@ import './AllVisitSummaries.css'
 
 type VisitType = 'Physical Therapy' | 'Training'
 type FilterTab = 'All Sessions' | VisitType
-
-const PATIENT = {
-  id: '1',
-  firstName: 'John',
-  lastName: 'Smith',
-  birthDate: '1981-03-15',
-  phone: '+972-50-000-0001',
-  email: 'john.smith@example.com',
-}
 
 const FILTER_TABS: FilterTab[] = ['All Sessions', 'Physical Therapy', 'Training']
 
@@ -110,9 +101,10 @@ export default function AllVisitSummaries() {
   const auth = useAtomValue(authAtom)
   const canCreateSummary = auth?.role === 'PHYSIOTHERAPIST' || auth?.role === 'FITNESS_TRAINER'
 
+  const { data: patient, isLoading: isPatientLoading, isError: isPatientError } = useVisitSummary(id)
   const { data: sessions, isLoading, isError } = useVisitSummaries(id)
 
-  const age = calculateAge(PATIENT.birthDate)
+  const age = patient?.birth_date ? calculateAge(patient.birth_date) : null
 
   const filteredSessions = (sessions ?? []).filter((s) => {
     if (activeFilter === 'All Sessions') return true
@@ -136,32 +128,52 @@ export default function AllVisitSummaries() {
 
         {/* ── Body ── */}
         <div className="avs-body">
-          {/* Patient Info Card — identical to PatientDetails */}
-          <div className="patient-profile-card">
-            <div className="patient-profile-card__avatar">
-              {getInitials(PATIENT.firstName, PATIENT.lastName)}
-            </div>
-            <div className="patient-profile-card__info">
-              <p className="patient-profile-card__name">
-                {PATIENT.firstName} {PATIENT.lastName}
-              </p>
-              <div className="patient-profile-card__meta-row">
-                <span>ID: #{id}</span>
-                <span className="patient-profile-card__sep">|</span>
-                <span>{age} years old</span>
-                <span className="patient-profile-card__sep">|</span>
-                <a href={`tel:${PATIENT.phone}`} className="patient-profile-card__contact">
-                  <Phone size={13} className="patient-profile-card__contact-icon" />
-                  {PATIENT.phone}
-                </a>
-                <span className="patient-profile-card__sep">|</span>
-                <a href={`mailto:${PATIENT.email}`} className="patient-profile-card__contact">
-                  <Mail size={13} className="patient-profile-card__contact-icon" />
-                  {PATIENT.email}
-                </a>
+          {/* Patient Info Card */}
+          {isPatientLoading && <p className="avs-empty">Loading patient…</p>}
+          {isPatientError && (
+            <p className="avs-empty" style={{ color: 'var(--color-error, #e53e3e)' }}>
+              Failed to load patient details.
+            </p>
+          )}
+          {!isPatientLoading && !isPatientError && patient && (
+            <div className="patient-profile-card">
+              <div className="patient-profile-card__avatar">
+                {getInitials(patient.patient_first_name, patient.patient_last_name)}
+              </div>
+              <div className="patient-profile-card__info">
+                <p className="patient-profile-card__name">
+                  {patient.patient_first_name} {patient.patient_last_name}
+                </p>
+                <div className="patient-profile-card__meta-row">
+                  <span>ID: #{id}</span>
+                  {age !== null && (
+                    <>
+                      <span className="patient-profile-card__sep">|</span>
+                      <span>{age} years old</span>
+                    </>
+                  )}
+                  {patient.phone && (
+                    <>
+                      <span className="patient-profile-card__sep">|</span>
+                      <a href={`tel:${patient.phone}`} className="patient-profile-card__contact">
+                        <Phone size={13} className="patient-profile-card__contact-icon" />
+                        {patient.phone}
+                      </a>
+                    </>
+                  )}
+                  {patient.email && (
+                    <>
+                      <span className="patient-profile-card__sep">|</span>
+                      <a href={`mailto:${patient.email}`} className="patient-profile-card__contact">
+                        <Mail size={13} className="patient-profile-card__contact-icon" />
+                        {patient.email}
+                      </a>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* ── Control bar: filters + new summary ── */}
           <div className="avs-control-bar">
