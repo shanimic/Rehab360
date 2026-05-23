@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation, useBlocker } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ChevronLeft, Target, Dumbbell, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import axios from 'axios'
@@ -12,7 +12,6 @@ import {
   usePlanExercises,
   useCreateTreatmentPlan,
 } from '@/hooks/useTreatmentPlan'
-import { useEnsurePlan } from '@/hooks/useVisitSummaries'
 import type { CreateTreatmentPlanRequest } from '@/types'
 
 import '../patient-details/PatientDetails.css'
@@ -78,33 +77,6 @@ export default function CreateTreatmentPlan() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [exercises, setExercises] = useState<ExerciseEntry[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [ensurePlanError, setEnsurePlanError] = useState<string | null>(null)
-
-  const [planSaved, setPlanSaved] = useState(false)
-  const ensurePlan = useEnsurePlan()
-
-  // Block in-app navigation when a session exists but no plan has been saved yet.
-  // On block: auto-copy the previous plan, or show an error if this is a first visit.
-  const blocker = useBlocker(sessionId !== null && !planSaved)
-
-  useEffect(() => {
-    if (blocker.state !== 'blocked') return
-    ensurePlan.mutate(sessionId!, {
-      onSuccess: () => {
-        setEnsurePlanError(null)
-        blocker.proceed()
-      },
-      onError: (err) => {
-        const is409 = axios.isAxiosError(err) && err.response?.status === 409
-        setEnsurePlanError(
-          is409
-            ? 'This is the first visit of this type. Please create a plan before leaving.'
-            : 'Could not save plan data. Please try again.',
-        )
-        blocker.reset()
-      },
-    })
-  }, [blocker.state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -172,7 +144,6 @@ export default function CreateTreatmentPlan() {
       { sessionId, body },
       {
         onSuccess: () => {
-          setPlanSaved(true)
           navigate(`/patient/${patientId}/visit-summaries`)
         },
         onError: (err) => {
@@ -339,11 +310,6 @@ export default function CreateTreatmentPlan() {
           </div>
 
           {/* ── Actions ── */}
-          {ensurePlanError && (
-            <p className="ctp-error-msg" style={{ textAlign: 'right', marginBottom: '0.5rem' }}>
-              {ensurePlanError}
-            </p>
-          )}
           {saveError && (
             <p className="ctp-error-msg" style={{ textAlign: 'right', marginBottom: '0.5rem' }}>
               {saveError}

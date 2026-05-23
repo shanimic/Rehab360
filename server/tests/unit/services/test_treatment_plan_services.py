@@ -52,6 +52,7 @@ def _make_plan_exercise_item(**overrides) -> TreatmentPlanExerciseItem:
 def _make_physio_context(**overrides) -> TreatmentPlanContext:
     defaults = {
         "session_id": 42,
+        "patient_id": "P100",
         "medical_diagnosis": "ACL tear",
         "visit_type": "PHYSIOTHERAPIST",
     }
@@ -218,7 +219,7 @@ class TreatmentPlanServicesTest(unittest.TestCase):
         """
         Given a valid PHYSIOTHERAPIST session, no existing plan, and valid exercises,
         When create_treatment_plan is called,
-        Then the repository creates the plan and returns CreateTreatmentPlanResponse.
+        Then the plan is created, prior sessions deactivated, and the session activated.
         """
         # PREPARE
         repo = mock(TreatmentPlanRepository)
@@ -230,10 +231,14 @@ class TreatmentPlanServicesTest(unittest.TestCase):
         # MOCK
         expect(repo, times=1).get_treatment_plan_context(42).thenReturn(context)
         expect(repo, times=1).plan_exists(42).thenReturn(False)
-        expect(repo, times=1).get_valid_exercise_ids([1], "PHYSIOTHERAPIST").thenReturn(
-            [1]
-        )
+        expect(repo, times=1).get_valid_exercise_ids([1], "PHYSIOTHERAPIST").thenReturn([1])
+        expect(repo, times=1).begin_transaction().thenReturn(None)
         expect(repo, times=1).create_treatment_plan(42, request).thenReturn(response)
+        expect(repo, times=1).deactivate_sessions_by_patient_and_visit_type(
+            "P100", "PHYSIOTHERAPIST"
+        ).thenReturn(None)
+        expect(repo, times=1).activate_session(42).thenReturn(None)
+        expect(repo, times=1).commit().thenReturn(None)
 
         # ACT
         result = asyncio.run(service.create_treatment_plan(42, request))
@@ -246,7 +251,7 @@ class TreatmentPlanServicesTest(unittest.TestCase):
         """
         Given a valid FITNESS session, no existing plan, and valid FITNESS exercises,
         When create_treatment_plan is called,
-        Then the repository creates the plan and returns CreateTreatmentPlanResponse.
+        Then the plan is created, prior sessions deactivated, and the session activated.
         """
         # PREPARE
         repo = mock(TreatmentPlanRepository)
@@ -262,7 +267,13 @@ class TreatmentPlanServicesTest(unittest.TestCase):
         expect(repo, times=1).get_treatment_plan_context(42).thenReturn(context)
         expect(repo, times=1).plan_exists(42).thenReturn(False)
         expect(repo, times=1).get_valid_exercise_ids([5], "FITNESS").thenReturn([5])
+        expect(repo, times=1).begin_transaction().thenReturn(None)
         expect(repo, times=1).create_treatment_plan(42, request).thenReturn(response)
+        expect(repo, times=1).deactivate_sessions_by_patient_and_visit_type(
+            "P100", "FITNESS"
+        ).thenReturn(None)
+        expect(repo, times=1).activate_session(42).thenReturn(None)
+        expect(repo, times=1).commit().thenReturn(None)
 
         # ACT
         result = asyncio.run(service.create_treatment_plan(42, request))

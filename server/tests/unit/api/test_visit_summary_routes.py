@@ -257,8 +257,8 @@ class VisitSummaryRoutesTest(unittest.TestCase):
         Then 200 is returned with the new session_id.
         """
         # PREPARE
-        # fetchone queue: [get_active_session_with_plan result, LAST_INSERT_ID result]
-        cursor = _VisitSummaryStubCursor(fetchone_rows=[None, {"session_id": 201}])
+        # fetchone queue: [LAST_INSERT_ID result]
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 201}])
 
         async def override_get_db():
             yield cursor
@@ -290,7 +290,7 @@ class VisitSummaryRoutesTest(unittest.TestCase):
         Then 200 is returned with the new session_id.
         """
         # PREPARE
-        cursor = _VisitSummaryStubCursor(fetchone_rows=[None, {"session_id": 202}])
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 202}])
 
         async def override_get_db():
             yield cursor
@@ -322,7 +322,7 @@ class VisitSummaryRoutesTest(unittest.TestCase):
         Then 200 is returned with the new session_id.
         """
         # PREPARE
-        cursor = _VisitSummaryStubCursor(fetchone_rows=[None, {"session_id": 203}])
+        cursor = _VisitSummaryStubCursor(fetchone_rows=[{"session_id": 203}])
 
         async def override_get_db():
             yield cursor

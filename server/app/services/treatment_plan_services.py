@@ -54,7 +54,12 @@ class TreatmentPlanServices:
         session_id: int,
         request: CreateTreatmentPlanRequest,
     ) -> CreateTreatmentPlanResponse:
-        """Validate and persist a new plan with its exercises.
+        """Validate and persist a new plan, then commit the session.
+
+        After inserting the plan and exercises, all ACTIVE and PENDING_PLAN sessions
+        for the same patient and visit_type are deactivated and the new session is
+        promoted to ACTIVE — all within a single transaction. This is the point at
+        which a PENDING_PLAN session becomes fully committed and visible to users.
 
         Args:
             session_id: The session this plan belongs to (from the URL path).
@@ -64,7 +69,7 @@ class TreatmentPlanServices:
             A CreateTreatmentPlanResponse with the new plan_id and session_id.
 
         Raises:
-            HTTPException: 404 if the session does not exist or is not active.
+            HTTPException: 404 if the session does not exist or is not in a plannable state.
             HTTPException: 409 if a plan already exists for this session.
             HTTPException: 400 if any exercise does not match the session's visit type.
         """
@@ -89,7 +94,18 @@ class TreatmentPlanServices:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="One or more exercises are not valid for this session's visit type",
             )
-        return await self.repository.create_treatment_plan(session_id, request)
+        await self.repository.begin_transaction()
+        try:
+            response = await self.repository.create_treatment_plan(session_id, request)
+            await self.repository.deactivate_sessions_by_patient_and_visit_type(
+                context.patient_id, context.visit_type
+            )
+            await self.repository.activate_session(session_id)
+            await self.repository.commit()
+        except Exception:
+            await self.repository.rollback()
+            raise
+        return response
 
     async def get_treatment_plan_by_plan_id(
         self, plan_id: int

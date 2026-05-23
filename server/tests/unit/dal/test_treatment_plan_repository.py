@@ -319,6 +319,7 @@ class TreatmentPlanRepositoryTest(unittest.TestCase):
         repo = TreatmentPlanRepository(db=cursor)
         row = {
             "session_id": 55,
+            "patient_id": "P100",
             "medical_diagnosis": "Lower back strain",
             "visit_type": "FITNESS",
         }

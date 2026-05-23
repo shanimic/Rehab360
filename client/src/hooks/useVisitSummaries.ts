@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 
 import apiClient from '@/lib/apiClient'
 import type { HasPreviousPlanResponse, SessionListItem, VisitSummaryDetails, VisitSummaryPatientData } from '@/types'
@@ -49,12 +49,5 @@ export function useHasPreviousPlan(
       return res.data
     },
     enabled: !!patientId && !!visitType,
-  })
-}
-
-export function useEnsurePlan() {
-  return useMutation({
-    mutationFn: (sessionId: number) =>
-      apiClient.post(`/visit-summary/ensure-plan/${sessionId}`),
   })
 }

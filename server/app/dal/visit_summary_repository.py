@@ -49,12 +49,14 @@ class VisitSummaryRepository:
         self,
         request: CreateVisitSummaryRequest,
         visit_type: VisitType,
+        session_status: str,
     ) -> CreateVisitSummaryResponse:
         """Insert a new visit summary and return its generated session ID.
 
         Args:
             request: The visit summary data from the caller.
             visit_type: The derived visit type based on the therapist's role.
+            session_status: The initial status for the session ('ACTIVE' or 'PENDING_PLAN').
 
         Returns:
             A CreateVisitSummaryResponse containing the new session_id.
@@ -75,7 +77,7 @@ class VisitSummaryRepository:
                     therapist_role,
                     session_status
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'PATIENT', %s, %s, 'ACTIVE')
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'PATIENT', %s, %s, %s)
             """,
             args=(
                 request.visit_date,
@@ -88,6 +90,7 @@ class VisitSummaryRepository:
                 request.patient_id,
                 request.therapist_id,
                 request.therapist_role.value,
+                session_status,
             ),
         )
         await self.cursor.execute("SELECT LAST_INSERT_ID() AS session_id")
@@ -95,7 +98,10 @@ class VisitSummaryRepository:
         return CreateVisitSummaryResponse.model_validate(row)
 
     async def get_sessions_by_patient(self, patient_id: str) -> list[SessionListItem]:
-        """Fetch all sessions for a patient regardless of status, newest first.
+        """Fetch all committed sessions for a patient, newest first.
+
+        PENDING_PLAN sessions are excluded — they have no saved plan yet and
+        must not appear in user-facing session lists.
 
         Args:
             patient_id: The unique identifier of the patient.
@@ -119,7 +125,8 @@ class VisitSummaryRepository:
                 JOIN registered_users u_therapist
                     ON s.therapist_id   = u_therapist.user_id
                    AND s.therapist_role = u_therapist.user_role
-                WHERE s.patient_id = %s
+                WHERE s.patient_id     = %s
+                  AND s.session_status != 'PENDING_PLAN'
                 ORDER BY s.visit_date DESC, s.visit_time DESC
             """,
             args=(patient_id,),
@@ -271,9 +278,10 @@ class VisitSummaryRepository:
     async def get_latest_session_with_plan(
         self, patient_id: str, visit_type: VisitType
     ) -> dict | None:
-        """Fetch the most recent session that has a linked plan for a patient and visit type.
+        """Fetch the most recent committed session that has a linked plan.
 
-        Session status is intentionally not filtered — any session with a plan qualifies.
+        PENDING_PLAN sessions are excluded — they may have no plan yet and
+        must not be used as a copy source.
 
         Args:
             patient_id: The unique identifier of the patient.
@@ -290,8 +298,9 @@ class VisitSummaryRepository:
                 FROM sessions s
                 JOIN plans p
                     ON p.session_id = s.session_id
-                WHERE s.patient_id = %s
-                  AND s.visit_type = %s
+                WHERE s.patient_id     = %s
+                  AND s.visit_type     = %s
+                  AND s.session_status != 'PENDING_PLAN'
                 ORDER BY s.visit_date DESC, s.visit_time DESC
                 LIMIT 1
             """,
@@ -302,7 +311,10 @@ class VisitSummaryRepository:
     async def deactivate_sessions_by_patient_and_visit_type(
         self, patient_id: str, visit_type: VisitType
     ) -> None:
-        """Set all active sessions for a patient and visit type to 'NOT ACTIVE'.
+        """Set all ACTIVE and PENDING_PLAN sessions for a patient and visit type to 'NOT ACTIVE'.
+
+        Called when a new session is fully committed (copy=true path or plan-save activation)
+        to ensure no prior session remains reachable as the current one.
 
         Args:
             patient_id: The unique identifier of the patient.
@@ -317,9 +329,53 @@ class VisitSummaryRepository:
                 SET session_status = 'NOT ACTIVE'
                 WHERE patient_id     = %s
                   AND visit_type     = %s
-                  AND session_status = 'ACTIVE'
+                  AND session_status IN ('ACTIVE', 'PENDING_PLAN')
             """,
             args=(patient_id, visit_type.value),
+        )
+
+    async def deactivate_pending_sessions_by_patient_and_visit_type(
+        self, patient_id: str, visit_type: VisitType
+    ) -> None:
+        """Set any PENDING_PLAN sessions for a patient and visit type to 'NOT ACTIVE'.
+
+        Called when a new PENDING_PLAN session is created (copy=false path) to prevent
+        orphaned drafts from accumulating. Existing ACTIVE sessions are left untouched.
+
+        Args:
+            patient_id: The unique identifier of the patient.
+            visit_type: The visit type whose pending sessions should be cleaned up.
+
+        Returns:
+            None
+        """
+        await self.cursor.execute(
+            query="""
+                UPDATE sessions
+                SET session_status = 'NOT ACTIVE'
+                WHERE patient_id     = %s
+                  AND visit_type     = %s
+                  AND session_status = 'PENDING_PLAN'
+            """,
+            args=(patient_id, visit_type.value),
+        )
+
+    async def activate_session(self, session_id: int) -> None:
+        """Promote a PENDING_PLAN session to ACTIVE after its plan has been saved.
+
+        Args:
+            session_id: The unique identifier of the session to activate.
+
+        Returns:
+            None
+        """
+        await self.cursor.execute(
+            query="""
+                UPDATE sessions
+                SET session_status = 'ACTIVE'
+                WHERE session_id = %s
+            """,
+            args=(session_id,),
         )
 
     async def copy_plan_to_session(

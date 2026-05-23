@@ -68,11 +68,19 @@ class VisitSummaryServices:
     async def create_visit_summary(
         self, request: CreateVisitSummaryRequest
     ) -> CreateVisitSummaryResponse:
-        """Derive visit_type, deactivate prior sessions, create new session, and optionally copy plan.
+        """Derive visit_type, create the new session, and optionally copy the previous plan.
 
-        When copy_previous_plan is True the most recent plan across any session for the same
-        patient and visit_type (active or not) is atomically copied to the new session.
-        The entire operation runs in a single transaction.
+        Two distinct paths:
+
+        copy_previous_plan=True (Save Summary):
+          Deactivates all ACTIVE and PENDING_PLAN sessions for the patient+visit_type,
+          creates the new session as ACTIVE, and atomically copies the previous plan and
+          exercises into it. The entire operation is a single transaction.
+
+        copy_previous_plan=False (Save & Create Plan):
+          Cleans up any orphaned PENDING_PLAN sessions for the patient+visit_type,
+          then creates the new session as PENDING_PLAN. Existing ACTIVE sessions are
+          left untouched so the previous plan remains visible until the new plan is saved.
 
         Args:
             request: The visit summary payload from the route.
@@ -82,7 +90,7 @@ class VisitSummaryServices:
 
         Raises:
             HTTPException: 400 if the therapist role is not permitted.
-            HTTPException: 422 if copy_previous_plan is True but no previous plan exists.
+            HTTPException: 409 if copy_previous_plan is True but no previous plan exists.
         """
         visit_type = _ROLE_TO_VISIT_TYPE.get(request.therapist_role)
         if visit_type is None:
@@ -90,22 +98,23 @@ class VisitSummaryServices:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid therapist role for creating a visit summary",
             )
-        previous = await self.repository.get_latest_session_with_plan(
-            request.patient_id, visit_type
-        )
-        has_previous_plan = previous is not None
-        if request.copy_previous_plan and not has_previous_plan:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="No previous plan exists to copy for this patient and visit type",
-            )
         await self.repository.begin_transaction()
         try:
-            await self.repository.deactivate_sessions_by_patient_and_visit_type(
-                request.patient_id, visit_type
-            )
-            response = await self.repository.create_visit_summary(request, visit_type)
-            if request.copy_previous_plan and has_previous_plan:
+            if request.copy_previous_plan:
+                previous = await self.repository.get_latest_session_with_plan(
+                    request.patient_id, visit_type
+                )
+                if not previous:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="No previous plan exists to copy for this patient and visit type",
+                    )
+                await self.repository.deactivate_sessions_by_patient_and_visit_type(
+                    request.patient_id, visit_type
+                )
+                response = await self.repository.create_visit_summary(
+                    request, visit_type, "ACTIVE"
+                )
                 new_plan_id = await self.repository.copy_plan_to_session(
                     previous["plan_id"], response.session_id
                 )
@@ -114,6 +123,13 @@ class VisitSummaryServices:
                     previous["session_id"],
                     new_plan_id,
                     response.session_id,
+                )
+            else:
+                await self.repository.deactivate_pending_sessions_by_patient_and_visit_type(
+                    request.patient_id, visit_type
+                )
+                response = await self.repository.create_visit_summary(
+                    request, visit_type, "PENDING_PLAN"
                 )
             await self.repository.commit()
         except Exception:
