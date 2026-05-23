@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
-import {
-  ArrowLeft, CheckCircle2, XCircle, Minus, Plus,
-  Bell, Menu,
-} from 'lucide-react'
+import { ArrowLeft, CheckCircle2, XCircle, Minus, Plus } from 'lucide-react'
 import { markReported } from '@/lib/reportedExercises'
 import type { MyPlan } from '@/types/patient'
+import TopNav from '@/components/TopNav'
 import './ExerciseReport.css'
 import { useSaveExerciseReport } from '@/hooks/paitent/useSaveExerciseReport'
 import { useGetExercise } from '@/hooks/paitent/useGetExercise'
@@ -121,25 +119,8 @@ export default function ExerciseReport() {
   }
 
   return (
-    <div className="er-page">
-
-      {/* ── Desktop Header ── */}
-      <header className="er-header">
-        <div className="er-header__logo">
-          <img src="/logo.svg" alt="Rehab360" className="er-header__logo-img" />
-          <span className="er-header__brand">Rehab<span>360</span></span>
-        </div>
-
-        <div className="er-header__actions">
-          <button className="er-header__icon-btn" aria-label="Notifications" type="button">
-            <Bell size={20} />
-            <span className="er-header__badge">3</span>
-          </button>
-          <button className="er-header__icon-btn er-header__menu-btn" aria-label="Menu" type="button">
-            <Menu size={20} />
-          </button>
-        </div>
-      </header>
+    <div className="er-page pt-16">
+      <TopNav />
 
       {/* ── Main layout ── */}
       <main className="er-main">
