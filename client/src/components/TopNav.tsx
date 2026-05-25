@@ -145,9 +145,8 @@ export default function TopNav() {
   }
 
   const handleLogout = () => {
-    const role = auth?.role
     closeMenu()
-    logout(role)
+    logout()
   }
 
   return createPortal(
