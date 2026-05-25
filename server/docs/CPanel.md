@@ -29,10 +29,10 @@ This file documents the cPanel server setup and all deployment procedures for Re
 
 ### Import the schema
 
-The `init.sql` file contains `CREATE DATABASE` and `USE` statements (lines 1–2) and `DROP TABLE` statements (lines 3–13) that are incompatible with cPanel's database naming. Always skip them on import:
+The `init.sql` file contains `CREATE DATABASE` and `USE` statements (lines 1–2) and `DROP TABLE` statements (lines 3–15) that are incompatible with cPanel's database naming. Always skip them on import:
 
 ```bash
-tail -n +14 ~/Rehab360/db/init.sql | mysql -u shanimi2_u1 -p shanimi2_rehab360_db
+tail -n +16 ~/Rehab360/db/init.sql | mysql -u shanimi2_u1 -p shanimi2_rehab360_db
 ```
 
 ### Verify tables
@@ -41,7 +41,7 @@ tail -n +14 ~/Rehab360/db/init.sql | mysql -u shanimi2_u1 -p shanimi2_rehab360_d
 mysql -u shanimi2_u1 -p shanimi2_rehab360_db -e "SHOW TABLES;"
 ```
 
-Expected tables: `content`, `exercise_completion`, `exercises`, `plan_exercises`, `plans`, `queries`, `saved_content`, `registered_users`, `sessions`, `weekly_plans`
+Expected tables: `content`, `exercise_completion`, `exercises`, `plan_exercises`, `plans`, `queries`, `saved_content`, `registered_users`, `sessions`, `url_verifications`, `weekly_plans`
 
 ---
 
@@ -70,7 +70,7 @@ GEMINI_API_KEY=
 
 ## Backend
 
-The backend is a FastAPI app running via uvicorn on port 8000.
+The backend is a FastAPI app running via uvicorn on port 8000, behind a reverse proxy at `/api`.
 
 ### Virtual environment
 
@@ -83,10 +83,12 @@ pip install -r requirements.txt
 
 ### Start the backend (background)
 
+The `--root-path /api` flag is required so FastAPI generates correct OpenAPI URLs behind the reverse proxy.
+
 ```bash
 cd ~/Rehab360/server
 source .venv/bin/activate
-nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > uvicorn.log 2>&1 &
+nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --root-path /api > uvicorn.log 2>&1 &
 echo $! > uvicorn.pid
 ```
 
@@ -116,20 +118,47 @@ The frontend is a React/Vite SPA. The production build is served statically from
 
 ### API Base URL
 
-The frontend communicates with the backend via `apiClient.ts`. Before building for cPanel, make sure the base URL is set to the production URL — **not localhost**:
+The site is served over **HTTPS**. The API base URL must use `https://` — using `http://` causes browsers to block requests (Mixed Content policy).
 
-```typescript
-// client/src/lib/apiClient.ts
-baseURL: 'http://shanimi2.mtacloud.co.il:8000'
+Use `sed` to update the URL on the server after cloning (no editor needed):
+
+```bash
+sed -i "s|http://localhost:8000|https://shanimi2.mtacloud.co.il/api|g" ~/Rehab360/client/src/lib/apiClient.ts
 ```
 
-> ⚠️ During local development this points to `localhost`. Remember to update it before every cPanel deployment, and revert it after.
+Verify:
+```bash
+cat ~/Rehab360/client/src/lib/apiClient.ts
+```
 
-API docs on the live server will be available at `http://shanimi2.mtacloud.co.il:8000/docs`.
+API docs on the live server: `https://shanimi2.mtacloud.co.il/api/docs`
+
+### .htaccess
+
+The `public_html/.htaccess` must contain both the reverse proxy rules **and** the SPA fallback rule. Without the SPA fallback, hard-refreshing any route returns a 404.
+
+```apache
+RewriteEngine On
+RewriteRule ^api$ http://localhost:8000/ [P,L]
+RewriteRule ^api/(.*) http://localhost:8000/$1 [P,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the "ea-php74" package as the default "PHP" programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php74 .php .php7 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit
+```
 
 ### Build and deploy
 
 ```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 cd ~/Rehab360/client
 npm install
 npm run build
@@ -185,7 +214,7 @@ mysql -u shanimi2_u1 -p -e "CREATE DATABASE shanimi2_rehab360_db;"
 ### 6 — Import the schema
 
 ```bash
-tail -n +14 ~/Rehab360/db/init.sql | mysql -u shanimi2_u1 -p shanimi2_rehab360_db
+tail -n +16 ~/Rehab360/db/init.sql | mysql -u shanimi2_u1 -p shanimi2_rehab360_db
 ```
 
 ### 7 — Restore the `.env` file
@@ -194,18 +223,24 @@ tail -n +14 ~/Rehab360/db/init.sql | mysql -u shanimi2_u1 -p shanimi2_rehab360_d
 nano ~/Rehab360/server/.env
 ```
 
-### 8 — Set up the backend
+### 8 — Point the frontend at the production server
+
+```bash
+sed -i "s|http://localhost:8000|https://shanimi2.mtacloud.co.il/api|g" ~/Rehab360/client/src/lib/apiClient.ts
+```
+
+### 9 — Set up the backend
 
 ```bash
 cd ~/Rehab360/server
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > uvicorn.log 2>&1 &
+nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --root-path /api > uvicorn.log 2>&1 &
 echo $! > uvicorn.pid
 ```
 
-### 9 — Build and deploy the frontend
+### 10 — Build and deploy the frontend
 
 ```bash
 export NVM_DIR="$HOME/.nvm"
@@ -227,6 +262,9 @@ When only redeploying code changes without touching the database:
 cd ~/Rehab360
 git pull origin main
 
+# Restore production URL (overwritten by git pull)
+sed -i "s|http://localhost:8000|https://shanimi2.mtacloud.co.il/api|g" ~/Rehab360/client/src/lib/apiClient.ts
+
 # Rebuild frontend
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -240,6 +278,6 @@ cd ../server
 source .venv/bin/activate
 pip install -r requirements.txt
 kill $(cat uvicorn.pid)
-nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > uvicorn.log 2>&1 &
+nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --root-path /api > uvicorn.log 2>&1 &
 echo $! > uvicorn.pid
 ```
