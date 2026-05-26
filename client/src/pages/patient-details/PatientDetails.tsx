@@ -10,6 +10,11 @@ import { usePatientDetails } from '@/hooks/usePatientDetails'
 import { authAtom } from '@/store/authAtom'
 import './PatientDetails.css'
 
+const PROFESSIONAL_HOME: Partial<Record<string, string>> = {
+  PHYSIOTHERAPIST: '/physiotherapist/home',
+  FITNESS_TRAINER: '/fitness/home',
+}
+
 function calculateAge(birthDate: string): number {
   const today = new Date()
   const birth = new Date(birthDate)
@@ -74,7 +79,7 @@ export default function PatientDetails() {
       <main className="pt-16">
         {/* ── Back navigation ── */}
         <div className="patient-nav">
-          <button type="button" className="patient-nav__back" onClick={() => auth?.role === 'PATIENT' ? navigate(`/patient`) : navigate(`${auth?.role}/home`)}>
+          <button type="button" className="patient-nav__back" onClick={() => { if (auth?.role === 'PATIENT') { navigate('/patient') } else { const dest = PROFESSIONAL_HOME[auth?.role ?? '']; if (dest) navigate(dest); else navigate(-1); } }}>
             <ChevronLeft size={20} />
           </button>
           <h1 className="patient-nav__title">{pageTitle}</h1>
