@@ -75,7 +75,7 @@ VALUES
 ( 'Romanian Deadlift', 3, 'Lower Back', 'https://video.link/rdl', 'Hold barbell at hips, hinge forward keeping back flat and pushing hips back until light stretch in hamstrings, drive hips forward to stand.', 'FITNESS'),
 ( 'Chin Tucks', 1, 'Neck', 'https://video.link/chintuck', 'Sit tall, gently draw chin straight back creating a double chin, hold 5 seconds, release. Keep gaze level.', 'PHYSIOTHERAPIST'),
 ( 'Cervical Rotation Stretch', 1, 'Neck', 'https://video.link/cerv-rot', 'Sit upright, slowly rotate head to one side as far as comfortable, hold 10 seconds, return to center and repeat other side.', 'PHYSIOTHERAPIST'),
-( 'Deep Neck Flexor Activation', 2, 'Neck', 'https://video.link/dnf', 'Lie on back, gently nod chin down without lifting head off floor, hold 10 seconds. Focus on deep muscles not surface ones.', 'PHYSIOTHERAPIST'),
+( 'Deep Neck Flexor Activation', 2, 'Neck', 'https://www.youtube.com/watch?v=lRKWP2LzCmw', 'Lie on back, gently nod chin down without lifting head off floor, hold 10 seconds. Focus on deep muscles not surface ones.', 'PHYSIOTHERAPIST'),
 ( 'Wrist Flexion/Extension Stretch', 1, 'Wrist', 'https://video.link/wrist-stretch', 'Extend arm with palm up, use other hand to gently bend wrist downward, hold 20 seconds each direction.', 'PHYSIOTHERAPIST'),
 ( 'Forearm Pronation/Supination', 1, 'Elbow', 'https://video.link/pron-sup', 'Hold a light hammer or dumbbell vertically, slowly rotate forearm palm-up then palm-down through full range.', 'PHYSIOTHERAPIST'),
 ( 'Eccentric Wrist Curl', 2, 'Wrist', 'https://video.link/ecc-wrist', 'Rest forearm on a table palm-up holding light dumbbell, use other hand to lift weight then lower it slowly using the wrist only.', 'FITNESS');
