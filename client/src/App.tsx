@@ -50,6 +50,28 @@ function AnimatedRoutes() {
       <Route path="/physiotherapist/patient/:patientId/treatment-plans/new/:sessionId" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
       <Route path="/fitness/patient/:patientId/fitness-plans/new/:sessionId" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
       <Route path="/patient/:id/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
+
+      {/* ── PATIENT viewing own data ── */}
+      <Route path="/patient/my-process" element={<PageTransition><PatientDetails /></PageTransition>} />
+      <Route path="/patient/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
+      <Route path="/patient/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
+      <Route path="/patient/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
+      <Route path="/patient/fitness-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
+
+      {/* ── PHYSIOTHERAPIST viewing a selected patient ── */}
+      <Route path="/physiotherapist/patient/:patientId" element={<PageTransition><PatientDetails /></PageTransition>} />
+      <Route path="/physiotherapist/patient/:patientId/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
+      <Route path="/physiotherapist/patient/:patientId/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
+      <Route path="/physiotherapist/patient/:patientId/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
+      <Route path="/physiotherapist/patient/:patientId/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
+
+      {/* ── FITNESS_TRAINER viewing a selected patient ── */}
+      <Route path="/fitness/patient/:patientId" element={<PageTransition><PatientDetails /></PageTransition>} />
+      <Route path="/fitness/patient/:patientId/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
+      <Route path="/fitness/patient/:patientId/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
+      <Route path="/fitness/patient/:patientId/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
+      <Route path="/fitness/patient/:patientId/fitness-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
+
       <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
       <Route path="/dev-login" element={<DevLogin />} />{/* DEV ONLY */}
       <Route path="*" element={<Navigate to="/" replace />} />
