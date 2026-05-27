@@ -40,16 +40,11 @@ function AnimatedRoutes() {
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
       <Route path="/ai-search" element={<PageTransition><AiSearchPage /></PageTransition>} />
       <Route path="/ai-search/saved" element={<PageTransition><SavedContentPage /></PageTransition>} />
-      <Route path="/patient/:id" element={<PageTransition><PatientDetails /></PageTransition>} />
       <Route path="/patient/exercise/:id" element={<PageTransition><ExerciseReport /></PageTransition>} />
       <Route path="/patient/my-plan" element={<PageTransition><MyPlan /></PageTransition>} />
       <Route path="/patient/schedule-exercise" element={<PageTransition><ExerciseSchedule /></PageTransition>} />
-      <Route path="/patient/:id/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
-      <Route path="/patient/:id/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
-      <Route path="/patient/:id/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
       <Route path="/physiotherapist/patient/:patientId/treatment-plans/new/:sessionId" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
       <Route path="/fitness/patient/:patientId/fitness-plans/new/:sessionId" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
-      <Route path="/patient/:id/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
 
       {/* ── PATIENT viewing own data ── */}
       <Route path="/patient/my-process" element={<PageTransition><PatientDetails /></PageTransition>} />

@@ -6,6 +6,7 @@ import { authAtom } from '@/store/authAtom'
 import TopNav from '@/components/TopNav'
 import { useHasPreviousPlan, useVisitSummary } from '@/hooks/useVisitSummaries'
 import { useCreateVisitSummary } from '@/hooks/useCreateVisitSummary'
+import { visitSummariesPath } from '@/lib/patientRoutes'
 
 import '../patient-details/PatientDetails.css'
 import './CreateVisitSummary.css'
@@ -65,15 +66,15 @@ interface FormErrors {
 // ── Component ────────────────────────────────────────────────────────────────
 export default function CreateVisitSummary() {
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { patientId } = useParams<{ patientId: string }>()
   const auth = useAtomValue(authAtom)
 
   // ── Real API data (API-first, mock fallback) ─────────────────────────────
-  const { data: patientApiData, isLoading: isLoadingPatient } = useVisitSummary(id)
+  const { data: patientApiData, isLoading: isLoadingPatient } = useVisitSummary(patientId)
 
   useEffect(() => {
-    console.log('[DEBUG] Route param id (patient_id sent to API):', id)
-  }, [id])
+    console.log('[DEBUG] Route param patientId (patient_id sent to API):', patientId)
+  }, [patientId])
 
   useEffect(() => {
     if (patientApiData) {
@@ -99,13 +100,13 @@ export default function CreateVisitSummary() {
     data: previousPlanData,
     isLoading: isLoadingPreviousPlan,
     isError: isPreviousPlanError,
-  } = useHasPreviousPlan(id, visitType)
+  } = useHasPreviousPlan(patientId, visitType)
   const hasPreviousPlan = previousPlanData?.has_previous_plan ?? false
 
   useEffect(() => {
-    console.log('[DEBUG] useHasPreviousPlan — patientId:', id, 'visitType:', visitType)
+    console.log('[DEBUG] useHasPreviousPlan — patientId:', patientId, 'visitType:', visitType)
     console.log('[DEBUG] useHasPreviousPlan — isLoading:', isLoadingPreviousPlan, 'isError:', isPreviousPlanError, 'data:', previousPlanData)
-  }, [id, visitType, isLoadingPreviousPlan, isPreviousPlanError, previousPlanData])
+  }, [patientId, visitType, isLoadingPreviousPlan, isPreviousPlanError, previousPlanData])
 
   const age = calculateAge(displayPatient.birthDate)
 
@@ -143,9 +144,9 @@ export default function CreateVisitSummary() {
   }
 
   function buildPayload(copyPreviousPlan: boolean) {
-    const patientId = id ?? displayPatient.id
+    const resolvedId = patientId ?? displayPatient.id
     return {
-      patientId,
+      patientId: resolvedId,
       payload: {
         visit_date: form.date,
         visit_time: form.time,
@@ -153,7 +154,7 @@ export default function CreateVisitSummary() {
         medical_diagnosis: form.medicalDiagnosis,
         description: form.visitNotes,
         recommendations: form.recommendations || undefined,
-        patient_id: patientId,
+        patient_id: resolvedId,
         therapist_id: auth?.id ?? '',
         therapist_role: auth?.role ?? '',
         copy_previous_plan: copyPreviousPlan,
@@ -171,8 +172,8 @@ export default function CreateVisitSummary() {
     createVisitSummary.mutate(payload, {
       onSuccess: (data) => {
         console.log('[DEBUG] Visit summary created, session_id:', data.session_id)
-        console.log('[DEBUG] Navigating to:', `/patient/${patientId}/visit-summaries`)
-        navigate(`/patient/${patientId}/visit-summaries`)
+        if (!auth?.role || !patientId) return
+        navigate(visitSummariesPath(auth.role, patientId))
       },
       onError: (err) => {
         console.error('[DEBUG] Save failed:', err)
@@ -205,7 +206,8 @@ export default function CreateVisitSummary() {
   }
 
   function handleCancel(): void {
-    navigate(`/patient/${id ?? displayPatient.id}/visit-summaries`)
+    if (!auth?.role || !patientId) { navigate(-1); return }
+    navigate(visitSummariesPath(auth.role, patientId ?? displayPatient.id))
   }
 
   return (

@@ -7,8 +7,6 @@ import { useSetAtom } from 'jotai'
 import { authAtom } from '@/store/authAtom'
 import type { LoginResponse } from '@/types'
 
-const DEV_TARGET = '/patient/P100/visit-summaries'
-
 const DEV_USERS: { label: string; auth: LoginResponse }[] = [
   {
     label: 'Bob Johnson — T200 (Physiotherapist)',
@@ -26,7 +24,8 @@ export default function DevLogin() {
 
   function loginAs(user: LoginResponse) {
     setAuth(user)
-    navigate(DEV_TARGET)
+    const target = user.role === 'FITNESS_TRAINER' ? '/fitness/home' : '/physiotherapist/home'
+    navigate(target)
   }
 
   return (
@@ -53,7 +52,7 @@ export default function DevLogin() {
       </div>
 
       <h1 style={{ color: '#e2e8f0', fontSize: '1.1rem', margin: 0 }}>
-        Quick Dev Login → <code style={{ color: '#90cdf4' }}>{DEV_TARGET}</code>
+        Quick Dev Login → role-based home
       </h1>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '320px' }}>

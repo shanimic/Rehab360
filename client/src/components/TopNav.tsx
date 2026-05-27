@@ -78,7 +78,7 @@ function getPatientMenuItems(patientId: string | undefined) {
     },
     {
       label: 'My Process',
-      path: `/patient/${patientId}`,
+      path: '/patient/my-process',
       icon: (
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
           <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" stroke="currentColor" strokeWidth="2" />
