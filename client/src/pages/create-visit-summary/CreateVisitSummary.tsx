@@ -191,14 +191,11 @@ export default function CreateVisitSummary() {
     createVisitSummary.mutate(payload, {
       onSuccess: (data) => {
         console.log('[DEBUG] Visit summary created, session_id:', data.session_id)
-        console.log('[DEBUG] Navigating to /create-treatment-plan with session_id:', data.session_id)
-        navigate('/create-treatment-plan', {
-          state: {
-            patient_id: patientId,
-            session_id: data.session_id,
-            medical_diagnosis: form.medicalDiagnosis,
-          },
-        })
+        const planPath = auth?.role === 'FITNESS_TRAINER'
+          ? `/fitness/patient/${patientId}/fitness-plans/new/${data.session_id}`
+          : `/physiotherapist/patient/${patientId}/treatment-plans/new/${data.session_id}`
+        console.log('[DEBUG] Navigating to:', planPath)
+        navigate(planPath, { state: { medical_diagnosis: form.medicalDiagnosis } })
       },
       onError: (err) => {
         console.error('[DEBUG] Save & create plan failed:', err)

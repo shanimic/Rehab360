@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { ChevronLeft, Target, Dumbbell, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import axios from 'axios'
@@ -29,9 +29,6 @@ export interface PlanFormState {
 
 interface LocationState {
   medical_diagnosis?: string
-  patient_id?: string
-  session_id?: number
-  plan_data?: PlanFormState
 }
 
 interface FormErrors {
@@ -44,20 +41,17 @@ interface FormErrors {
 export default function CreateTreatmentPlan() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { patientId, sessionId: sessionIdParam } = useParams<{ patientId: string; sessionId: string }>()
   const auth = useAtomValue(authAtom)
 
   const state = (location.state ?? {}) as Partial<LocationState>
-  const patientId = state.patient_id ?? 'P100'
-  const sessionId = state.session_id ?? null
-
-  // Restore any previously entered draft so data survives back-and-forth navigation
-  const draft = state.plan_data
+  const sessionId = sessionIdParam ? Number(sessionIdParam) : null
 
   const [form, setForm] = useState<PlanFormState>({
-    goal: draft?.goal ?? '',
-    start_date: draft?.start_date ?? '',
-    end_date: draft?.end_date ?? '',
-    notes: draft?.notes ?? '',
+    goal: '',
+    start_date: '',
+    end_date: '',
+    notes: '',
   })
 
   const contextQuery = useTreatmentPlanContext(sessionId)

@@ -47,9 +47,9 @@ function AnimatedRoutes() {
       <Route path="/patient/:id/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
       <Route path="/patient/:id/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
       <Route path="/patient/:id/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
-      <Route path="/create-treatment-plan" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
+      <Route path="/physiotherapist/patient/:patientId/treatment-plans/new/:sessionId" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
+      <Route path="/fitness/patient/:patientId/fitness-plans/new/:sessionId" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
       <Route path="/patient/:id/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
-      <Route path="/patient/:id/treatment-plans" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
       <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
       <Route path="/dev-login" element={<DevLogin />} />{/* DEV ONLY */}
       <Route path="*" element={<Navigate to="/" replace />} />
