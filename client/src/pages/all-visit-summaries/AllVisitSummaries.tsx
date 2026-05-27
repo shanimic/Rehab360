@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Phone, Mail } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import TopNav from '@/components/TopNav'
 import { useVisitSummaries, useVisitSummary } from '@/hooks/useVisitSummaries'
+import { useResolvedPatientId } from '@/hooks/useResolvedPatientId'
+import { patientDetailPath, newVisitSummaryPath, visitSummaryDetailPath } from '@/lib/patientRoutes'
 import { authAtom } from '@/store/authAtom'
 import type { SessionListItem } from '@/types'
 
@@ -95,14 +97,14 @@ function VisitCard({ session, sessionNumber, onClick }: VisitCardProps) {
 
 export default function AllVisitSummaries() {
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const resolvedPatientId = useResolvedPatientId()
   const [activeFilter, setActiveFilter] = useState<FilterTab>('All Sessions')
 
   const auth = useAtomValue(authAtom)
   const canCreateSummary = auth?.role === 'PHYSIOTHERAPIST' || auth?.role === 'FITNESS_TRAINER'
 
-  const { data: patient, isLoading: isPatientLoading, isError: isPatientError } = useVisitSummary(id)
-  const { data: sessions, isLoading, isError } = useVisitSummaries(id)
+  const { data: patient, isLoading: isPatientLoading, isError: isPatientError } = useVisitSummary(resolvedPatientId)
+  const { data: sessions, isLoading, isError } = useVisitSummaries(resolvedPatientId)
 
   const age = patient?.birth_date ? calculateAge(patient.birth_date) : null
 
@@ -120,7 +122,10 @@ export default function AllVisitSummaries() {
       <main className="pt-16">
         {/* ── Back navigation ── */}
         <div className="patient-nav">
-          <button type="button" className="patient-nav__back" onClick={() => navigate(`/patient/${id ?? ''}`)}>
+          <button type="button" className="patient-nav__back" onClick={() => {
+            if (!auth?.role || !resolvedPatientId) { navigate(-1); return }
+            navigate(patientDetailPath(auth.role, resolvedPatientId))
+          }}>
             <ChevronLeft size={20} />
           </button>
           <h1 className="patient-nav__title">Visit Summaries</h1>
@@ -145,7 +150,7 @@ export default function AllVisitSummaries() {
                   {patient.patient_first_name} {patient.patient_last_name}
                 </p>
                 <div className="patient-profile-card__meta-row">
-                  <span>ID: #{id}</span>
+                  <span>ID: #{resolvedPatientId}</span>
                   {age !== null && (
                     <>
                       <span className="patient-profile-card__sep">|</span>
@@ -193,7 +198,10 @@ export default function AllVisitSummaries() {
               <button
                 type="button"
                 className="avs-new-btn"
-                onClick={() => navigate(`/patient/${id}/visit-summaries/new`)}
+                onClick={() => {
+                  if (!auth?.role || !resolvedPatientId) { navigate(-1); return }
+                  navigate(newVisitSummaryPath(auth.role, resolvedPatientId))
+                }}
               >
                 <span className="avs-new-btn__icon">+</span>
                 New Summary
@@ -219,7 +227,10 @@ export default function AllVisitSummaries() {
                 key={session.session_id}
                 session={session}
                 sessionNumber={totalCount - index}
-                onClick={() => navigate(`/patient/${id}/visit-summaries/${session.session_id}`)}
+                onClick={() => {
+                  if (!auth?.role || !resolvedPatientId) { navigate(-1); return }
+                  navigate(visitSummaryDetailPath(auth.role, resolvedPatientId, session.session_id))
+                }}
               />
             ))}
           </div>

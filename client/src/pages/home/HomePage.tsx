@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
+import { patientDetailPath, newVisitSummaryPath } from '@/lib/patientRoutes'
 import TopNav from '@/components/TopNav'
 import AlertItem from '../physiotherapist/home/components/AlertItem'
 import ScheduleCard from '../physiotherapist/home/components/ScheduleCard'
@@ -54,7 +55,8 @@ export default function HomePage() {
   const handlePatientSelect = (patientId: string) => {
     setModalOpen(false)
     setModalSearch('')
-    navigate(`/patient/${patientId}/visit-summaries/new`)
+    if (!auth?.role) return
+    navigate(newVisitSummaryPath(auth.role, patientId))
   }
 
   const closeModal = () => { setModalOpen(false); setModalSearch('') }
@@ -142,7 +144,10 @@ export default function HomePage() {
                 </div>
               ) : (
                 <div className="w-full">
-                  <PatientsCarousel patients={filteredPatients} onPatientClick={(patientId) => navigate(`/patient/${patientId}`)} />
+                  <PatientsCarousel patients={filteredPatients} onPatientClick={(patientId) => {
+                  if (!auth?.role) return
+                  navigate(patientDetailPath(auth.role, patientId))
+                }} />
                 </div>
               )}
             </div>

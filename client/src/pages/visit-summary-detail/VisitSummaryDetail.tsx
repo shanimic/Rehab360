@@ -1,8 +1,12 @@
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Phone, Mail, CalendarDays, Stethoscope, ArrowRight } from 'lucide-react'
+import { useAtomValue } from 'jotai'
 import TopNav from '@/components/TopNav'
 import { useVisitSummaryDetail } from '@/hooks/useVisitSummaries'
+import { useResolvedPatientId } from '@/hooks/useResolvedPatientId'
+import { visitSummariesPath, patientDetailPath, planPath } from '@/lib/patientRoutes'
+import { authAtom } from '@/store/authAtom'
 import type { VisitSummaryDetails } from '@/types'
 
 import '../patient-details/PatientDetails.css'
@@ -164,7 +168,9 @@ function PageShell({ onBack, children }: { onBack: () => void; children: React.R
 
 export default function VisitSummaryDetail() {
   const navigate = useNavigate()
-  const { id, visitId } = useParams<{ id: string; visitId: string }>()
+  const { visitId } = useParams<{ visitId: string }>()
+  const auth = useAtomValue(authAtom)
+  const resolvedPatientId = useResolvedPatientId()
   const sessionId = Number(visitId)
 
   const { data, isLoading, isError } = useVisitSummaryDetail(
@@ -172,14 +178,20 @@ export default function VisitSummaryDetail() {
   )
 
   useEffect(() => {
-    if (Number.isNaN(sessionId)) navigate(`/patient/${id ?? ''}/visit-summaries`)
-  }, [sessionId, id, navigate])
+    if (Number.isNaN(sessionId)) {
+      if (!auth?.role || !resolvedPatientId) { navigate(-1); return }
+      navigate(visitSummariesPath(auth.role, resolvedPatientId))
+    }
+  }, [sessionId, resolvedPatientId, navigate, auth?.role])
 
   if (Number.isNaN(sessionId)) return null
 
   if (isLoading) {
     return (
-      <PageShell onBack={() => navigate(`/patient/${id ?? ''}`)}>
+      <PageShell onBack={() => {
+        if (!auth?.role || !resolvedPatientId) { navigate(-1); return }
+        navigate(patientDetailPath(auth.role, resolvedPatientId))
+      }}>
         <p className="vsd-state-text">Loading...</p>
       </PageShell>
     )
@@ -187,7 +199,10 @@ export default function VisitSummaryDetail() {
 
   if (isError || !data) {
     return (
-      <PageShell onBack={() => navigate(`/patient/${id ?? ''}`)}>
+      <PageShell onBack={() => {
+        if (!auth?.role || !resolvedPatientId) { navigate(-1); return }
+        navigate(patientDetailPath(auth.role, resolvedPatientId))
+      }}>
         <p className="vsd-state-text vsd-state-text--error">
           Could not load visit summary. Please try again.
         </p>
@@ -198,11 +213,17 @@ export default function VisitSummaryDetail() {
   const age = data.birth_date ? calculateAge(data.birth_date) : null
   const onOpenPlan =
     typeof data.plan_id === 'number'
-      ? () => navigate(`/patient/${data.patient_id}/treatment-plans/${data.plan_id}`)
+      ? () => {
+          if (!auth?.role || !resolvedPatientId) return
+          navigate(planPath(auth.role, resolvedPatientId, data.plan_id as number, data.visit_type))
+        }
       : null
 
   return (
-    <PageShell onBack={() => navigate(`/patient/${id ?? ''}/visit-summaries`)}>
+    <PageShell onBack={() => {
+      if (!auth?.role || !resolvedPatientId) { navigate(-1); return }
+      navigate(visitSummariesPath(auth.role, resolvedPatientId))
+    }}>
       {/* Patient Info Card */}
       <div className="patient-profile-card">
         <div className="patient-profile-card__avatar">

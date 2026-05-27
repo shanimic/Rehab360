@@ -1,12 +1,14 @@
 import { useAtomValue } from 'jotai'
 import { ChevronLeft, Phone, Mail, Calendar, User, Activity } from 'lucide-react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import InfoCard from '@/components/InfoCard'
 import TopNav from '@/components/TopNav'
 
 import ProgressBar from '@/components/ui/progress-bar'
 import { usePatientDetails } from '@/hooks/usePatientDetails'
+import { useResolvedPatientId } from '@/hooks/useResolvedPatientId'
+import { visitSummariesPath, planPath } from '@/lib/patientRoutes'
 import { authAtom } from '@/store/authAtom'
 import './PatientDetails.css'
 
@@ -36,9 +38,9 @@ function formatDate(iso: string): string {
 
 export default function PatientDetails() {
   const navigate = useNavigate()
-  const { id: routePatientId } = useParams<{ id: string }>()
+  const resolvedPatientId = useResolvedPatientId()
   const auth = useAtomValue(authAtom)
-  const { data, isLoading, isError } = usePatientDetails(routePatientId)
+  const { data, isLoading, isError } = usePatientDetails(resolvedPatientId)
 
   const pageTitle = auth?.role === 'PATIENT' ? 'My Process' : 'Patient Details'
 
@@ -120,7 +122,10 @@ export default function PatientDetails() {
             <InfoCard
               title="Visit Summaries"
               actionLabel="View All Summaries"
-              onAction={() => navigate(`/patient/${routePatientId}/visit-summaries`)}
+              onAction={() => {
+                if (!auth?.role || !resolvedPatientId) return
+                navigate(visitSummariesPath(auth.role, resolvedPatientId))
+              }}
             >
               {latest_visit_summary ? (
                 <>
@@ -162,7 +167,10 @@ export default function PatientDetails() {
               actionLabel={treatment_plan ? 'Go to Current Treatment Plan' : undefined}
               onAction={
                 treatment_plan
-                  ? () => navigate(`/patient/${routePatientId}/treatment-plans/${treatment_plan.plan_id}`)
+                  ? () => {
+                      if (!auth?.role || !resolvedPatientId) return
+                      navigate(planPath(auth.role, resolvedPatientId, treatment_plan.plan_id))
+                    }
                   : undefined
               }
             >
@@ -206,7 +214,10 @@ export default function PatientDetails() {
               actionLabel={fitness_plan ? 'Go to Current Fitness Plan' : undefined}
               onAction={
                 fitness_plan
-                  ? () => navigate(`/patient/${routePatientId}/treatment-plans/${fitness_plan.plan_id}`)
+                  ? () => {
+                      if (!auth?.role || !resolvedPatientId) return
+                      navigate(planPath(auth.role, resolvedPatientId, fitness_plan.plan_id, 'FITNESS'))
+                    }
                   : undefined
               }
             >

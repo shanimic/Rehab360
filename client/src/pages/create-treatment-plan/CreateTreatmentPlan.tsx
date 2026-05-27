@@ -4,6 +4,7 @@ import { ChevronLeft, Target, Dumbbell, Loader2, Plus, Trash2 } from 'lucide-rea
 import { useAtomValue } from 'jotai'
 import axios from 'axios'
 import { authAtom } from '@/store/authAtom'
+import { visitSummariesPath } from '@/lib/patientRoutes'
 import TopNav from '@/components/TopNav'
 import AddExerciseModal from './AddExerciseModal'
 import type { ExerciseEntry } from './AddExerciseModal'
@@ -138,7 +139,8 @@ export default function CreateTreatmentPlan() {
       { sessionId, body },
       {
         onSuccess: () => {
-          navigate(`/patient/${patientId}/visit-summaries`)
+          if (!auth?.role || !patientId) return
+          navigate(visitSummariesPath(auth.role, patientId))
         },
         onError: (err) => {
           if (axios.isAxiosError(err) && err.response?.data?.detail) {
@@ -161,7 +163,10 @@ export default function CreateTreatmentPlan() {
           <button
             type="button"
             className="patient-nav__back"
-            onClick={() => navigate(`/patient/${patientId}/visit-summaries`)}
+            onClick={() => {
+              if (!auth?.role || !patientId) { navigate(-1); return }
+              navigate(visitSummariesPath(auth.role, patientId))
+            }}
           >
             <ChevronLeft size={20} />
           </button>

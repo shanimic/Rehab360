@@ -22,7 +22,6 @@ import CreateTreatmentPlan from './pages/create-treatment-plan/CreateTreatmentPl
 import ViewTreatmentPlan from './pages/view-treatment-plan/ViewTreatmentPlan'
 import ProfilePage from './pages/profile/ProfilePage'
 import ExerciseSchedule from './pages/patient/schedule-exercise/ExerciseSchedule'
-import DevLogin from './pages/dev/DevLogin' // DEV ONLY — remove before production
 
 
 function AnimatedRoutes() {
@@ -40,16 +39,11 @@ function AnimatedRoutes() {
       <Route path="/placeholder" element={<PageTransition><PlaceholderPage /></PageTransition>} />
       <Route path="/ai-search" element={<PageTransition><AiSearchPage /></PageTransition>} />
       <Route path="/ai-search/saved" element={<PageTransition><SavedContentPage /></PageTransition>} />
-      <Route path="/patient/:id" element={<PageTransition><PatientDetails /></PageTransition>} />
       <Route path="/patient/exercise/:id" element={<PageTransition><ExerciseReport /></PageTransition>} />
       <Route path="/patient/my-plan" element={<PageTransition><MyPlan /></PageTransition>} />
       <Route path="/patient/schedule-exercise" element={<PageTransition><ExerciseSchedule /></PageTransition>} />
-      <Route path="/patient/:id/visit-summaries" element={<PageTransition><AllVisitSummaries /></PageTransition>} />
-      <Route path="/patient/:id/visit-summaries/new" element={<PageTransition><CreateVisitSummary /></PageTransition>} />
-      <Route path="/patient/:id/visit-summaries/:visitId" element={<PageTransition><VisitSummaryDetail /></PageTransition>} />
       <Route path="/physiotherapist/patient/:patientId/treatment-plans/new/:sessionId" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
       <Route path="/fitness/patient/:patientId/fitness-plans/new/:sessionId" element={<PageTransition><CreateTreatmentPlan /></PageTransition>} />
-      <Route path="/patient/:id/treatment-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
 
       {/* ── PATIENT viewing own data ── */}
       <Route path="/patient/my-process" element={<PageTransition><PatientDetails /></PageTransition>} />
@@ -73,8 +67,7 @@ function AnimatedRoutes() {
       <Route path="/fitness/patient/:patientId/fitness-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
 
       <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
-      <Route path="/dev-login" element={<DevLogin />} />{/* DEV ONLY */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+<Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
