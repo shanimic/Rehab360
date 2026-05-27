@@ -22,7 +22,6 @@ import CreateTreatmentPlan from './pages/create-treatment-plan/CreateTreatmentPl
 import ViewTreatmentPlan from './pages/view-treatment-plan/ViewTreatmentPlan'
 import ProfilePage from './pages/profile/ProfilePage'
 import ExerciseSchedule from './pages/patient/schedule-exercise/ExerciseSchedule'
-import DevLogin from './pages/dev/DevLogin' // DEV ONLY — remove before production
 
 
 function AnimatedRoutes() {
@@ -68,8 +67,7 @@ function AnimatedRoutes() {
       <Route path="/fitness/patient/:patientId/fitness-plans/:planId" element={<PageTransition><ViewTreatmentPlan /></PageTransition>} />
 
       <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
-      <Route path="/dev-login" element={<DevLogin />} />{/* DEV ONLY */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+<Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
