@@ -65,19 +65,19 @@ export default function SignUpForm({ role }: SignUpFormProps) {
   return (
     <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit() }}>
       <form.Field name="user_id" validators={{ onChange: z.string().min(1, 'ID number is required') }}>
-        {(field) => <FormTextField id="user_id" label="ID Number" placeholder="123456789" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="off" />}
+        {(field) => <FormTextField id="user_id" label="ID Number" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="off" />}
       </form.Field>
 
       <form.Field name="first_name" validators={{ onChange: z.string().min(1, 'First name is required') }}>
-        {(field) => <FormTextField id="first_name" label="First Name" placeholder="Liron" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="given-name" />}
+        {(field) => <FormTextField id="first_name" label="First Name" placeholder="" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="given-name" />}
       </form.Field>
 
       <form.Field name="last_name" validators={{ onChange: z.string().min(1, 'Last name is required') }}>
-        {(field) => <FormTextField id="last_name" label="Last Name" placeholder="Gabay" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="family-name" />}
+        {(field) => <FormTextField id="last_name" label="Last Name" placeholder="" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="family-name" />}
       </form.Field>
 
       <form.Field name="email" validators={{ onChange: z.string().email('Invalid email address') }}>
-        {(field) => <FormTextField id="email" label="Email" type="email" placeholder="liron@gmail.com" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="email" />}
+        {(field) => <FormTextField id="email" label="Email" type="email" placeholder="you@example.com" value={field.state.value} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} autoComplete="email" />}
       </form.Field>
 
       <form.Field name="password" validators={{ onChange: z.string().min(8, 'Password must be at least 8 characters') }}>
@@ -94,7 +94,7 @@ export default function SignUpForm({ role }: SignUpFormProps) {
 
       {needsLicense && (
         <form.Field name="license_number">
-          {(field) => <FormTextField id="license_number" label="License Number" placeholder="LIC-0000" value={field.state.value ?? ''} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} />}
+          {(field) => <FormTextField id="license_number" label="License Number" placeholder={role === 'trainer' ? 'FIT-1234' : 'LIC-1234'} value={field.state.value ?? ''} onChange={field.handleChange} onBlur={field.handleBlur} error={errMsg(field.state.meta.errors[0])} />}
         </form.Field>
       )}
 
