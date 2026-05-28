@@ -79,7 +79,7 @@ export default function Login() {
                 id="email"
                 type="email"
                 className="auth-input"
-                placeholder="liron@gmail.com"
+                placeholder="you@example.com"
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
