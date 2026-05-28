@@ -25,7 +25,7 @@ export default function PasswordField({ id, label, value, onChange, onBlur, erro
           id={id}
           type={showPassword ? 'text' : 'password'}
           className="auth-input auth-input--has-icon"
-          placeholder="••••••••••••"
+          placeholder="••••••••"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
