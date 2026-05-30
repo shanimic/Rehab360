@@ -49,7 +49,7 @@ async def _build_raw_sources(json_sources: list[dict]) -> list[dict]:
     Returns:
         Source dicts with "url" replaced by the fully resolved destination URL.
     """
-    resolved_urls = await _resolve_grounding_urls(
+    resolved_urls = await resolve_grounding_urls(
         [s.get("url", "") for s in json_sources]
     )
     return [
@@ -84,7 +84,7 @@ async def _resolve_url(client: httpx.AsyncClient, url: str) -> str:
         return ""
 
 
-async def _resolve_grounding_urls(urls: list[str]) -> list[str]:
+async def resolve_grounding_urls(urls: list[str]) -> list[str]:
     """Resolve all grounding URLs in parallel, following Vertex AI redirects.
 
     Args:

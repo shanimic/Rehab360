@@ -101,7 +101,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+        expect(ai_search_module, times=1).resolve_grounding_urls(...).thenReturn(
             ["https://example.com/acl-guide"]
         )
         expect(repo, times=1).get_all_url_verifications().thenReturn({})
@@ -139,7 +139,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+        expect(ai_search_module, times=1).resolve_grounding_urls(...).thenReturn(
             ["https://example.com/acl-guide"]
         )
         expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
@@ -173,7 +173,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+        expect(ai_search_module, times=1).resolve_grounding_urls(...).thenReturn(
             ["https://example.com/acl-guide"]
         )
         expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
@@ -304,7 +304,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+        expect(ai_search_module, times=1).resolve_grounding_urls(...).thenReturn(
             [verified_url]
         )
         expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
@@ -692,7 +692,7 @@ class SearchRedirectResolutionTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
-        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+        expect(ai_search_module, times=1).resolve_grounding_urls(...).thenReturn(
             [real_url]
         )
         expect(repo, times=1).get_all_url_verifications().thenReturn({})
