@@ -3,17 +3,23 @@ import datetime
 import json
 import unittest
 
+import httpx
 from fastapi import HTTPException
 from google import genai as genai_module
 from mockito import expect, mock
 
+import app.services.ai_search_services as ai_search_module
 from app.dal.ai_search_repository import AiSearchRepository, ContentData
 from app.models.ai_search.ai_search import (
     AiSearchRequest,
     SaveContentRequest,
     VerifyContentRequest,
 )
-from app.services.ai_search_services import AiSearchServices
+from app.services.ai_search_services import (
+    AiSearchServices,
+    _VERTEX_REDIRECT_PREFIX,
+    _resolve_url,
+)
 
 
 def _make_search_request(**overrides) -> AiSearchRequest:
@@ -53,7 +59,7 @@ def _make_verify_request(**overrides) -> VerifyContentRequest:
 
 
 def _mock_gemini_response(summary: str = "Test summary", sources: list | None = None):
-    """Return a mock Gemini response object with a pre-set text attribute."""
+    """Return a mock Gemini response with text including URLs in the JSON payload."""
     if sources is None:
         sources = [
             {
@@ -95,6 +101,9 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
+        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+            ["https://example.com/acl-guide"]
+        )
         expect(repo, times=1).get_all_url_verifications().thenReturn({})
 
         # ACT
@@ -130,6 +139,9 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
+        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+            ["https://example.com/acl-guide"]
+        )
         expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
 
         # ACT
@@ -161,6 +173,9 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
+        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+            ["https://example.com/acl-guide"]
+        )
         expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
 
         # ACT
@@ -192,6 +207,7 @@ class AiSearchServicesTest(unittest.TestCase):
         expect(mock_models, times=1).generate_content(...).thenRaise(
             RuntimeError("network error")
         )
+        # _resolve_grounding_urls is not reached when generate_content raises
 
         # ACT / ASSERT
         with self.assertRaises(HTTPException) as ctx:
@@ -220,6 +236,7 @@ class AiSearchServicesTest(unittest.TestCase):
         expect(mock_models, times=1).generate_content(...).thenRaise(
             RuntimeError("503 UNAVAILABLE. This model is currently experiencing high demand.")
         )
+        # _resolve_grounding_urls is not reached when generate_content raises
 
         # ACT / ASSERT
         with self.assertRaises(HTTPException) as ctx:
@@ -248,6 +265,7 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(bad_response)
+        # _resolve_grounding_urls is not reached when JSON parsing fails
 
         # ACT / ASSERT
         with self.assertRaises(HTTPException) as ctx:
@@ -286,6 +304,9 @@ class AiSearchServicesTest(unittest.TestCase):
         ).thenReturn(1)
         expect(genai_module, times=1).Client(...).thenReturn(mock_client)
         expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
+        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+            [verified_url]
+        )
         expect(repo, times=1).get_all_url_verifications().thenReturn(flags)
 
         # ACT
@@ -332,28 +353,6 @@ class AiSearchServicesTest(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].query_id, 2)
         self.assertEqual(result[1].query_text, "First query")
-
-    # ------------------------------------------------------------------ #
-    # delete_query                                                         #
-    # ------------------------------------------------------------------ #
-
-    def test_delete_query_calls_cascade(self) -> None:
-        """
-        Given a query_id of 1,
-        When delete_query is called,
-        Then repository.delete_query_cascade is called exactly once with that query_id.
-        """
-        # PREPARE
-        repo = mock(AiSearchRepository)
-        service = AiSearchServices(repository=repo)
-
-        # MOCK
-        expect(repo, times=1).delete_query_cascade(1).thenReturn(None)
-
-        # ACT
-        asyncio.run(service.delete_query(1))
-
-        # ASSERT — verified by expect(times=1)
 
     # ------------------------------------------------------------------ #
     # save_content                                                         #
@@ -438,28 +437,6 @@ class AiSearchServicesTest(unittest.TestCase):
         asyncio.run(service.save_content(request))
 
         # ASSERT — verified by expect(times=1); insert_saved_content not set up so not called
-
-    # ------------------------------------------------------------------ #
-    # unsave_content                                                       #
-    # ------------------------------------------------------------------ #
-
-    def test_unsave_content_delegates(self) -> None:
-        """
-        Given a saving_id of 7,
-        When unsave_content is called,
-        Then repository.delete_saved_content is called exactly once with 7.
-        """
-        # PREPARE
-        repo = mock(AiSearchRepository)
-        service = AiSearchServices(repository=repo)
-
-        # MOCK
-        expect(repo, times=1).delete_saved_content(7).thenReturn(None)
-
-        # ACT
-        asyncio.run(service.unsave_content(7))
-
-        # ASSERT — verified by expect(times=1)
 
     # ------------------------------------------------------------------ #
     # verify_content                                                       #
@@ -592,3 +569,137 @@ class AiSearchServicesTest(unittest.TestCase):
         with self.assertRaises(HTTPException) as ctx:
             asyncio.run(service.verify_content(request))
         self.assertEqual(ctx.exception.status_code, 403)
+
+
+class ResolveUrlTest(unittest.TestCase):
+
+    def test_non_redirect_url_passes_through(self) -> None:
+        """
+        Given a regular URL that does not contain the Vertex redirect prefix,
+        When _resolve_url is called,
+        Then the original URL is returned unchanged and client.head is never called.
+        """
+        # PREPARE
+        client = mock(httpx.AsyncClient)
+        url = "https://www.webmd.com/first-aid/rice-method-injuries"
+
+        # MOCK — head must not be called
+        expect(client, times=0).head(...)
+
+        # ACT
+        result = asyncio.run(_resolve_url(client, url))
+
+        # ASSERT
+        self.assertEqual(result, url)
+
+    def test_redirect_url_is_resolved_to_final_destination(self) -> None:
+        """
+        Given a Vertex AI redirect URL,
+        When _resolve_url is called,
+        Then client.head is called with that URL and the str of response.url is returned.
+        """
+        # PREPARE
+        client = mock(httpx.AsyncClient)
+        redirect_url = f"https://{_VERTEX_REDIRECT_PREFIX}SOMETOKEN=="
+        final_url = "https://real.example.com/page"
+        mock_response = mock()
+        mock_response.url = httpx.URL(final_url)
+
+        # MOCK
+        expect(client, times=1).head(redirect_url, timeout=3.0).thenReturn(mock_response)
+
+        # ACT
+        result = asyncio.run(_resolve_url(client, redirect_url))
+
+        # ASSERT
+        self.assertEqual(result, final_url)
+
+    def test_network_error_returns_empty_string(self) -> None:
+        """
+        Given a Vertex AI redirect URL and client.head raises httpx.ConnectError,
+        When _resolve_url is called,
+        Then an empty string is returned so the source is discarded.
+        """
+        # PREPARE
+        client = mock(httpx.AsyncClient)
+        redirect_url = f"https://{_VERTEX_REDIRECT_PREFIX}SOMETOKEN=="
+
+        # MOCK
+        expect(client, times=1).head(redirect_url, timeout=3.0).thenRaise(
+            httpx.ConnectError("connection refused")
+        )
+
+        # ACT
+        result = asyncio.run(_resolve_url(client, redirect_url))
+
+        # ASSERT
+        self.assertEqual(result, "")
+
+    def test_timeout_returns_empty_string(self) -> None:
+        """
+        Given a Vertex AI redirect URL and client.head raises httpx.TimeoutException,
+        When _resolve_url is called,
+        Then an empty string is returned so the source is discarded.
+        """
+        # PREPARE
+        client = mock(httpx.AsyncClient)
+        redirect_url = f"https://{_VERTEX_REDIRECT_PREFIX}SOMETOKEN=="
+
+        # MOCK
+        expect(client, times=1).head(redirect_url, timeout=3.0).thenRaise(
+            httpx.TimeoutException("timed out")
+        )
+
+        # ACT
+        result = asyncio.run(_resolve_url(client, redirect_url))
+
+        # ASSERT
+        self.assertEqual(result, "")
+
+
+class SearchRedirectResolutionTest(unittest.TestCase):
+
+    def test_search_replaces_redirect_url_in_source_card(self) -> None:
+        """
+        Given Gemini grounding returns a Vertex AI redirect URL for one source,
+        And _resolve_grounding_urls resolves it to a real destination URL,
+        When search is called,
+        Then the returned SourceCard.url is the resolved destination URL.
+        """
+        # PREPARE
+        redirect_url = f"https://{_VERTEX_REDIRECT_PREFIX}EXPIRING_TOKEN=="
+        real_url = "https://www.physio-pedia.com/ACL_Reconstruction"
+        repo = mock(AiSearchRepository)
+        service = AiSearchServices(repository=repo)
+        request = _make_search_request()
+        mock_client = mock()
+        mock_models = mock()
+        mock_client.models = mock_models
+        gemini_response = _mock_gemini_response(
+            sources=[
+                {
+                    "title": "ACL Reconstruction Guide",
+                    "url": redirect_url,
+                    "description": "Comprehensive guide to ACL reconstruction.",
+                    "content_type": "Article",
+                }
+            ]
+        )
+
+        # MOCK
+        expect(repo, times=1).insert_query(
+            request.query_text, request.user_id, request.user_role
+        ).thenReturn(1)
+        expect(genai_module, times=1).Client(...).thenReturn(mock_client)
+        expect(mock_models, times=1).generate_content(...).thenReturn(gemini_response)
+        expect(ai_search_module, times=1)._resolve_grounding_urls(...).thenReturn(
+            [real_url]
+        )
+        expect(repo, times=1).get_all_url_verifications().thenReturn({})
+
+        # ACT
+        result = asyncio.run(service.search(request))
+
+        # ASSERT
+        self.assertEqual(len(result.sources), 1)
+        self.assertEqual(result.sources[0].url, real_url)

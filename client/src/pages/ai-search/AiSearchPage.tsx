@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Info } from 'lucide-react'
 import { useAtom, useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
-import { currentQueryAtom, searchResultsAtom } from '@/store/aiSearchAtom'
+import { currentQueryAtom, searchResultsAtom, searchModeAtom } from '@/store/aiSearchAtom'
 import { useAiSearchMutation } from '@/hooks/useAiSearchMutation'
 import { resolveSearchError } from '@/lib/aiSearchUtils'
 import BackButton from '@/components/ui/BackButton'
@@ -19,6 +19,7 @@ export default function AiSearchPage() {
   const auth = useAtomValue(authAtom)
   const [currentQuery, setCurrentQuery] = useAtom(currentQueryAtom)
   const [searchResults, setSearchResults] = useAtom(searchResultsAtom)
+  const searchMode = useAtomValue(searchModeAtom)
   const searchMutation = useAiSearchMutation()
   const navigate = useNavigate()
 
@@ -64,7 +65,7 @@ export default function AiSearchPage() {
                 placeholder="Ask about your recovery, exercises, or diagnosis…"
                 value={currentQuery}
                 onValueChange={setCurrentQuery}
-                onSubmit={(text) => { setCurrentQuery(text); searchMutation.mutate(text) }}
+                onSubmit={(text) => { setCurrentQuery(text); searchMutation.mutate({ query: text, searchMode }) }}
                 isPending={searchMutation.isPending}
                 isError={searchMutation.isError}
                 errorMessage={resolveSearchError(searchMutation.error)}
@@ -110,7 +111,7 @@ export default function AiSearchPage() {
                 float above all content regardless of scroll position */}
             {createPortal(
               <FollowUpBar
-                onSubmit={(text: string) => { setCurrentQuery(text); searchMutation.mutate(text) }}
+                onSubmit={(text: string) => { setCurrentQuery(text); searchMutation.mutate({ query: text, searchMode }) }}
                 isPending={searchMutation.isPending}
                 isError={searchMutation.isError}
                 errorMessage={resolveSearchError(searchMutation.error)}

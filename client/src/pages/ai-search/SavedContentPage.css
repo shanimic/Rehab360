@@ -6,14 +6,18 @@
 .ais-saved__main {
   max-width: 48rem;
   margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+  padding: 1.5rem 1rem 4rem;
 }
 
-/* ─── Page title row (back button + h1) ─── */
+/* ─── Back button row (outside main, matches ai-search positioning) ─── */
+.ais-saved__back-row {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0 0;
+}
+
+/* ─── Page title ─── */
 .ais-saved__page-title {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
   margin-bottom: 0.75rem;
 }
 

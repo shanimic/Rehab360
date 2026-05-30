@@ -160,6 +160,8 @@ export interface PatientDetails extends Patient {
 
 // ── AI Search domain types ────────────────────────────────────────────────────
 
+export type SearchMode = 'instant' | 'thinking'
+
 export type ContentType = 'Article' | 'Clinical Guideline' | 'Exercise Guide' | 'Video'
 
 export interface AiQuery {

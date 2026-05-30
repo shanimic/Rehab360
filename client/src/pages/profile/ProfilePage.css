@@ -8,11 +8,16 @@
   flex-direction: column;
 }
 
+/* ── Back button row ── */
+.pp-back-row {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0 0;
+}
+
 /* ── Page title ── */
 .pp-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   margin-bottom: 18px;
 }
 
