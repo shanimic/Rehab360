@@ -18,11 +18,7 @@ interface ExchangeBlockProps {
 function applyFilter(sources: SourceCardType[], filter: FilterKey): SourceCardType[] {
   if (filter === 'verified') return sources.filter((s) => s.physio_verification_count > 0 || s.trainer_verification_count > 0)
   if (filter === 'unverified') return sources.filter((s) => s.physio_verification_count === 0 && s.trainer_verification_count === 0)
-  return [...sources].sort((a, b) => {
-    const aVerified = a.physio_verification_count > 0 || a.trainer_verification_count > 0 ? 1 : 0
-    const bVerified = b.physio_verification_count > 0 || b.trainer_verification_count > 0 ? 1 : 0
-    return bVerified - aVerified
-  })
+  return [...sources]
 }
 
 export default function ExchangeBlock({

@@ -68,10 +68,14 @@ export default function SavedContentPage() {
     <div className="ais-saved pt-16">
       <TopNav />
 
+      {/* ─── Back ─── */}
+      <div className="ais-saved__back-row">
+        <BackButton onClick={() => navigate(HOME_ROUTE[userRole])} aria-label="Back to home" />
+      </div>
+
       <main className="ais-saved__main">
         {/* ─── Page title ─── */}
         <div className="ais-saved__page-title">
-          <BackButton onClick={() => navigate(HOME_ROUTE[userRole])} aria-label="Back to home" />
           <h1 className="ais-saved__title">My Saved Content</h1>
         </div>
 

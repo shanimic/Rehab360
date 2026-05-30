@@ -30,9 +30,12 @@ export default function ProfilePage() {
     <div className="pp-page pt-16">
       <TopNav />
 
+      <div className="pp-back-row">
+        <BackButton onClick={handleBack} />
+      </div>
+
       <main className="pp-main">
         <div className="pp-title-row max-w-2xl mx-auto">
-          <BackButton onClick={handleBack} />
           <h1 className="pp-title">My Profile</h1>
         </div>
 

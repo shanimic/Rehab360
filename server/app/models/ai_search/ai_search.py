@@ -1,4 +1,5 @@
 import datetime
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -17,6 +18,7 @@ class AiSearchRequest(BaseModel):
     user_id: str
     user_role: str
     conversation_history: list[HistoryExchange] | None = None
+    search_mode: Literal["instant", "thinking"] = "instant"
 
 
 class SourceCard(BaseModel):

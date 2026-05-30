@@ -2,6 +2,8 @@ import asyncio
 import json
 import re
 
+import httpx
+
 from fastapi import HTTPException, status
 from google import genai
 
@@ -17,27 +19,83 @@ from app.models.ai_search.ai_search import (
     VerifyContentRequest,
 )
 
-_GEMINI_SYSTEM_INSTRUCTION = (
+_VERTEX_REDIRECT_PREFIX = "vertexaisearch.cloud.google.com/grounding-api-redirect/"
+
+_GEMINI_SYSTEM_INSTRUCTION_TEMPLATE = (
     "You are a rehabilitation and physiotherapy expert. "
-    "Use the Google Search tool to find current, publicly accessible sources. "
-    "Strongly prefer well-known, authoritative domains with stable, long-lived URLs — "
-    "for example: pubmed.ncbi.nlm.nih.gov, www.nhs.uk, www.mayoclinic.org, "
-    "www.physio-pedia.com, www.webmd.com, www.healthline.com, www.spine-health.com, "
-    "www.orthoinfo.aaos.org, www.cochrane.org, or official hospital/university sites. "
-    "Avoid deep article paths on small or obscure websites that are likely to go dead. "
-    "Only include the real, direct URL of the source webpage — for example "
-    "'https://www.physio-pedia.com/Rotator_Cuff'. "
-    "NEVER include vertexaisearch.cloud.google.com redirect URLs or any other "
-    "tracking/redirect URLs. "
-    "Do not invent or recall URLs from memory — only use URLs directly returned by Google Search. "
-    "Given a user query, respond ONLY with a valid JSON object in this exact shape: "
-    '{"summary": "<2-3 sentence plain-language answer>", '
-    '"sources": [{"title": "<source title>", "url": "<full direct URL>", '
+    "Use Google Search to find current, accessible sources. "
+    "Prefer authoritative medical domains (e.g. pubmed, NHS, Mayo Clinic, Physio-Pedia, Cochrane). "
+    "Respond ONLY with valid JSON in this exact shape — no markdown, no extra text: "
+    '{{"summary": "<2-3 sentence answer>", '
+    '"sources": [{{"title": "<title>", '
+    '"url": "<exact url of this source>", '
     '"description": "<1-2 sentence description>", '
-    '"content_type": "<one of: Article, Clinical Guideline, Exercise Guide, Video>"}]}. '
-    "Return 3-5 sources. "
-    "Do not wrap the JSON in markdown code blocks. Do not include any text outside the JSON."
+    '"content_type": "<Article|Clinical Guideline|Exercise Guide|Video>"}}]}}. '
+    "You MUST return exactly {max_sources} sources."
 )
+
+
+def _build_system_instruction(max_sources: str) -> str:
+    """Inject the source count into the system instruction template."""
+    return _GEMINI_SYSTEM_INSTRUCTION_TEMPLATE.format(max_sources=max_sources)
+
+
+async def _build_raw_sources(json_sources: list[dict]) -> list[dict]:
+    """Pair each source dict with its redirect-resolved URL.
+
+    Args:
+        json_sources: Source dicts from Gemini JSON, each containing a "url" key.
+
+    Returns:
+        Source dicts with "url" replaced by the fully resolved destination URL.
+    """
+    resolved_urls = await resolve_grounding_urls(
+        [s.get("url", "") for s in json_sources]
+    )
+    return [
+        {**src, "url": resolved_url}
+        for src, resolved_url in zip(json_sources, resolved_urls)
+        if resolved_url
+    ]
+
+
+async def _resolve_url(client: httpx.AsyncClient, url: str) -> str:
+    """Follow a Vertex AI redirect to its final destination URL.
+
+    Non-redirect URLs pass through unchanged. Any network or timeout
+    error falls back to the original URL so the search flow is never broken.
+
+    Args:
+        client: A shared AsyncClient configured with follow_redirects=True.
+        url: The candidate URL from Gemini grounding metadata.
+
+    Returns:
+        The resolved destination URL, or the original URL on any failure.
+    """
+    if _VERTEX_REDIRECT_PREFIX not in url:
+        return url
+    try:
+        response = await client.head(url, timeout=3.0)
+        resolved = str(response.url)
+        if _VERTEX_REDIRECT_PREFIX in resolved:
+            return ""
+        return resolved
+    except httpx.HTTPError:
+        return ""
+
+
+async def resolve_grounding_urls(urls: list[str]) -> list[str]:
+    """Resolve all grounding URLs in parallel, following Vertex AI redirects.
+
+    Args:
+        urls: Candidate URLs from Gemini grounding metadata.
+
+    Returns:
+        Resolved URLs in the same order as the input.
+    """
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+        tasks = [_resolve_url(client, url) for url in urls]
+        return list(await asyncio.gather(*tasks))
 
 
 def _parse_gemini_response(text: str) -> dict:
@@ -50,6 +108,7 @@ def _parse_gemini_response(text: str) -> dict:
     if not match:
         raise json.JSONDecodeError("No JSON object found", text, 0)
     return json.loads(match.group())
+
 
 
 class AiSearchServices:
@@ -93,21 +152,19 @@ class AiSearchServices:
                     role="user", parts=[genai.types.Part(text=request.query_text)]
                 )
             )
+            max_sources = "3" if request.search_mode == "instant" else "10"
             response = await asyncio.to_thread(
                 client.models.generate_content,
                 model="gemini-2.5-flash",
                 contents=contents,
                 config=genai.types.GenerateContentConfig(
-                    system_instruction=_GEMINI_SYSTEM_INSTRUCTION,
+                    system_instruction=_build_system_instruction(max_sources),
                     tools=[genai.types.Tool(google_search=genai.types.GoogleSearch())],
                 ),
             )
             data = _parse_gemini_response(response.text or "")
             summary = data["summary"]
-            raw_sources = [
-                s for s in data["sources"]
-                if "vertexaisearch.cloud.google.com" not in s.get("url", "")
-            ]
+            raw_sources = await _build_raw_sources(data.get("sources", []))
         except (json.JSONDecodeError, KeyError) as exc:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
@@ -118,7 +175,7 @@ class AiSearchServices:
             if "UNAVAILABLE" in exc_str or "503" in exc_str:
                 raise HTTPException(
                     status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail="The AI service is temporarily unavailable. Please try again in a moment.",
+                    detail="The AI service is temporarily busy. Please try again in a moment.",
                 ) from exc
             if "RESOURCE_EXHAUSTED" in exc_str or "429" in exc_str:
                 raise HTTPException(
