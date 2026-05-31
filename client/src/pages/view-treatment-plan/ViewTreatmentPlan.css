@@ -215,3 +215,151 @@
   color: var(--color-text-primary);
   line-height: 1.45;
 }
+
+/* ── Patient Exercise Reports section ────────────── */
+.vtp-rpt-summary {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 2px 0 0;
+  line-height: 1.4;
+}
+
+.vtp-rpt-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vtp-rpt-item {
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.vtp-rpt-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background-color: #f8fafc;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.vtp-rpt-header:hover {
+  background-color: #f1f5f9;
+}
+
+.vtp-rpt-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  flex: 1;
+  min-width: 0;
+}
+
+.vtp-rpt-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.vtp-rpt-date {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.vtp-rpt-chevron {
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.vtp-rpt-chevron--open {
+  transform: rotate(180deg);
+}
+
+.vtp-rpt-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+
+.vtp-rpt-body--open {
+  max-height: 4000px;
+  opacity: 1;
+}
+
+.vtp-rpt-body__empty {
+  padding: 12px 16px;
+}
+
+.vtp-rpt-entries {
+  list-style: none;
+  padding: 8px 16px 14px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vtp-rpt-entry {
+  background-color: var(--color-surface);
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vtp-rpt-entry__date {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.vtp-rpt-entry__grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 18px;
+  align-items: baseline;
+}
+
+.vtp-rpt-entry__label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.vtp-rpt-entry__value {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.45;
+}
+
+.vtp-rpt-status--done {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.vtp-rpt-status--missed {
+  color: #dc2626;
+  font-weight: 600;
+}

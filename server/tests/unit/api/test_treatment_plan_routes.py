@@ -11,15 +11,26 @@ from app.main import app
 
 
 class _TreatmentPlanStubCursor:
-    """Minimal async cursor stub for treatment plan tests."""
+    """Minimal async cursor stub for treatment plan tests.
+
+    fetchall_rows is treated as the response for the FIRST fetchall call.
+    Subsequent fetchall calls return []. Pass fetchall_queue (list of lists)
+    to supply distinct responses for multiple fetchall calls in sequence.
+    """
 
     def __init__(
         self,
         fetchone_rows: list,
         fetchall_rows: list | None = None,
+        fetchall_queue: list[list] | None = None,
     ) -> None:
         self._fetchone_queue: deque = deque(fetchone_rows)
-        self._fetchall_rows: list = fetchall_rows if fetchall_rows is not None else []
+        if fetchall_queue is not None:
+            self._fetchall_queue: deque = deque(fetchall_queue)
+        elif fetchall_rows is not None:
+            self._fetchall_queue = deque([fetchall_rows])
+        else:
+            self._fetchall_queue = deque()
 
     async def execute(self, *_args, **_kwargs) -> None:
         return None
@@ -28,7 +39,7 @@ class _TreatmentPlanStubCursor:
         return self._fetchone_queue.popleft() if self._fetchone_queue else None
 
     async def fetchall(self) -> list:
-        return self._fetchall_rows
+        return self._fetchall_queue.popleft() if self._fetchall_queue else []
 
 
 class TreatmentPlanRoutesTest(unittest.TestCase):

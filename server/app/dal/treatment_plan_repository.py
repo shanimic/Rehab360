@@ -252,6 +252,41 @@ class TreatmentPlanRepository:
         rows = await self.cursor.fetchall()
         return [TreatmentPlanExerciseItem.model_validate(row) for row in rows]
 
+    async def get_patient_reports_by_plan(
+        self, plan_id: int, session_id: int
+    ) -> list[dict]:
+        """Fetch all exercise completion rows for the given plan, newest first.
+
+        Args:
+            plan_id: The unique identifier of the plan.
+            session_id: The session the plan belongs to.
+
+        Returns:
+            A list of raw row dicts ordered by execution_date descending.
+        """
+        await self.cursor.execute(
+            query="""
+                SELECT
+                    ec.exercise_id,
+                    e.exercise_name,
+                    ec.execution_date,
+                    ec.execution_status,
+                    ec.reason_for_non_performance,
+                    ec.pain_level,
+                    ec.effort_level,
+                    ec.request_for_change,
+                    ec.num_exe_completed
+                FROM exercise_completion ec
+                JOIN exercises e ON ec.exercise_id = e.exercise_id
+                WHERE ec.plan_id = %s
+                  AND ec.session_id = %s
+                ORDER BY ec.execution_date DESC
+            """,
+            args=(plan_id, session_id),
+        )
+        rows = await self.cursor.fetchall()
+        return list(rows)
+
     async def begin_transaction(self) -> None:
         """Start a database transaction.
 

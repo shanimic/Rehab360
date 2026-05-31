@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeft, Target, Dumbbell, Stethoscope, CalendarDays, FileText } from 'lucide-react'
+import { ChevronLeft, ChevronDown, Target, Dumbbell, Stethoscope, CalendarDays, FileText, ClipboardList } from 'lucide-react'
 import TopNav from '@/components/TopNav'
 import { useTreatmentPlanDetails } from '@/hooks/useTreatmentPlan'
 
@@ -45,6 +45,19 @@ export default function ViewTreatmentPlan() {
   const { planId } = useParams<{ id: string; planId?: string }>()
 
   const { data, isLoading, isError } = useTreatmentPlanDetails(planId ? Number(planId) : undefined)
+  const [expandedReports, setExpandedReports] = useState<Set<number>>(new Set())
+
+  function toggleReport(exerciseId: number) {
+    setExpandedReports((prev) => {
+      const next = new Set(prev)
+      if (next.has(exerciseId)) {
+        next.delete(exerciseId)
+      } else {
+        next.add(exerciseId)
+      }
+      return next
+    })
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -69,6 +82,13 @@ export default function ViewTreatmentPlan() {
   }
 
   const pageTitle = data.visit_type === 'FITNESS' ? 'Fitness Plan' : 'Treatment Plan'
+
+  const totalReports = data.patient_reports.reduce((s, g) => s + g.reports.length, 0)
+  const exercisesWithReports = data.patient_reports.filter((g) => g.reports.length > 0).length
+  const reportSummary =
+    totalReports === 0
+      ? 'No reports submitted yet.'
+      : `${totalReports} ${totalReports === 1 ? 'report' : 'reports'} submitted across ${exercisesWithReports} ${exercisesWithReports === 1 ? 'exercise' : 'exercises'}`
 
   return (
     <PageShell onBack={() => navigate(-1)} title={pageTitle}>
@@ -212,6 +232,97 @@ export default function ViewTreatmentPlan() {
               ))}
             </ul>
           </>
+        )}
+      </div>
+
+      {/* ── Patient Exercise Reports ── */}
+      <div className="vsd-card">
+        <div className="vsd-card__header">
+          <ClipboardList size={18} className="vsd-card__icon" />
+          <h2 className="vsd-card__title">Patient Exercise Reports</h2>
+        </div>
+        <p className="vtp-rpt-summary">{reportSummary}</p>
+
+        {totalReports > 0 && (
+              <ul className="vtp-rpt-list">
+                {data.patient_reports.map((group) => {
+                  const isOpen = expandedReports.has(group.exercise_id)
+                  const latestDate = group.reports.length > 0 ? group.reports[0].execution_date : null
+                  return (
+                    <li key={group.exercise_id} className="vtp-rpt-item">
+                      <button
+                        type="button"
+                        className="vtp-rpt-header"
+                        onClick={() => toggleReport(group.exercise_id)}
+                        aria-expanded={isOpen}
+                      >
+                        <span className="vtp-rpt-name">{group.exercise_name}</span>
+                        <div className="vtp-rpt-meta">
+                          {group.reports.length > 0 && (
+                            <span className="vtp-count">{group.reports.length}</span>
+                          )}
+                          {latestDate && (
+                            <span className="vtp-rpt-date">Latest: {formatDate(latestDate)}</span>
+                          )}
+                          <ChevronDown
+                            size={16}
+                            className={`vtp-rpt-chevron${isOpen ? ' vtp-rpt-chevron--open' : ''}`}
+                          />
+                        </div>
+                      </button>
+                      <div className={`vtp-rpt-body${isOpen ? ' vtp-rpt-body--open' : ''}`}>
+                        {group.reports.length === 0 ? (
+                          <p className="vtp-empty vtp-rpt-body__empty">No reports submitted for this exercise.</p>
+                        ) : (
+                          <ul className="vtp-rpt-entries">
+                            {group.reports.map((report, idx) => (
+                              // eslint-disable-next-line react/no-array-index-key
+                              <li key={idx} className="vtp-rpt-entry">
+                                <p className="vtp-rpt-entry__date">{formatDate(report.execution_date)}</p>
+                                <div className="vtp-rpt-entry__grid">
+                                  <span className="vtp-rpt-entry__label">Status</span>
+                                  <span
+                                    className={`vtp-rpt-entry__value ${report.execution_status ? 'vtp-rpt-status--done' : 'vtp-rpt-status--missed'}`}
+                                  >
+                                    {report.execution_status ? 'Completed' : 'Not Completed'}
+                                  </span>
+
+                                  <span className="vtp-rpt-entry__label">Pain Level</span>
+                                  <span className="vtp-rpt-entry__value">{report.pain_level} / 10</span>
+
+                                  <span className="vtp-rpt-entry__label">Effort Level</span>
+                                  <span className="vtp-rpt-entry__value">{report.effort_level} / 10</span>
+
+                                  {report.num_exe_completed != null && (
+                                    <>
+                                      <span className="vtp-rpt-entry__label">Completed Reps</span>
+                                      <span className="vtp-rpt-entry__value">{report.num_exe_completed}</span>
+                                    </>
+                                  )}
+
+                                  {report.request_for_change && (
+                                    <>
+                                      <span className="vtp-rpt-entry__label">Patient Request</span>
+                                      <span className="vtp-rpt-entry__value">{report.request_for_change}</span>
+                                    </>
+                                  )}
+
+                                  {!report.execution_status && report.reason_for_non_performance && (
+                                    <>
+                                      <span className="vtp-rpt-entry__label">Reason</span>
+                                      <span className="vtp-rpt-entry__value">{report.reason_for_non_performance}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
         )}
       </div>
 
