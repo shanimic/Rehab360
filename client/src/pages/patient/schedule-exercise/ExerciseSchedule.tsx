@@ -192,14 +192,6 @@ export default function ExerciseSchedule() {
         setShowValidation(true)
         return
       }
-    } else {
-      const hasMissingDate = Object.values(schedule).some(day =>
-        day.some(e => !e.reminderDate)
-      )
-      if (hasMissingDate) {
-        setShowValidation(true)
-        return
-      }
     }
 
     if (unscheduledExercises.length > 0) {
