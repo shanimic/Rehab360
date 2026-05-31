@@ -540,7 +540,7 @@
 }
 
 .ph-exercise-item {
-  background: var(--color-surface);
+  background: var(--color-background);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   padding: 14px 16px;
@@ -714,7 +714,15 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
+  }
+
+  .ph-right-col {
+    height: 100%;
+  }
+
+  .ph-right-col .ph-section {
+    height: 100%;
   }
 
   .ph-progress-grid {
