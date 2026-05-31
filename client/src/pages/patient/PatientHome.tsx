@@ -213,7 +213,7 @@ export default function PatientHome() {
                         <p className="ph-exercise-empty__sub">Your plan for today is empty. Enjoy the rest!</p>
                       </div>
                     )
-                    : dailyExercises.map(ex => <ExerciseItem key={ex.exercise_id} exercise={ex} />)
+                    : dailyExercises.map(ex => <ExerciseItem key={`${ex.exercise_id}-${ex.execution_status}`} exercise={ex} />)
                 }
               </div>
             </section>
