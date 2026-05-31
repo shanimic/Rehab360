@@ -9,7 +9,6 @@ from app.dal.treatment_plan_repository import TreatmentPlanRepository
 from app.models.treatment_plan.treatment_plan import (
     CreateTreatmentPlanRequest,
     CreateTreatmentPlanResponse,
-    ExerciseReportItem,
     PhysiotherapyExerciseItem,
     PlanExerciseRequest,
     TreatmentPlanContext,
