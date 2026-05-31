@@ -64,6 +64,7 @@ class PatientRepository:
                     JOIN exercise_completion ec ON ec.session_id = pe.session_id
                         AND ec.exercise_id = pe.exercise_id
                         AND ec.plan_id = wp.plan_id
+                        AND ec.execution_date = wp.exercise_date
                     WHERE wp.exercise_date = CURDATE()
                     AND ec.execution_status = 1
                     AND pe.session_id IN (

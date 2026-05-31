@@ -22,9 +22,9 @@ function buildSessions(): Session[] {
     return d
   }
   return [
-    { id: 1, title: 'Physiotherapy', professional: 'Dr. Sarah Cohen', date: d(1), time: '10:00 AM', type: 'clinic', color: '#1a56db' },
-    { id: 2, title: 'Fitness Training', professional: 'Mike Torres', date: d(3), time: '2:30 PM', type: 'online', color: '#10b981' },
-    { id: 3, title: 'Progress Review', professional: 'Dr. Sarah Cohen', date: d(7), time: '11:00 AM', type: 'clinic', color: '#1a56db' },
+    { id: 1, title: 'Physiotherapy', professional: 'Bob Johnson ', date: d(1), time: '10:00 AM', type: 'clinic', color: '#1a56db' },
+    { id: 2, title: 'Fitness Training', professional: 'Charlie Davis', date: d(3), time: '2:30 PM', type: 'online', color: '#10b981' },
+    { id: 3, title: 'Progress Review', professional: 'Bob Johnson', date: d(7), time: '11:00 AM', type: 'clinic', color: '#1a56db' },
   ]
 }
 const sessions = buildSessions()
@@ -197,7 +197,7 @@ export default function PatientHome() {
 
           {/* Today Plan */}
           <div className="ph-right-col">
-            <section className="ph-section">
+            <section className="ph-section ph-calendar-card">
               <div className="ph-section__header">
                 <h2 className="ph-section__title">Today Plan</h2>
                 <button className="ph-section__view-all--btn" onClick={() => navigate('/patient/my-plan')}>All Exercises</button>
@@ -213,7 +213,7 @@ export default function PatientHome() {
                         <p className="ph-exercise-empty__sub">Your plan for today is empty. Enjoy the rest!</p>
                       </div>
                     )
-                    : dailyExercises.map(ex => <ExerciseItem key={ex.exercise_id} exercise={ex} />)
+                    : dailyExercises.map(ex => <ExerciseItem key={`${ex.exercise_id}-${ex.execution_status}`} exercise={ex} />)
                 }
               </div>
             </section>

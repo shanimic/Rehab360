@@ -540,7 +540,7 @@
 }
 
 .ph-exercise-item {
-  background: var(--color-surface);
+  background: var(--color-background);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   padding: 14px 16px;
@@ -554,7 +554,12 @@
   text-align: left;
   font-family: var(--font-family);
 }
-.ph-exercise-item:hover { box-shadow: var(--shadow-card-hover, 0 4px 16px rgba(0,0,0,0.12)); background: #f8faff; }
+.ph-exercise-item:hover:not(:disabled) { box-shadow: var(--shadow-card-hover, 0 4px 16px rgba(0,0,0,0.12)); background: #f8faff; }
+
+.ph-exercise-item--done {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .ph-exercise-item__arrow {
   flex-shrink: 0;
@@ -714,7 +719,15 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
+  }
+
+  .ph-right-col {
+    height: 100%;
+  }
+
+  .ph-right-col .ph-section {
+    height: 100%;
   }
 
   .ph-progress-grid {
