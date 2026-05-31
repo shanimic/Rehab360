@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2, XCircle, Minus, Plus } from 'lucide-react'
 import { markReported } from '@/lib/reportedExercises'
@@ -76,6 +77,16 @@ export default function ExerciseReport() {
   const [effort, setEffort] = useState(2)
   const [notCompletedReason, setNotCompletedReason] = useState('')
   const [changeRequest, setChangeRequest] = useState('')
+  const [isDirty, setIsDirty] = useState(false)
+  const [showLeaveModal, setShowLeaveModal] = useState(false)
+
+  function handleBackClick() {
+    if (isDirty && !saveReport.isSuccess) {
+      setShowLeaveModal(true)
+    } else {
+      navigate('/patient/my-plan')
+    }
+  }
 
   function isFormValid(): boolean {
     if (completionStatus === null) return false
@@ -129,7 +140,7 @@ export default function ExerciseReport() {
         <div className="er-page-title">
           <button
             className="er-page-title__back"
-            onClick={() => navigate('/patient/my-plan')}
+            onClick={handleBackClick}
             aria-label="Go back"
             type="button"
           >
@@ -183,7 +194,7 @@ export default function ExerciseReport() {
               <div className="er-completion__options">
                 <button
                   className={`er-completion__btn${completionStatus === 'completed' ? ' er-completion__btn--active-yes' : ''}`}
-                  onClick={() => setCompletionStatus('completed')}
+                  onClick={() => { setCompletionStatus('completed'); setIsDirty(true) }}
                   type="button"
                 >
                   <CheckCircle2 size={16} />
@@ -191,7 +202,7 @@ export default function ExerciseReport() {
                 </button>
                 <button
                   className={`er-completion__btn${completionStatus === 'not-completed' ? ' er-completion__btn--active-no' : ''}`}
-                  onClick={() => setCompletionStatus('not-completed')}
+                  onClick={() => { setCompletionStatus('not-completed'); setIsDirty(true) }}
                   type="button"
                 >
                   <XCircle size={16} />
@@ -204,8 +215,8 @@ export default function ExerciseReport() {
             {completionStatus === 'completed' && (
               <>
                 <div className="er-ratings-row">
-                  <RatingControl label="Pain" required value={pain} onChange={setPain} />
-                  <RatingControl label="Effort" required value={effort} onChange={setEffort} />
+                  <RatingControl label="Pain" required value={pain} onChange={v => { setPain(v); setIsDirty(true) }} />
+                  <RatingControl label="Effort" required value={effort} onChange={v => { setEffort(v); setIsDirty(true) }} />
                 </div>
 
                 <div className="er-field">
@@ -214,7 +225,7 @@ export default function ExerciseReport() {
                     id="change-request"
                     className="er-field__textarea"
                     value={changeRequest}
-                    onChange={e => setChangeRequest(e.target.value)}
+                    onChange={e => { setChangeRequest(e.target.value); setIsDirty(true) }}
                     placeholder="Request modifications to this exercise..."
                     rows={3}
                   />
@@ -226,8 +237,8 @@ export default function ExerciseReport() {
             {completionStatus === 'not-completed' && (
               <>
                 <div className="er-ratings-row">
-                  <RatingControl label="Pain" value={pain} onChange={setPain} />
-                  <RatingControl label="Effort" value={effort} onChange={setEffort} />
+                  <RatingControl label="Pain" value={pain} onChange={v => { setPain(v); setIsDirty(true) }} />
+                  <RatingControl label="Effort" value={effort} onChange={v => { setEffort(v); setIsDirty(true) }} />
                 </div>
 
                 <div className="er-field">
@@ -239,7 +250,7 @@ export default function ExerciseReport() {
                     id="not-completed"
                     className="er-field__textarea"
                     value={notCompletedReason}
-                    onChange={e => setNotCompletedReason(e.target.value)}
+                    onChange={e => { setNotCompletedReason(e.target.value); setIsDirty(true) }}
                     placeholder="Describe any difficulties or reasons..."
                     rows={4}
                   />
@@ -253,7 +264,7 @@ export default function ExerciseReport() {
                     id="change-request"
                     className="er-field__textarea"
                     value={changeRequest}
-                    onChange={e => setChangeRequest(e.target.value)}
+                    onChange={e => { setChangeRequest(e.target.value); setIsDirty(true) }}
                     placeholder="Request modifications to this exercise..."
                     rows={4}
                   />
@@ -275,6 +286,39 @@ export default function ExerciseReport() {
 
         </div>
       </main>
+
+      {showLeaveModal && createPortal(
+        <div
+          className="er-leave-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="er-leave-title"
+        >
+          <div className="er-leave-modal">
+            <h2 className="er-leave-modal__title" id="er-leave-title">Unsaved changes</h2>
+            <p className="er-leave-modal__msg">
+              The information you entered was not saved. Are you sure you want to leave?
+            </p>
+            <div className="er-leave-modal__actions">
+              <button
+                className="er-leave-modal__stay"
+                onClick={() => setShowLeaveModal(false)}
+                type="button"
+              >
+                Stay on page
+              </button>
+              <button
+                className="er-leave-modal__leave"
+                onClick={() => navigate('/patient/my-plan')}
+                type="button"
+              >
+                Leave without saving
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
 
     </div>
   )

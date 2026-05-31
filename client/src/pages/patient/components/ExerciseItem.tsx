@@ -4,14 +4,16 @@ import { VisitType, type DailyExerciseItem } from '@/types/patient'
 
 export default function ExerciseItem({ exercise }: { exercise: DailyExerciseItem }) {
   const navigate = useNavigate()
+  const done = Boolean(exercise.execution_status)
 
   return (
     <button
-      className="ph-exercise-item"
+      className={`ph-exercise-item${done ? ' ph-exercise-item--done' : ''}`}
+      disabled={done}
       onClick={() => navigate(`/patient/exercise/${exercise.exercise_id}`, { state: { exercise } })}
     >
       <div className="ph-exercise-item__check">
-        {exercise.execution_status
+        {done
           ? <CheckCircle2 size={24} className="ph-exercise-item__check--done" />
           : <div className="ph-exercise-item__check--placeholder" />}
       </div>
@@ -25,7 +27,7 @@ export default function ExerciseItem({ exercise }: { exercise: DailyExerciseItem
         <span className="ph-exercise-item__desc">{exercise.reps} reps × {exercise.num_sets} sets</span>
         <span className="ph-exercise-item__desc">{exercise.text_instructions}</span>
       </div>
-      <ChevronRight size={16} className="ph-exercise-item__arrow" />
+      {!done && <ChevronRight size={16} className="ph-exercise-item__arrow" />}
     </button>
   )
 }
