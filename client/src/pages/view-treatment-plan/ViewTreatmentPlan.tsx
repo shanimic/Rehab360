@@ -275,9 +275,8 @@ export default function ViewTreatmentPlan() {
                           <p className="vtp-empty vtp-rpt-body__empty">No reports submitted for this exercise.</p>
                         ) : (
                           <ul className="vtp-rpt-entries">
-                            {group.reports.map((report, idx) => (
-                              // eslint-disable-next-line react/no-array-index-key
-                              <li key={idx} className="vtp-rpt-entry">
+                            {group.reports.map((report) => (
+                              <li key={report.execution_date} className="vtp-rpt-entry">
                                 <p className="vtp-rpt-entry__date">{formatDate(report.execution_date)}</p>
                                 <div className="vtp-rpt-entry__grid">
                                   <span className="vtp-rpt-entry__label">Status</span>
