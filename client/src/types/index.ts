@@ -308,6 +308,22 @@ export interface TreatmentPlanExerciseItem {
   description: string | null
 }
 
+export interface ExerciseReportItem {
+  execution_date: string
+  execution_status: boolean
+  pain_level: number
+  effort_level: number
+  num_exe_completed: number | null
+  request_for_change: string | null
+  reason_for_non_performance: string | null
+}
+
+export interface ExerciseReportGroup {
+  exercise_id: number
+  exercise_name: string
+  reports: ExerciseReportItem[]
+}
+
 export interface TreatmentPlanDetailsResponse {
   plan_id: number
   session_id: number
@@ -318,6 +334,7 @@ export interface TreatmentPlanDetailsResponse {
   end_date: string
   notes: string | null
   exercises: TreatmentPlanExerciseItem[]
+  patient_reports: ExerciseReportGroup[]
 }
 
 // ── Patient Details domain types ──────────────────────────────────────────────

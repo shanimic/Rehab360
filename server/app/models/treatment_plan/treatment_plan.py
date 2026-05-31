@@ -96,6 +96,26 @@ class TreatmentPlanExerciseItem(BaseModel):
     description: str | None
 
 
+class ExerciseReportItem(BaseModel):
+    """A single patient-submitted report for one exercise completion."""
+
+    execution_date: datetime.date
+    execution_status: bool
+    pain_level: int
+    effort_level: int
+    num_exe_completed: int | None
+    request_for_change: str | None
+    reason_for_non_performance: str | None
+
+
+class ExerciseReportGroup(BaseModel):
+    """All patient reports for a single exercise within a plan."""
+
+    exercise_id: int
+    exercise_name: str
+    reports: list[ExerciseReportItem]
+
+
 class TreatmentPlanDetailsResponse(BaseModel):
     """Full treatment plan returned for the view-treatment-plan page."""
 
@@ -108,3 +128,4 @@ class TreatmentPlanDetailsResponse(BaseModel):
     end_date: datetime.date
     notes: str | None
     exercises: list[TreatmentPlanExerciseItem]
+    patient_reports: list[ExerciseReportGroup] = []

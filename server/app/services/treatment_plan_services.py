@@ -4,6 +4,8 @@ from app.dal.treatment_plan_repository import TreatmentPlanRepository
 from app.models.treatment_plan.treatment_plan import (
     CreateTreatmentPlanRequest,
     CreateTreatmentPlanResponse,
+    ExerciseReportGroup,
+    ExerciseReportItem,
     PhysiotherapyExerciseItem,
     TreatmentPlanContext,
     TreatmentPlanDetailsResponse,
@@ -130,4 +132,28 @@ class TreatmentPlanServices:
         plan.exercises = await self.repository.get_exercises_by_plan(
             plan.plan_id, plan.session_id
         )
+        raw_rows = await self.repository.get_patient_reports_by_plan(
+            plan.plan_id, plan.session_id
+        )
+        reports_by_exercise: dict[int, list[ExerciseReportItem]] = {}
+        for row in raw_rows:
+            ex_id = row["exercise_id"]
+            item = ExerciseReportItem(
+                execution_date=row["execution_date"],
+                execution_status=row["execution_status"],
+                pain_level=row["pain_level"],
+                effort_level=row["effort_level"],
+                num_exe_completed=row["num_exe_completed"],
+                request_for_change=row["request_for_change"],
+                reason_for_non_performance=row["reason_for_non_performance"],
+            )
+            reports_by_exercise.setdefault(ex_id, []).append(item)
+        plan.patient_reports = [
+            ExerciseReportGroup(
+                exercise_id=ex.exercise_id,
+                exercise_name=ex.exercise_name,
+                reports=reports_by_exercise.get(ex.exercise_id, []),
+            )
+            for ex in plan.exercises
+        ]
         return plan

@@ -371,6 +371,7 @@ class TreatmentPlanServicesTest(unittest.TestCase):
         # MOCK
         expect(repo, times=1).get_treatment_plan_by_plan_id(6).thenReturn(plan)
         expect(repo, times=1).get_exercises_by_plan(6, 103).thenReturn(exercises)
+        expect(repo, times=1).get_patient_reports_by_plan(6, 103).thenReturn([])
 
         # ACT
         result = asyncio.run(service.get_treatment_plan_by_plan_id(6))
@@ -422,6 +423,7 @@ class TreatmentPlanServicesTest(unittest.TestCase):
         # MOCK
         expect(repo, times=1).get_treatment_plan_by_plan_id(20).thenReturn(fitness_plan)
         expect(repo, times=1).get_exercises_by_plan(20, 77).thenReturn(exercises)
+        expect(repo, times=1).get_patient_reports_by_plan(20, 77).thenReturn([])
 
         # ACT
         result = asyncio.run(service.get_treatment_plan_by_plan_id(20))
@@ -431,6 +433,49 @@ class TreatmentPlanServicesTest(unittest.TestCase):
         self.assertEqual(result.plan_id, 20)
         self.assertEqual(len(result.exercises), 1)
         self.assertEqual(result.exercises[0].exercise_name, "Wall Squats")
+
+    def test_get_treatment_plan_by_plan_id_builds_report_groups_for_all_exercises(
+        self,
+    ) -> None:
+        """
+        Given one exercise in the plan and one matching report row from the repo,
+        When get_treatment_plan_by_plan_id is called,
+        Then patient_reports contains one group with one report and correct pain_level.
+        """
+        # PREPARE
+        repo = mock(TreatmentPlanRepository)
+        service = TreatmentPlanServices(repository=repo)
+        plan = _make_treatment_plan_details()
+        exercises = [_make_plan_exercise_item(exercise_id=1, exercise_name="Wall Squats")]
+        report_row = {
+            "exercise_id": 1,
+            "exercise_name": "Wall Squats",
+            "execution_date": datetime.date(2026, 5, 20),
+            "execution_status": True,
+            "pain_level": 3,
+            "effort_level": 6,
+            "num_exe_completed": 36,
+            "request_for_change": None,
+            "reason_for_non_performance": None,
+        }
+
+        # MOCK
+        expect(repo, times=1).get_treatment_plan_by_plan_id(6).thenReturn(plan)
+        expect(repo, times=1).get_exercises_by_plan(6, 103).thenReturn(exercises)
+        expect(repo, times=1).get_patient_reports_by_plan(6, 103).thenReturn(
+            [report_row]
+        )
+
+        # ACT
+        result = asyncio.run(service.get_treatment_plan_by_plan_id(6))
+
+        # ASSERT
+        self.assertEqual(len(result.patient_reports), 1)
+        self.assertEqual(result.patient_reports[0].exercise_id, 1)
+        self.assertEqual(result.patient_reports[0].exercise_name, "Wall Squats")
+        self.assertEqual(len(result.patient_reports[0].reports), 1)
+        self.assertEqual(result.patient_reports[0].reports[0].pain_level, 3)
+        self.assertEqual(result.patient_reports[0].reports[0].execution_status, True)
 
     # ------------------------------------------------------------------ #
     # create_treatment_plan — additional cross-type and mismatch cases    #

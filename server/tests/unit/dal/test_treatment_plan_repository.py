@@ -377,3 +377,83 @@ class TreatmentPlanRepositoryTest(unittest.TestCase):
         assert result.visit_type == "FITNESS"
         assert result.plan_id == 20
         assert result.exercises == []
+
+    # ------------------------------------------------------------------ #
+    # get_patient_reports_by_plan                                          #
+    # ------------------------------------------------------------------ #
+
+    def test_get_patient_reports_by_plan_returns_rows_when_reports_exist(
+        self,
+    ) -> None:
+        """
+        Given the DB returns two completion rows for the plan,
+        When get_patient_reports_by_plan is called with plan_id=6 and session_id=103,
+        Then a list of two raw row dicts is returned.
+        """
+        # PREPARE
+        cursor = mock()
+        repo = TreatmentPlanRepository(db=cursor)
+        rows = [
+            {
+                "exercise_id": 1,
+                "exercise_name": "Wall Squats",
+                "execution_date": datetime.date(2026, 5, 20),
+                "execution_status": True,
+                "reason_for_non_performance": None,
+                "pain_level": 2,
+                "effort_level": 5,
+                "request_for_change": None,
+                "num_exe_completed": 36,
+            },
+            {
+                "exercise_id": 2,
+                "exercise_name": "Hip Bridge",
+                "execution_date": datetime.date(2026, 5, 18),
+                "execution_status": False,
+                "reason_for_non_performance": "Knee pain",
+                "pain_level": 7,
+                "effort_level": 3,
+                "request_for_change": "Reduce reps",
+                "num_exe_completed": 0,
+            },
+        ]
+
+        # MOCK
+        expect(cursor, times=1).execute(query=ANY, args=ANY).thenReturn(
+            async_return(None)
+        )
+        expect(cursor, times=1).fetchall().thenReturn(async_return(rows))
+
+        # ACT
+        result = asyncio.run(repo.get_patient_reports_by_plan(6, 103))
+
+        # ASSERT
+        assert len(result) == 2
+        assert result[0]["exercise_id"] == 1
+        assert result[0]["pain_level"] == 2
+        assert result[1]["exercise_id"] == 2
+        assert result[1]["reason_for_non_performance"] == "Knee pain"
+
+    def test_get_patient_reports_by_plan_returns_empty_list_when_no_rows(
+        self,
+    ) -> None:
+        """
+        Given the DB returns no completion rows for the plan,
+        When get_patient_reports_by_plan is called,
+        Then an empty list is returned.
+        """
+        # PREPARE
+        cursor = mock()
+        repo = TreatmentPlanRepository(db=cursor)
+
+        # MOCK
+        expect(cursor, times=1).execute(query=ANY, args=ANY).thenReturn(
+            async_return(None)
+        )
+        expect(cursor, times=1).fetchall().thenReturn(async_return([]))
+
+        # ACT
+        result = asyncio.run(repo.get_patient_reports_by_plan(6, 103))
+
+        # ASSERT
+        assert result == []
