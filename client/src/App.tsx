@@ -1,35 +1,37 @@
+import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import type { ApiRole } from '@/types'
 import './styles/variables.css'
-
-import LandingPage from './pages/auth/landing/LandingPage'
-import RoleSelect from './pages/auth/register/RoleSelect'
-import Login from './pages/auth/login/Login'
-import SignUp from './pages/auth/register/SignUp'
-import SetPassword from './pages/auth/login/SetPassword'
-import PatientDetails from './pages/patient-details/PatientDetails'
-import PatientHome from './pages/patient/PatientHome'
-import HomePage from './pages/home/HomePage'
-import PlaceholderPage from './pages/PlaceholderPage'
-import AiSearchPage from './pages/ai-search/AiSearchPage'
-import SavedContentPage from './pages/ai-search/SavedContentPage'
 import PageTransition from './components/PageTransition'
 import RoleRoute from './components/RoleRoute'
-import ExerciseReport from './pages/patient/ExerciseReport'
-import MyPlan from './pages/patient/MyPlan'
-import AllVisitSummaries from './pages/all-visit-summaries/AllVisitSummaries'
-import CreateVisitSummary from './pages/create-visit-summary/CreateVisitSummary'
-import VisitSummaryDetail from './pages/visit-summary-detail/VisitSummaryDetail'
-import CreateTreatmentPlan from './pages/create-treatment-plan/CreateTreatmentPlan'
-import ViewTreatmentPlan from './pages/view-treatment-plan/ViewTreatmentPlan'
-import ProfilePage from './pages/profile/ProfilePage'
-import ExerciseSchedule from './pages/patient/schedule-exercise/ExerciseSchedule'
+
+const LandingPage        = React.lazy(() => import('./pages/auth/landing/LandingPage'))
+const RoleSelect         = React.lazy(() => import('./pages/auth/register/RoleSelect'))
+const Login              = React.lazy(() => import('./pages/auth/login/Login'))
+const SignUp             = React.lazy(() => import('./pages/auth/register/SignUp'))
+const SetPassword        = React.lazy(() => import('./pages/auth/login/SetPassword'))
+const PatientDetails     = React.lazy(() => import('./pages/patient-details/PatientDetails'))
+const PatientHome        = React.lazy(() => import('./pages/patient/PatientHome'))
+const HomePage           = React.lazy(() => import('./pages/home/HomePage'))
+const PlaceholderPage    = React.lazy(() => import('./pages/PlaceholderPage'))
+const AiSearchPage       = React.lazy(() => import('./pages/ai-search/AiSearchPage'))
+const SavedContentPage   = React.lazy(() => import('./pages/ai-search/SavedContentPage'))
+const ExerciseReport     = React.lazy(() => import('./pages/patient/ExerciseReport'))
+const MyPlan             = React.lazy(() => import('./pages/patient/MyPlan'))
+const AllVisitSummaries  = React.lazy(() => import('./pages/all-visit-summaries/AllVisitSummaries'))
+const CreateVisitSummary = React.lazy(() => import('./pages/create-visit-summary/CreateVisitSummary'))
+const VisitSummaryDetail = React.lazy(() => import('./pages/visit-summary-detail/VisitSummaryDetail'))
+const CreateTreatmentPlan = React.lazy(() => import('./pages/create-treatment-plan/CreateTreatmentPlan'))
+const ViewTreatmentPlan  = React.lazy(() => import('./pages/view-treatment-plan/ViewTreatmentPlan'))
+const ProfilePage        = React.lazy(() => import('./pages/profile/ProfilePage'))
+const ExerciseSchedule   = React.lazy(() => import('./pages/patient/schedule-exercise/ExerciseSchedule'))
 
 const ALL_ROLES: ApiRole[] = ['PATIENT', 'PHYSIOTHERAPIST', 'FITNESS_TRAINER']
 
 function AnimatedRoutes() {
   const location = useLocation()
   return (
+    <React.Suspense fallback={null}>
     <Routes location={location} key={location.pathname}>
       {/* ── Public ── */}
       <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
@@ -75,6 +77,7 @@ function AnimatedRoutes() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </React.Suspense>
   )
 }
 
