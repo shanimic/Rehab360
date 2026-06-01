@@ -18,7 +18,7 @@ function homeForRole(role: ApiRole): string {
 
 export default function RoleRoute({ allowedRoles, children }: RoleRouteProps) {
   const auth = useAtomValue(authAtom)
-  if (auth === null) return <Navigate to="/login" replace />
+  if (auth === null) return <Navigate to="/" replace />
   if (!allowedRoles.includes(auth.role)) return <Navigate to={homeForRole(auth.role)} replace />
   return <>{children}</>
 }
