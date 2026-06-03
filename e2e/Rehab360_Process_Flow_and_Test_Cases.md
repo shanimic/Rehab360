@@ -24,7 +24,7 @@ This document provides a full end-to-end analysis of the Rehab360 rehabilitation
 
 ---
 
-## Process 2 — User Registration (Sign Up)
+## Process 2 — User Registration
 
 | Column | Detail |
 |---|---|
@@ -38,63 +38,35 @@ This document provides a full end-to-end analysis of the Rehab360 rehabilitation
 
 ---
 
-## Process 3 — Patient Home Dashboard
+## Process 3 — Patient Viewing and Progress Tracking Flow
 
 | Column | Detail |
 |---|---|
-| **Process Name** | Viewing Patient Dashboard |
-| **Description** | The authenticated patient sees their daily exercise summary, weekly completion percentages, and progress bars for their physiotherapy and fitness plans. |
+| **Process Name** | Patient Viewing and Progress Tracking Flow |
+| **Description** | All read-only VIEW actions available to an authenticated patient, covering the home dashboard, today's exercise plan, rehabilitation progress, visit summaries, and both the treatment plan and fitness plan detail views. |
 | **User Role Responsible** | Patient |
-| **Preconditions** | Patient is logged in. At least one treatment or fitness plan exists. |
-| **Main Flow Steps** | 1. Patient navigates to `/patient`. 2. App calls `GET /patient/home/{patient_id}`. 3. Dashboard renders: daily exercises, weekly completion %, physiotherapy progress %, fitness progress %, daily completion count. |
-| **Expected System Response** | Dashboard displays up-to-date stats. If no plan: empty state shown. |
-| **Related Screens/Pages** | `PatientHome.tsx` |
+| **Preconditions** | Patient is logged in. |
+| **Main Flow Steps** | **Home Dashboard:** 1. Patient navigates to `/patient`. 2. App calls `GET /patient/home/{patient_id}`. 3. Dashboard renders: daily exercises, weekly completion %, physiotherapy progress %, fitness progress %, daily completion count. **Today's Plan:** 4. Patient navigates to `/patient/my-plan`. 5. App calls `GET /exercise/{patient_id}`. 6. Today's and tomorrow's exercises shown (name, reps, sets, completion status). 7. Patient expands "View All" → `GET /exercise/{patient_id}/weekly` → full 7-day view. **Rehabilitation Progress:** 8. Patient navigates to `/patient/my-process`. 9. App calls `GET /patient-details/{patient_id}?viewer_role=patient`. 10. Basic info, latest visit, treatment plan progress %, fitness plan progress % shown. **Visit Summaries:** 11. Patient navigates to `/patient/visit-summaries`. 12. App calls `GET /visit-summary/sessions/{patient_id}`. 13. Chronological list displayed (date, therapist, treatment area, diagnosis). 14. Patient clicks a session → `/patient/visit-summaries/:visitId` → `GET /visit-summary/{session_id}` → full detail with linked plan. **Treatment Plan View:** 15. Patient clicks treatment plan link from My Process or Visit Summary detail. 16. App calls `GET /treatment-plan/plan/{plan_id}`. 17. Full plan shown: goal, dates, exercises, per-exercise patient reports (date, status, pain, effort). **Fitness Plan View:** 18. Patient clicks "Go to Current Fitness Plan" button (existing UI — no new button required). 19. App calls `GET /treatment-plan/plan/{plan_id}` (fitness plan context). 20. Fitness plan displayed: goal, dates, exercises, progress %. |
+| **Expected System Response** | Each view loads the relevant data from the API. Empty states shown gracefully when no plan or sessions exist. Completed exercises are visually differentiated. Progress percentages are calculated from completed vs total reports. |
+| **Related Screens/Pages** | `PatientHome.tsx`, `MyPlan.tsx`, `PatientDetails.tsx`, `ViewTreatmentPlan.tsx`, `AllVisitSummaries.tsx`, `VisitSummaryDetail.tsx` |
 
 ---
 
-## Process 4 — Viewing Today's Exercise Plan
+## Process 4 — Exercise Reporting Flow
 
 | Column | Detail |
 |---|---|
-| **Process Name** | Viewing Today's Exercise Plan |
-| **Description** | Patient views the exercises assigned for today and tomorrow, and can expand to see the full week. |
-| **User Role Responsible** | Patient |
-| **Preconditions** | Patient is logged in. A treatment plan with exercises exists and is active (start_date ≤ today ≤ end_date). |
-| **Main Flow Steps** | 1. Patient navigates to `/patient/my-plan`. 2. App calls `GET /exercise/{patient_id}`. 3. Today's exercises shown (active/completed). 4. Tomorrow's exercises shown. 5. Patient can expand "View All" → calls `GET /exercise/{patient_id}/weekly`. |
-| **Expected System Response** | Exercise list displayed with names, reps, sets, and completion status. Completed exercises are visually differentiated. |
-| **Related Screens/Pages** | `MyPlan.tsx` |
-
----
-
-## Process 5 — Reporting Exercise Completion
-
-| Column | Detail |
-|---|---|
-| **Process Name** | Reporting Exercise Completion |
-| **Description** | Patient opens a specific exercise, watches the instructional video, and reports that they completed the exercise along with pain and effort levels. |
+| **Process Name** | Exercise Reporting Flow |
+| **Description** | Patient selects an exercise from the daily plan and reports either completion (with pain and effort levels) or non-completion (with a mandatory reason). Covers both reporting scenarios in a single branching flow. |
 | **User Role Responsible** | Patient |
 | **Preconditions** | Patient is logged in. Exercise exists in today's plan and has not been reported today. |
-| **Main Flow Steps** | 1. Patient clicks an exercise in My Plan → `/patient/exercise/:id`. 2. App calls `GET /exercise/{exercise_id}/{patient_id}`. 3. Patient views video (YouTube embed) and instructions. 4. Patient selects "Completed" (Yes). 5. Patient sets pain level (0–10 slider). 6. Patient sets effort level (0–10 slider). 7. Patient optionally fills "Request for Change". 8. Patient submits → `POST /exercise/{exercise_id}/{patient_id}` with `execution_status: true`. |
-| **Expected System Response** | Report saved. Exercise marked as completed. Progress percentages updated. Patient redirected to My Plan. |
+| **Main Flow Steps** | 1. Patient clicks an exercise in My Plan → `/patient/exercise/:id`. 2. App calls `GET /exercise/{exercise_id}/{patient_id}`. 3. Patient views exercise details (video embed, instructions). 4. Patient selects outcome: **Completed** or **Not Completed**. **If Completed:** 5a. Patient sets pain level (0–10 slider). 6a. Patient sets effort level (0–10 slider). 7a. Patient optionally enters notes / change request. 8a. Patient submits → `POST /exercise/{exercise_id}/{patient_id}` with `execution_status: true`. **If Not Completed:** 5b. Reason textarea becomes visible and required. 6b. Patient fills in reason for non-performance. 7b. Patient optionally fills "Request for Change". 8b. Patient submits → `POST /exercise/{exercise_id}/{patient_id}` with `execution_status: false`. **Both paths:** 9. System saves the report. 10. Exercise marked with completion status. 11. Progress percentages updated. 12. Data becomes visible to assigned professionals. 13. Patient redirected to My Plan. |
+| **Expected System Response** | Report saved. Exercise status updated in the plan. Home dashboard stats reflect the new report. Professional can see the report (including any reason for non-completion) in the treatment/fitness plan detail view. |
 | **Related Screens/Pages** | `ExerciseReport.tsx`, `MyPlan.tsx` |
 
 ---
 
-## Process 6 — Reporting Exercise Non-Completion
-
-| Column | Detail |
-|---|---|
-| **Process Name** | Reporting Exercise Non-Completion |
-| **Description** | Patient reports that they did NOT complete an exercise and provides a mandatory reason. |
-| **User Role Responsible** | Patient |
-| **Preconditions** | Patient is logged in. Exercise exists in today's plan. |
-| **Main Flow Steps** | 1. Patient opens an exercise → `/patient/exercise/:id`. 2. Patient selects "Not Completed" (No). 3. Reason textarea becomes visible and required. 4. Patient fills in reason for non-performance. 5. Patient optionally fills "Request for Change". 6. Patient submits → `POST /exercise/{exercise_id}/{patient_id}` with `execution_status: false`. |
-| **Expected System Response** | Non-completion report saved with reason. Exercise marked as not completed. Professional can view reason in treatment plan detail. |
-| **Related Screens/Pages** | `ExerciseReport.tsx` |
-
----
-
-## Process 7 — Creating Exercise Reminders (Weekly Schedule)
+## Process 5 — Creating Exercise Reminders / Scheduling
 
 | Column | Detail |
 |---|---|
@@ -108,21 +80,7 @@ This document provides a full end-to-end analysis of the Rehab360 rehabilitation
 
 ---
 
-## Process 8 — Viewing Rehabilitation Progress
-
-| Column | Detail |
-|---|---|
-| **Process Name** | Viewing Rehabilitation Progress |
-| **Description** | Patient (or professional) views a treatment or fitness plan's detailed progress, including all exercise reports with pain, effort, and completion data over time. |
-| **User Role Responsible** | Patient (self-view via `/patient/my-process`), Physiotherapist / Fitness Trainer (via patient detail pages) |
-| **Preconditions** | User is logged in. A plan with submitted reports exists. |
-| **Main Flow Steps** | 1. Navigate to Patient Details (`/patient/my-process` for patient, `/physiotherapist/patient/:id` for professional). 2. App calls `GET /patient-details/{patient_id}?viewer_role={role}`. 3. Basic info, latest visit, treatment plan progress %, fitness plan progress % shown. 4. Click plan link → `GET /treatment-plan/plan/{plan_id}`. 5. Full plan shown: goal, dates, exercises with per-exercise patient reports (date, status, pain, effort). |
-| **Expected System Response** | Complete progress view with all historical reports per exercise. Progress percentage calculated from completed vs total reports. |
-| **Related Screens/Pages** | `PatientDetails.tsx`, `ViewTreatmentPlan.tsx` |
-
----
-
-## Process 9 — AI Medical Knowledge Search
+## Process 6 — AI Medical Knowledge Search
 
 | Column | Detail |
 |---|---|
@@ -136,7 +94,7 @@ This document provides a full end-to-end analysis of the Rehab360 rehabilitation
 
 ---
 
-## Process 10 — Saving Medical Content to Favorites
+## Process 7 — Saving Medical Content to Favorites
 
 | Column | Detail |
 |---|---|
@@ -144,93 +102,65 @@ This document provides a full end-to-end analysis of the Rehab360 rehabilitation
 | **Description** | After an AI search, any user can save a source to their personal library. Professionals can additionally mark content as "verified." |
 | **User Role Responsible** | Patient / Physiotherapist / Fitness Trainer (save); Physiotherapist / Fitness Trainer (verify) |
 | **Preconditions** | User is logged in. An AI search result with sources is displayed. |
-| **Main Flow Steps** | 1. User performs AI search (see Process 9). 2. User clicks Save on a source → `POST /ai-search/saved-content`. 3. User navigates to `/ai-search/saved` → `GET /ai-search/saved-content/{user_id}`. 4. **Professional only:** Clicks "Verify" on a saved source → `POST /ai-search/verified-content`. 5. User can remove content → `DELETE /ai-search/saved-content/{saving_id}`. |
+| **Main Flow Steps** | 1. User performs AI search (see Process 6). 2. User clicks Save on a source → `POST /ai-search/saved-content`. 3. User navigates to `/ai-search/saved` → `GET /ai-search/saved-content/{user_id}`. 4. **Professional only:** Clicks "Verify" on a saved source → `POST /ai-search/verified-content`. 5. User can remove content → `DELETE /ai-search/saved-content/{saving_id}`. |
 | **Expected System Response** | Content appears in Saved Content page. Verified content shows higher verification counts and is prioritized in listings. Professionals' verifications are tracked separately (physio_count vs trainer_count). |
 | **Related Screens/Pages** | `AiSearchPage.tsx`, `SavedContentPage.tsx` |
 
 ---
 
-## Process 11 — Viewing Visit Summaries (Patient)
+## Process 8 — Professional Verified AI Content Flow
 
 | Column | Detail |
 |---|---|
-| **Process Name** | Viewing Visit Summaries |
-| **Description** | Patient views a chronological list of all their clinical visit summaries created by their professionals, and can open each for full detail. |
-| **User Role Responsible** | Patient (read-only), Physiotherapist / Fitness Trainer (read) |
-| **Preconditions** | User is logged in. At least one visit summary exists for the patient. |
-| **Main Flow Steps** | 1. Patient navigates to `/patient/visit-summaries`. 2. App calls `GET /visit-summary/sessions/{patient_id}`. 3. List of sessions displayed (date, therapist, treatment area, diagnosis). 4. Patient clicks a session → `/patient/visit-summaries/:visitId`. 5. App calls `GET /visit-summary/{session_id}`. 6. Full detail shown: therapist info, visit data, linked treatment plan link. |
-| **Expected System Response** | Ordered list of visits displayed. Detail view shows all session fields including linked plan (if any). |
-| **Related Screens/Pages** | `AllVisitSummaries.tsx`, `VisitSummaryDetail.tsx` |
+| **Process Name** | Professional Verified AI Content Flow |
+| **Description** | A Physiotherapist or Fitness Trainer searches for medical content using AI, reviews the results, and formally verifies sources. Verified content is stored with a verification indicator and is prioritised for future users. |
+| **User Role Responsible** | Physiotherapist / Fitness Trainer |
+| **Preconditions** | Professional is logged in. |
+| **Main Flow Steps** | 1. Professional navigates to `/ai-search`. 2. Professional types a query and submits → `POST /ai-search/queries`. 3. Gemini returns `summary` + `sources[]`. 4. Professional reviews the AI-generated results and sources. 5. Professional clicks Save on a relevant source → `POST /ai-search/saved-content`. 6. Professional navigates to Saved Content (`/ai-search/saved`) → `GET /ai-search/saved-content/{user_id}`. 7. Professional clicks "Verify" on a saved source → `POST /ai-search/verified-content`. 8. System saves verification status; verified content displays a verification indicator (badge/icon). 9. Verified content is prioritised in future search result listings, sorted by `physio_verification_count` or `trainer_verification_count`. |
+| **Expected System Response** | Verification saved. Verified source displays a visual verification indicator. Verification counts (`physio_verification_count`, `trainer_verification_count`) increment. Verified content appears ranked higher in future listings. Patient role cannot trigger the Verify action — the button is not visible to patients. |
+| **Related Screens/Pages** | `AiSearchPage.tsx`, `SavedContentPage.tsx` |
 
 ---
 
-## Process 12 — Creating a Visit Summary (Professional)
+## Process 9 — Viewing Patient Profile (Professional)
 
 | Column | Detail |
 |---|---|
-| **Process Name** | Creating Visit Summary |
-| **Description** | A Physiotherapist or Fitness Trainer creates a clinical visit summary after a patient session. This creates a session record and optionally triggers treatment plan creation. |
+| **Process Name** | Viewing Patient Profile (Professional) |
+| **Description** | A Physiotherapist or Fitness Trainer views a patient's full profile, including personal information, progress summary, visit history, and both treatment and fitness plan details. All viewing actions for a patient are accessible from Patient Details. |
 | **User Role Responsible** | Physiotherapist / Fitness Trainer |
 | **Preconditions** | Professional is logged in. Patient exists in the system. |
-| **Main Flow Steps** | 1. Professional clicks "New Visit Summary" on Home Dashboard. 2. Selects patient from "All Patients" modal (`GET /home/all-patients`). 3. Navigated to `/physiotherapist/patient/:id/visit-summaries/new`. 4. App calls `GET /visit-summary/patient/{patient_id}` + `GET /visit-summary/has-previous-plan/{patient_id}`. 5. Professional fills: visit date/time, treatment area, medical diagnosis (required), description (required), recommendations (optional). 6. Optionally checks "Copy previous plan". 7. Submits → `POST /visit-summary`. 8. On success: `session_id` returned → redirected to Create Treatment Plan. |
-| **Expected System Response** | Visit summary saved. Professional navigated to `/physiotherapist/patient/:id/treatment-plans/new/:sessionId` to create the associated plan. |
-| **Related Screens/Pages** | `HomePage.tsx`, `CreateVisitSummary.tsx`, `CreateTreatmentPlan.tsx` |
+| **Main Flow Steps** | 1. Professional clicks a patient card on Home Dashboard → `/physiotherapist/patient/:patientId` or `/fitness/patient/:patientId`. 2. App calls `GET /patient-details/{patient_id}?viewer_role={role}`. 3. **Profile card** displayed: name, phone, email, age, birth date. 4. **Progress summary** displayed: treatment plan progress %, fitness plan progress %, latest visit (date, therapist, type). 5. **View Visit Summaries:** Professional clicks Visit Summaries link → `GET /visit-summary/sessions/{patient_id}` → chronological list. Professional opens any session → `GET /visit-summary/{session_id}` → full detail including linked plan. 6. **View Treatment Plan:** Professional clicks Treatment Plan link → `GET /treatment-plan/plan/{plan_id}` (physiotherapy context) → full plan: goal, dates, exercises, per-exercise patient reports (date, status, pain, effort). 7. **View Fitness Plan:** Professional clicks Fitness Plan link → `GET /treatment-plan/plan/{plan_id}` (fitness context) → full fitness plan with exercises and per-exercise reports. |
+| **Expected System Response** | Full patient profile rendered. All three navigation links (Visit Summaries, Treatment Plan, Fitness Plan) are accessible from Patient Details. Each sub-view loads the relevant data. Empty/null states shown gracefully when no plan or visits exist. |
+| **Related Screens/Pages** | `PatientDetails.tsx`, `ViewTreatmentPlan.tsx`, `AllVisitSummaries.tsx`, `VisitSummaryDetail.tsx`, `HomePage.tsx` |
 
 ---
 
-## Process 13 — Creating a Treatment / Fitness Plan (Professional)
+## Process 10 — Creating Visit Summary and Treatment/Fitness Plan
 
 | Column | Detail |
 |---|---|
-| **Process Name** | Creating Treatment / Fitness Plan |
-| **Description** | After creating a visit summary, the professional builds a structured exercise plan with goals, dates, and specific exercises for the patient. |
-| **User Role Responsible** | Physiotherapist (Treatment Plan) / Fitness Trainer (Fitness Plan) |
-| **Preconditions** | A visit summary (session) has been created. Professional is on Create Treatment Plan page. |
-| **Main Flow Steps** | 1. App calls `GET /treatment-plan/context/{session_id}` (diagnosis, visit type). 2. App calls `GET /treatment-plan/exercises?visit_type={type}` (available exercises). 3. Professional fills: goal (required), start date, end date (must be > start), notes (optional). 4. Opens exercise selector modal; selects exercises; sets reps, sets, weight, duration, unit, description per exercise (min 1). 5. Submits → `POST /treatment-plan/{session_id}`. 6. On success: redirects to visit summaries list. |
-| **Expected System Response** | Plan saved with all exercises. Patient's daily exercise list updated. Progress tracking begins. |
-| **Related Screens/Pages** | `CreateTreatmentPlan.tsx`, `AllVisitSummaries.tsx` |
-
----
-
-## Process 14 — Viewing Patient Profile (Professional)
-
-| Column | Detail |
-|---|---|
-| **Process Name** | Viewing Patient Profile |
-| **Description** | A Physiotherapist or Fitness Trainer views a patient's full profile including personal info, latest visit summary, and progress on both treatment and fitness plans. |
+| **Process Name** | Creating Visit Summary and Treatment/Fitness Plan |
+| **Description** | A Physiotherapist or Fitness Trainer creates a clinical visit summary for a patient and immediately follows through to create or update the associated treatment or fitness plan with specific exercises. |
 | **User Role Responsible** | Physiotherapist / Fitness Trainer |
-| **Preconditions** | Professional is logged in. Patient exists and has been seen at least once. |
-| **Main Flow Steps** | 1. Professional clicks a patient card on Home Dashboard. 2. Navigated to `/physiotherapist/patient/:patientId` or `/fitness/patient/:patientId`. 3. App calls `GET /patient-details/{patient_id}?viewer_role={role}`. 4. Profile card displayed (name, phone, email, age, birth date). 5. Latest visit summary shown (date, therapist, type). 6. Treatment plan progress % shown. 7. Fitness plan progress % shown. 8. Links to: Visit Summaries, Treatment Plan detail, Fitness Plan detail. |
-| **Expected System Response** | Full patient profile rendered with real-time progress data from reports. |
-| **Related Screens/Pages** | `PatientDetails.tsx`, `HomePage.tsx` |
+| **Preconditions** | Professional is logged in. Patient exists in the system. |
+| **Main Flow Steps** | 1. Professional clicks "New Visit Summary" on Home Dashboard. 2. Selects patient from "All Patients" modal (`GET /home/all-patients`). 3. Navigated to `/physiotherapist/patient/:id/visit-summaries/new`. 4. App calls `GET /visit-summary/patient/{patient_id}` + `GET /visit-summary/has-previous-plan/{patient_id}`. 5. Professional fills: visit date/time, treatment area, medical diagnosis (required), description (required), recommendations (optional). 6. Optionally checks "Copy previous plan". 7. Submits → `POST /visit-summary`. 8. System saves summary; returns `session_id`; professional navigated to Create Treatment/Fitness Plan page. 9. App calls `GET /treatment-plan/context/{session_id}` (diagnosis, visit type) + `GET /treatment-plan/exercises?visit_type={type}` (available exercises). 10. Professional fills: goal (required), start date, end date (must be > start), notes (optional). 11. Opens exercise selector modal; selects exercises; sets reps, sets, weight, duration, unit, description per exercise (min 1 required). 12. Submits → `POST /treatment-plan/{session_id}`. 13. System saves plan. Patient's daily exercise list updated. Progress tracking begins. Professional redirected to visit summaries list. |
+| **Expected System Response** | Visit summary saved and linked to session. Plan saved with all exercises. Patient's `GET /patient/home/{id}` begins returning new exercises. Plan appears in Patient Details with 0% initial progress. |
+| **Related Screens/Pages** | `HomePage.tsx`, `CreateVisitSummary.tsx`, `CreateTreatmentPlan.tsx`, `AllVisitSummaries.tsx` |
 
 ---
 
-## Process 15 — Professional Home / Analytics Dashboard
+## Process 11 — Professional Dashboard View and Logout Flow
 
 | Column | Detail |
 |---|---|
-| **Process Name** | Viewing Analytics Dashboard (Professional) |
-| **Description** | Professional's home page showing patient roster with progress percentages, priority alerts (pain spikes, inactivity, milestones), and today's appointment schedule. |
+| **Process Name** | Professional Dashboard View and Logout Flow |
+| **Description** | Professional's home page showing the patient roster with progress data, priority alerts, and today's appointment schedule. Includes the logout action that clears all session state and returns the user to the landing page. |
 | **User Role Responsible** | Physiotherapist / Fitness Trainer |
-| **Preconditions** | Professional is logged in. At least one patient is assigned. |
-| **Main Flow Steps** | 1. Professional navigates to `/physiotherapist/home` or `/fitness/home`. 2. App calls `GET /home/patients?therapist_id={id}&therapist_role={role}`. 3. Patient cards shown (name, diagnosis, progress %, last update). 4. Priority alerts displayed (pain_spike, inactivity, stuck, milestone, overexertion) — *currently mock data*. 5. Today's schedule shown — *currently mock data*. 6. Professional can search/filter patients. |
-| **Expected System Response** | Dashboard shows all assigned patients with current progress. Alerts flag patients needing attention. |
-| **Related Screens/Pages** | `HomePage.tsx` |
-
----
-
-## Process 16 — User Logout
-
-| Column | Detail |
-|---|---|
-| **Process Name** | User Logout |
-| **Description** | Any authenticated user logs out, clearing all local auth state and server-side query cache. |
-| **User Role Responsible** | Patient / Physiotherapist / Fitness Trainer |
-| **Preconditions** | User is logged in. |
-| **Main Flow Steps** | 1. User clicks "Logout" in the TopNav sidebar. 2. `useLogout()` hook fires: clears `authAtom` → null, resets TanStack Query cache, clears other atoms. 3. User redirected to `/` (Landing Page). |
-| **Expected System Response** | Session cleared from localStorage. All cached data cleared. User sees Landing Page. Protected routes no longer accessible. |
-| **Related Screens/Pages** | `TopNav.tsx`, `LandingPage.tsx` |
+| **Preconditions** | Professional is logged in. |
+| **Main Flow Steps** | 1. Professional navigates to `/physiotherapist/home` or `/fitness/home`. 2. App calls `GET /home/patients?therapist_id={id}&therapist_role={role}`. 3. Patient cards shown: name, diagnosis, progress %, last update. 4. Professional can search/filter patients. 5. Priority alerts displayed (pain_spike, inactivity, stuck, milestone, overexertion) — *currently mock data*. 6. Today's appointment schedule shown — *currently mock data*. 7. Professional clicks "Logout" in the TopNav sidebar. 8. `useLogout()` hook fires: clears `authAtom` → null, resets TanStack Query cache, clears other atoms. 9. User redirected to `/` (Landing Page). All protected routes inaccessible. |
+| **Expected System Response** | Dashboard shows all assigned patients with current progress. Alerts flag patients needing attention. On logout: session cleared from localStorage, all cached data cleared, user sees Landing Page, protected routes redirect to `/login`. |
+| **Related Screens/Pages** | `HomePage.tsx`, `TopNav.tsx`, `LandingPage.tsx` |
 
 ---
 
@@ -304,356 +234,331 @@ This document provides a full end-to-end analysis of the Rehab360 rehabilitation
 
 ---
 
-## TC-03: Patient Home Dashboard
+## TC-03: Patient Viewing and Progress Tracking Flow
 
-### Positive Cases
+### Positive Cases — Home Dashboard
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-03-P1 | Dashboard loads with active plan | All stats displayed: daily exercises, weekly completion %, progress bars |
+| TC-03-P1 | Dashboard loads with active plan | Daily exercises, weekly completion %, progress bars all displayed |
 | TC-03-P2 | Dashboard reflects completed exercises | `daily_completions.completed_sum` increments after reporting |
 | TC-03-P3 | Progress bars show correct percentages | `fitness_percentage` and `physiotherapist_percentage` match backend calculation |
+
+### Positive Cases — Today's Plan
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-03-P4 | Today's exercises load | List of exercises for today shown with name, reps, sets, status |
+| TC-03-P5 | Tomorrow's exercises shown | Next-day exercises visible below today's |
+| TC-03-P6 | Expand to full week | "View All" triggers weekly API call; all 7 days shown |
+| TC-03-P7 | Completed exercises visually distinguished | Completed exercises have different styling |
+
+### Positive Cases — Rehabilitation Progress
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-03-P8 | Patient views own progress | `PatientDetails` shows both plan progress %; clicking a plan loads `ViewTreatmentPlan` |
+| TC-03-P9 | Plan with multiple exercises each with reports | Each exercise expandable; all historical reports listed |
+
+### Positive Cases — Visit Summaries
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-03-P10 | Patient sees full list of sessions | Chronological list with date, therapist, type badge, diagnosis |
+| TC-03-P11 | Patient opens a session | Full detail: all fields shown; plan link if plan exists |
+| TC-03-P12 | Filter by visit type | "Physical Therapy" filter shows only PHYSIOTHERAPIST sessions |
+
+### Positive Cases — Treatment Plan and Fitness Plan Views
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-03-P13 | Patient views treatment plan detail | Goal, dates, exercise list, and per-exercise reports shown |
+| TC-03-P14 | Patient views fitness plan via "Go to Current Fitness Plan" button | Fitness plan goal, dates, exercises, progress % shown; no new UI required |
+| TC-03-P15 | Plan with no reports shows 0% progress | Exercise list shown without reports; 0% progress displayed |
 
 ### Negative Cases
 
 | ID | Title | Expected |
 |---|---|---|
 | TC-03-N1 | No active plan | Empty state message shown; no crash |
-| TC-03-N2 | API returns 500 | Error state displayed gracefully |
+| TC-03-N2 | No plan exists for progress view | Graceful empty state for both treatment and fitness plan sections |
+| TC-03-N3 | No sessions exist for visit summaries | Empty state message shown |
+| TC-03-N4 | Invalid visitId in URL | 404 or error state |
+| TC-03-N5 | API returns 500 | Error state displayed gracefully; no crash |
 
 ### Integration Tests
 
 | ID | Title | Expected |
 |---|---|---|
 | TC-03-I1 | Complete exercise → return to home → stats update | `GET /patient/home/{id}` refetched; numbers reflect new report |
-
----
-
-## TC-04: Viewing Today's Exercise Plan
-
-### Positive Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-04-P1 | Today's exercises load | List of exercises for today shown with name, reps, sets, status |
-| TC-04-P2 | Tomorrow's exercises shown | Next-day exercises visible below today's |
-| TC-04-P3 | Expand to full week | "View All" triggers weekly API call; all 7 days shown |
-| TC-04-P4 | Completed exercises visually distinguished | Completed exercises have different styling |
-
-### Negative Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-04-N1 | No exercises today | Empty state shown; no crash |
-| TC-04-N2 | Plan expired (end_date < today) | Empty or "Plan ended" message |
+| TC-03-I2 | Complete exercise → view treatment plan | Report appears in `patient_reports` for that exercise in `ViewTreatmentPlan` |
 
 ### Permission Tests
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-04-R1 | Physiotherapist cannot access `/patient/my-plan` | Redirected to professional home |
+| TC-03-R1 | Physiotherapist cannot access `/patient/my-plan` | Redirected to professional home |
+| TC-03-R2 | Patient sees only their own visit summaries | API scoped to `patient_id` from `authAtom` |
+| TC-03-R3 | Patient cannot view another patient's progress | `RoleRoute` prevents access to `/physiotherapist/patient/:otherId` |
 
 ---
 
-## TC-05: Reporting Exercise Completion
+## TC-04: Exercise Reporting Flow
 
-### Positive Cases
+### Positive Cases — Completion Branch
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-05-P1 | Report exercise as completed | `execution_status: true`, pain=5, effort=7 saved; exercise marked complete |
-| TC-05-P2 | Report with pain level 0 | Accepted; no minimum pain required |
-| TC-05-P3 | Report with optional change request | `request_for_change` saved alongside report |
+| TC-04-P1 | Report exercise as completed | `execution_status: true`, pain=5, effort=7 saved; exercise marked complete |
+| TC-04-P2 | Report with pain level 0 | Accepted; no minimum pain required |
+| TC-04-P3 | Report completed with optional change request | `request_for_change` saved alongside report |
+
+### Positive Cases — Non-Completion Branch
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-04-P4 | Report not completed with reason | `execution_status: false`, reason saved; exercise shows non-completion |
+| TC-04-P5 | Non-completion with change request | Both reason and change request saved |
 
 ### Negative Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-05-N1 | Submit without selecting completion status | Form blocked; validation error shown |
-| TC-05-N2 | API call fails (network error) | Error shown; report not recorded; user can retry |
+| TC-04-N1 | Submit without selecting completion status | Form blocked; validation error shown |
+| TC-04-N2 | Select "Not Completed" but leave reason blank | Submit blocked; reason field shows required error |
+| TC-04-N3 | Reason is only whitespace | Treated as empty; submit blocked |
+| TC-04-N4 | API call fails (network error) | Error shown; report not recorded; user can retry |
 
 ### Validation Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-05-V1 | Pain level outside 0–10 | Slider enforces bounds; value clamped |
-| TC-05-V2 | Effort level outside 0–10 | Slider enforces bounds |
+| TC-04-V1 | Pain level outside 0–10 | Slider enforces bounds; value clamped |
+| TC-04-V2 | Effort level outside 0–10 | Slider enforces bounds |
 
 ### Integration Tests
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-05-I1 | Complete exercise → view treatment plan | Report appears in `patient_reports` for that exercise in `ViewTreatmentPlan` |
-| TC-05-I2 | Complete exercise → check home dashboard | `daily_completions.completed_sum` incremented |
+| TC-04-I1 | Complete exercise → check home dashboard | `daily_completions.completed_sum` incremented |
+| TC-04-I2 | Report non-completion → professional views plan | Reason visible in `reports[].reason_for_non_performance` in `ViewTreatmentPlan` |
 
 ---
 
-## TC-06: Reporting Exercise Non-Completion
+## TC-05: Creating Exercise Reminders / Scheduling
 
 ### Positive Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-06-P1 | Report not completed with reason | `execution_status: false`, reason saved; exercise shows non-completion |
-| TC-06-P2 | Non-completion with change request | Both reason and change request saved |
+| TC-05-P1 | Assign exercises to days with reminders | Schedule saved; Google Calendar links generated |
+| TC-05-P2 | Assign exercise without reminder | Saved without Calendar link |
+| TC-05-P3 | Save with unscheduled exercises | Confirmation modal shown; user confirms → proceeds |
 
 ### Negative Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-06-N1 | Select "Not Completed" but leave reason blank | Submit blocked; reason field shows required error |
-| TC-06-N2 | Reason is only whitespace | Treated as empty; blocked |
-
-### Integration Tests
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-06-I1 | Report non-completion → professional views plan | Reason visible in `reports[].reason_for_non_performance` in `ViewTreatmentPlan` |
-
----
-
-## TC-07: Creating Exercise Reminders (Weekly Schedule)
-
-### Positive Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-07-P1 | Assign exercises to days with reminders | Schedule saved; Google Calendar links generated |
-| TC-07-P2 | Assign exercise without reminder | Saved without Calendar link |
-| TC-07-P3 | Save with unscheduled exercises | Confirmation modal shown; user confirms → proceeds |
-
-### Negative Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-07-N1 | Enable reminder but leave date/time blank | Validation error; submit blocked |
-| TC-07-N2 | Assign zero exercises | Either allowed (empty save) or blocked with warning |
+| TC-05-N1 | Enable reminder but leave date/time blank | Validation error; submit blocked |
+| TC-05-N2 | Assign zero exercises | Either allowed (empty save) or blocked with warning |
 
 ### Validation Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-07-V1 | Reminder date in the past | System should warn or reject |
+| TC-05-V1 | Reminder date in the past | System should warn or reject |
 
 ---
 
-## TC-08: Viewing Rehabilitation Progress
+## TC-06: AI Medical Knowledge Search
 
 ### Positive Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-08-P1 | Patient views own progress | `PatientDetails` shows both plan progress %; clicking plan loads `ViewTreatmentPlan` |
-| TC-08-P2 | Professional views patient progress | Same data shown under professional route |
-| TC-08-P3 | Plan with multiple exercises each with reports | Each exercise expandable; all reports listed |
+| TC-06-P1 | Basic query returns summary + sources | Summary displayed; sources listed with title, URL, content type |
+| TC-06-P2 | Follow-up question in same session | Conversation history passed; contextual answer returned |
+| TC-06-P3 | Click suggested topic chip | Query field pre-filled; search triggered |
+| TC-06-P4 | "New Chat" resets conversation | All results cleared; idle state restored |
+| TC-06-P5 | "Thinking" mode search | Extended mode triggers and returns; no crash |
 
 ### Negative Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-08-N1 | No plan exists | Graceful empty state for both treatment and fitness plan sections |
-| TC-08-N2 | Plan exists but no reports yet | Shows 0% progress; exercise list shown without reports |
+| TC-06-N1 | Empty query submitted | Submit blocked or API returns error gracefully |
+| TC-06-N2 | Gemini API unavailable | Error message shown; no crash |
+| TC-06-N3 | Query with special characters | Handled safely; no XSS or injection |
 
 ### Permission Tests
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-08-R1 | Patient cannot view another patient's progress | `RoleRoute` prevents access to `/physiotherapist/patient/:otherId` |
+| TC-06-R1 | Unauthenticated user accesses `/ai-search` | Redirected to login |
+| TC-06-R2 | Patient can access AI search | Allowed; patient role included in request |
 
 ---
 
-## TC-09: AI Medical Knowledge Search
+## TC-07: Saving Medical Content to Favorites
 
 ### Positive Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-09-P1 | Basic query returns summary + sources | Summary displayed; sources listed with title, URL, content type |
-| TC-09-P2 | Follow-up question in same session | Conversation history passed; contextual answer returned |
-| TC-09-P3 | Click suggested topic chip | Query field pre-filled; search triggered |
-| TC-09-P4 | "New Chat" resets conversation | All results cleared; idle state restored |
-| TC-09-P5 | "Thinking" mode search | Extended mode triggers and returns; no crash |
+| TC-07-P1 | Patient saves a source | Source appears in `/ai-search/saved`; `saving_id` returned |
+| TC-07-P2 | Professional verifies saved content | `physio_verification_count` or `trainer_verification_count` increments |
+| TC-07-P3 | Remove saved content | Source disappears from saved list |
+| TC-07-P4 | Verified content appears first | Sorted by verification count in saved list |
 
 ### Negative Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-09-N1 | Empty query submitted | Submit blocked or API returns error gracefully |
-| TC-09-N2 | Gemini API unavailable | Error message shown; no crash |
-| TC-09-N3 | Query with special characters | Handled safely; no XSS or injection |
+| TC-07-N1 | Save same content twice | Either deduplicated or both entries shown (test for expected behavior) |
+| TC-07-N2 | Patient tries to verify content | Verify button not visible for patient role |
 
 ### Permission Tests
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-09-R1 | Unauthenticated user accesses `/ai-search` | Redirected to login |
-| TC-09-R2 | Patient can access AI search | Allowed; patient role included in request |
+| TC-07-R1 | Only professionals see "Verify" button | Patient sees save/remove only |
+| TC-07-R2 | Physiotherapist and Trainer have separate verification counts | Verify as physio → `physio_count` increments; as trainer → `trainer_count` |
 
 ---
 
-## TC-10: Saving Medical Content to Favorites
+## TC-08: Professional Verified AI Content Flow
 
 ### Positive Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-10-P1 | Patient saves a source | Source appears in `/ai-search/saved`; `saving_id` returned |
-| TC-10-P2 | Professional verifies saved content | `physio_verification_count` or `trainer_verification_count` increments |
-| TC-10-P3 | Remove saved content | Source disappears from saved list |
-| TC-10-P4 | Verified content appears first | Sorted by verification count in saved list |
+| TC-08-P1 | Professional searches and saves a source | Source appears in Saved Content with `saving_id` |
+| TC-08-P2 | Professional verifies a saved source | `physio_verification_count` or `trainer_verification_count` increments; verification indicator displayed |
+| TC-08-P3 | Verified content sorted higher in listings | After verification, content appears before unverified entries |
+| TC-08-P4 | Verification indicator visible on verified content | Badge/icon visible on verified source in `SavedContentPage` |
 
 ### Negative Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-10-N1 | Save same content twice | Either deduplicated or both entries shown (test for expected behavior) |
-| TC-10-N2 | Patient tries to verify content | Verify button not visible for patient role |
+| TC-08-N1 | Verify action on already-verified content | System accepts (idempotent) or blocks with message |
+| TC-08-N2 | API error on verify call | Error shown; verification count unchanged |
 
 ### Permission Tests
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-10-R1 | Only professionals see "Verify" button | Patient sees save/remove only |
-| TC-10-R2 | Physiotherapist and Trainer have separate verification counts | Verify as physio → `physio_count` increments; as trainer → `trainer_count` |
+| TC-08-R1 | Patient cannot see or use Verify button | Verify button absent for patient role |
+| TC-08-R2 | Physiotherapist verification counted separately from Fitness Trainer | `physio_count` and `trainer_count` are independent fields |
 
 ---
 
-## TC-11: Viewing Visit Summaries (Patient)
+## TC-09: Viewing Patient Profile (Professional)
 
-### Positive Cases
+### Positive Cases — Profile and Progress
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-11-P1 | Patient sees full list of sessions | Chronological list with date, therapist, type badge, diagnosis |
-| TC-11-P2 | Patient opens a session | Full detail: all fields shown; plan link if plan exists |
-| TC-11-P3 | Filter by visit type | "Physical Therapy" filter shows only PHYSIOTHERAPIST sessions |
+| TC-09-P1 | View patient with both plan types | Treatment % and Fitness % both shown on Patient Details |
+| TC-09-P2 | View patient with only one plan type | Other plan section shows "None" or empty state gracefully |
+| TC-09-P3 | Latest visit summary shown on profile | Date, therapist name, type visible in profile card |
+
+### Positive Cases — Visit Summaries
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-09-P4 | Professional views patient's visit summaries list | Chronological list of sessions with date, therapist, type, diagnosis |
+| TC-09-P5 | Professional opens a specific visit summary | Full detail: all session fields; linked plan shown if exists |
+
+### Positive Cases — Treatment Plan and Fitness Plan
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-09-P6 | Professional views treatment plan from Patient Details | Full plan: goal, dates, exercises, per-exercise patient reports |
+| TC-09-P7 | Professional views fitness plan from Patient Details | Full fitness plan: goal, dates, exercises, progress % |
+| TC-09-P8 | Plan with per-exercise reports expanded | Each exercise expandable; all historical reports (date, status, pain, effort) listed |
 
 ### Negative Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-11-N1 | No sessions exist | Empty state message |
-| TC-11-N2 | Invalid visitId in URL | 404 or error state |
+| TC-09-N1 | Patient with no visits or plans | Profile shown; Visit Summaries, Treatment Plan, and Fitness Plan sections show empty state without crashing |
+| TC-09-N2 | Non-existent patient ID in URL | Error state or redirect |
 
 ### Permission Tests
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-11-R1 | Patient sees only their own summaries | API scoped to `patient_id` from `authAtom` |
+| TC-09-R1 | Patient cannot access `/physiotherapist/patient/:id` | `RoleRoute` blocks; redirected to patient home |
+| TC-09-R2 | Professional of different role sees correct `viewer_role` | Physiotherapist sees treatment plan data; Fitness Trainer sees fitness plan data |
 
 ---
 
-## TC-12: Creating Visit Summary (Professional)
+## TC-10: Creating Visit Summary and Treatment/Fitness Plan
 
-### Positive Cases
+### Positive Cases — Visit Summary Creation
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-12-P1 | Physiotherapist creates visit summary | Session saved; redirected to Create Treatment Plan with `session_id` |
-| TC-12-P2 | Fitness Trainer creates visit summary | `visit_type` automatically set to "FITNESS" |
-| TC-12-P3 | Copy previous plan checked | Prior exercises pre-populated in new plan |
-| TC-12-P4 | Recommendations field optional | Summary saved without recommendations |
+| TC-10-P1 | Physiotherapist creates visit summary | Session saved; redirected to Create Treatment Plan with `session_id` |
+| TC-10-P2 | Fitness Trainer creates visit summary | `visit_type` automatically set to "FITNESS" |
+| TC-10-P3 | Copy previous plan checked | Prior exercises pre-populated in new plan |
+| TC-10-P4 | Recommendations field optional | Summary saved without recommendations |
+
+### Positive Cases — Plan Creation
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-10-P5 | Create plan with 3 exercises | All exercises saved; plan linked to session |
+| TC-10-P6 | Plan with optional notes | Notes saved and displayed in plan detail |
+| TC-10-P7 | Physiotherapist sees PHYSIOTHERAPIST exercises only | Exercise list filtered by `visit_type` |
+| TC-10-P8 | Fitness Trainer sees FITNESS exercises only | Exercise list filtered accordingly |
 
 ### Negative Cases
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-12-N1 | Submit with blank `medical_diagnosis` | Blocked; validation error |
-| TC-12-N2 | Submit with blank description | Blocked; validation error |
-| TC-12-N3 | No patient selected | Modal remains open; cannot proceed |
+| TC-10-N1 | Submit visit summary with blank `medical_diagnosis` | Blocked; validation error |
+| TC-10-N2 | Submit visit summary with blank description | Blocked; validation error |
+| TC-10-N3 | No patient selected | Modal remains open; cannot proceed |
+| TC-10-N4 | Submit plan with zero exercises | Blocked; "min 1 exercise required" error |
+| TC-10-N5 | End date equal to or before start date | Blocked; must be strictly after start |
+| TC-10-N6 | Blank goal | Blocked; whitespace-only also blocked |
 
 ### Integration Tests
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-12-I1 | Create summary → patient views summaries | New session appears in patient's `/patient/visit-summaries` |
+| TC-10-I1 | Create summary → patient views summaries | New session appears in patient's `/patient/visit-summaries` |
+| TC-10-I2 | Create plan → patient home shows exercises | Patient's `GET /patient/home/{id}` returns new exercises |
+| TC-10-I3 | Create plan → plan appears in patient details | `PatientDetails` shows plan with 0% progress |
 
 ---
 
-## TC-13: Creating Treatment / Fitness Plan (Professional)
+## TC-11: Professional Dashboard View and Logout Flow
 
-### Positive Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-13-P1 | Create plan with 3 exercises | All exercises saved; plan linked to session |
-| TC-13-P2 | Plan with optional notes | Notes saved and displayed in plan detail |
-| TC-13-P3 | Physiotherapist sees PHYSIOTHERAPIST exercises only | Exercise list filtered by `visit_type` |
-| TC-13-P4 | Fitness Trainer sees FITNESS exercises only | Exercise list filtered accordingly |
-
-### Negative Cases
+### Positive Cases — Dashboard
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-13-N1 | Submit with zero exercises | Blocked; "min 1 exercise required" error |
-| TC-13-N2 | End date equal to start date | Blocked; must be strictly after start |
-| TC-13-N3 | End date before start date | Blocked |
-| TC-13-N4 | Blank goal | Blocked; whitespace-only also blocked |
-| TC-13-N5 | Goal is only spaces | Backend Pydantic validator rejects |
+| TC-11-P1 | Dashboard loads patient cards | All assigned patients shown with progress %, diagnosis |
+| TC-11-P2 | Search filters patient list | Only matching patients shown |
+| TC-11-P3 | Click patient card → patient profile | Navigated to `PatientDetails` for that patient |
+| TC-11-P4 | "New Visit Summary" button opens modal | All-patients modal shown; search within modal works |
+
+### Positive Cases — Logout
+
+| ID | Title | Expected |
+|---|---|---|
+| TC-11-P5 | Logout clears session | `authAtom` null; localStorage cleared; user at `/` |
+| TC-11-P6 | Protected route inaccessible after logout | Navigating to `/physiotherapist/home` → redirected to `/login` |
+| TC-11-P7 | Query cache cleared on logout | No stale patient data visible if another user logs in on same device |
 
 ### Integration Tests
 
 | ID | Title | Expected |
 |---|---|---|
-| TC-13-I1 | Create plan → patient home shows exercises | Patient's `GET /patient/home/{id}` returns new exercises |
-| TC-13-I2 | Create plan → plan appears in patient details | `PatientDetails` shows plan with 0% progress |
-
----
-
-## TC-14: Viewing Patient Profile (Professional)
-
-### Positive Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-14-P1 | View patient with both plan types | Treatment % and Fitness % both shown |
-| TC-14-P2 | View patient with only one plan type | Other plan shows "None" or empty state |
-| TC-14-P3 | Latest visit summary shown | Date, therapist name, type visible |
-
-### Negative Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-14-N1 | Patient with no visits or plans | Profile shown; all plan/visit sections empty without crashing |
-| TC-14-N2 | Non-existent patient ID in URL | Error state or redirect |
-
-### Permission Tests
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-14-R1 | Patient cannot access `/physiotherapist/patient/:id` | `RoleRoute` blocks; redirected to patient home |
-| TC-14-R2 | Professional of different role sees correct `viewer_role` | Physiotherapist sees treatment plan; Fitness Trainer sees fitness plan |
-
----
-
-## TC-15: Professional Analytics Dashboard
-
-### Positive Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-15-P1 | Dashboard loads patient cards | All assigned patients shown with progress %, diagnosis |
-| TC-15-P2 | Search filters patient list | Only matching patients shown |
-| TC-15-P3 | Click patient card → patient profile | Navigated to `PatientDetails` for that patient |
-| TC-15-P4 | "New Visit Summary" button opens modal | All-patients modal shown; search within modal works |
-
-### Integration Tests
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-15-I1 | After new report submitted → dashboard progress updates | `progress_percentage` on patient card reflects new report |
-
----
-
-## TC-16: User Logout
-
-### Positive Cases
-
-| ID | Title | Expected |
-|---|---|---|
-| TC-16-P1 | Logout clears session | `authAtom` null; localStorage cleared; user at `/` |
-| TC-16-P2 | Protected route inaccessible after logout | Navigating to `/patient` → redirected to `/login` |
-| TC-16-P3 | Query cache cleared | No stale patient data visible if another user logs in on same device |
+| TC-11-I1 | After new report submitted → dashboard progress updates | `progress_percentage` on patient card reflects new report |
 
 ---
 
