@@ -13,7 +13,7 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 0 0;
+  padding: 2rem 1rem 0;
 }
 
 /* ── Page title ── */
@@ -226,6 +226,11 @@
     padding: 28px 24px 48px;
   }
 
+  .pp-back-row {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
   .pp-personal__hero {
     flex-direction: row;
     align-items: center;
@@ -243,6 +248,11 @@
 @media (min-width: 900px) {
   .pp-main {
     padding: 32px 48px 56px;
+  }
+
+  .pp-back-row {
+    padding-left: 3rem;
+    padding-right: 3rem;
   }
 
   .pp-title {
