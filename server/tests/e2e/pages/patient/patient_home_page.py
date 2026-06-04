@@ -17,8 +17,11 @@ class PatientHomePage(BasePage):
         super().__init__(page)
         self.nav = TopNav(page)
 
-    def goto(self) -> PatientHomePage:
+    def goto(self, path: str = "") -> PatientHomePage:
         """Navigate directly to the patient home.
+
+        Args:
+            path: Ignored; always navigates to the patient home URL.
 
         Returns:
             Self, for chaining.

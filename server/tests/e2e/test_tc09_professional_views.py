@@ -12,7 +12,6 @@ from playwright.sync_api import Page, expect
 from tests.e2e.pages import (
     AllVisitSummariesPage,
     PatientDetailsPage,
-    ProfessionalHomePage,
 )
 
 ALICE_ID = "P100"

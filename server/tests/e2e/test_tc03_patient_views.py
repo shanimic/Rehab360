@@ -67,7 +67,7 @@ def test_tc03_p4_my_plan_shows_todays_exercises(patient_page: Page) -> None:
     Then exercise cards are visible in the today plan section.
     """
     # ACT
-    my_plan = MyPlanPage(patient_page).goto()
+    MyPlanPage(patient_page).goto()
     patient_page.wait_for_load_state("networkidle")
 
     # ASSERT — at least one exercise card shown

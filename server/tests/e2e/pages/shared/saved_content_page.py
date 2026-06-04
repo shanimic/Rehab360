@@ -22,8 +22,11 @@ class SavedContentPage(BasePage):
         super().__init__(page)
         self.nav = TopNav(page)
 
-    def goto(self) -> SavedContentPage:
+    def goto(self, path: str = "") -> SavedContentPage:
         """Navigate directly to the Saved Content page.
+
+        Args:
+            path: Ignored; always navigates to the Saved Content URL.
 
         Returns:
             Self, for chaining.

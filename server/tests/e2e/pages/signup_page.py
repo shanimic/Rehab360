@@ -117,7 +117,7 @@ class SignUpPage(BasePage):
         self._page.locator("#license_number").fill(value)
         return self
 
-    def fill_patient_form(
+    def fill_patient_form(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         user_id: str,
         first_name: str,

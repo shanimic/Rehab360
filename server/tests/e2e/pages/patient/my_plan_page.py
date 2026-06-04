@@ -17,8 +17,11 @@ class MyPlanPage(BasePage):
         super().__init__(page)
         self.nav = TopNav(page)
 
-    def goto(self) -> MyPlanPage:
+    def goto(self, path: str = "") -> MyPlanPage:
         """Navigate directly to My Plan.
+
+        Args:
+            path: Ignored; always navigates to the My Plan URL.
 
         Returns:
             Self, for chaining.

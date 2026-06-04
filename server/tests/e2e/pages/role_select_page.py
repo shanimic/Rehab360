@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import Literal
 
 from tests.e2e.pages.base_page import BasePage
+from tests.e2e.pages.login_page import LoginPage
+from tests.e2e.pages.signup_page import SignUpPage
 
 Role = Literal["patient", "physiotherapist", "trainer"]
 
@@ -27,8 +29,6 @@ class RoleSelectPage(BasePage):
         Returns:
             A LoginPage pointing at the same browser page.
         """
-        from tests.e2e.pages.login_page import LoginPage
-
         self._page.get_by_text(_ROLE_LABEL[role]).first.click()
         self._page.wait_for_url("**/login**")
         return LoginPage(self._page)
@@ -42,8 +42,6 @@ class RoleSelectPage(BasePage):
         Returns:
             A SignUpPage pointing at the same browser page.
         """
-        from tests.e2e.pages.signup_page import SignUpPage
-
         self._page.get_by_text(_ROLE_LABEL[role]).first.click()
         self._page.wait_for_url("**/signup**")
         return SignUpPage(self._page)

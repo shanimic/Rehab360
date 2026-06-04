@@ -15,8 +15,11 @@ class AiSearchPage(BasePage):
         super().__init__(page)
         self.nav = TopNav(page)
 
-    def goto(self) -> AiSearchPage:
+    def goto(self, path: str = "") -> AiSearchPage:
         """Navigate directly to the AI Search page.
+
+        Args:
+            path: Ignored; always navigates to the AI Search URL.
 
         Returns:
             Self, for chaining.

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from tests.e2e.pages.base_page import BasePage
+from tests.e2e.pages.role_select_page import RoleSelectPage
 
 
 class LandingPage(BasePage):
@@ -10,8 +11,11 @@ class LandingPage(BasePage):
 
     URL = "/"
 
-    def goto(self) -> LandingPage:
+    def goto(self, path: str = "") -> LandingPage:
         """Navigate to the landing page.
+
+        Args:
+            path: Ignored; always navigates to the landing URL.
 
         Returns:
             Self, for chaining.
@@ -25,8 +29,6 @@ class LandingPage(BasePage):
         Returns:
             A RoleSelectPage pointing at the same browser page.
         """
-        from tests.e2e.pages.role_select_page import RoleSelectPage
-
         self._page.get_by_role("button", name="Log In").click()
         self._page.wait_for_url("**/role-select**")
         return RoleSelectPage(self._page)
@@ -37,8 +39,6 @@ class LandingPage(BasePage):
         Returns:
             A RoleSelectPage pointing at the same browser page.
         """
-        from tests.e2e.pages.role_select_page import RoleSelectPage
-
         self._page.get_by_role("button", name="Sign Up").click()
         self._page.wait_for_url("**/role-select**")
         return RoleSelectPage(self._page)

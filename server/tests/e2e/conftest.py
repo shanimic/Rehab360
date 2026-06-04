@@ -79,7 +79,7 @@ def trainer_auth() -> dict:
 
 
 @pytest.fixture
-def patient_page(page: Page, patient_auth: dict) -> Page:
+def patient_page(page: Page, patient_auth: dict) -> Page:  # pylint: disable=redefined-outer-name
     """Return a Page pre-authenticated as Alice (PATIENT).
 
     Call page.goto('/patient') after receiving this fixture.
@@ -96,7 +96,7 @@ def patient_page(page: Page, patient_auth: dict) -> Page:
 
 
 @pytest.fixture
-def physiotherapist_page(page: Page, physiotherapist_auth: dict) -> Page:
+def physiotherapist_page(page: Page, physiotherapist_auth: dict) -> Page:  # pylint: disable=redefined-outer-name
     """Return a Page pre-authenticated as Bob (PHYSIOTHERAPIST).
 
     Args:
@@ -111,7 +111,7 @@ def physiotherapist_page(page: Page, physiotherapist_auth: dict) -> Page:
 
 
 @pytest.fixture
-def trainer_page(page: Page, trainer_auth: dict) -> Page:
+def trainer_page(page: Page, trainer_auth: dict) -> Page:  # pylint: disable=redefined-outer-name
     """Return a Page pre-authenticated as Charlie (FITNESS_TRAINER).
 
     Args:
@@ -126,7 +126,7 @@ def trainer_page(page: Page, trainer_auth: dict) -> Page:
 
 
 @pytest.fixture
-def physiotherapist_page_once(page: Page, base_url: str, physiotherapist_auth: dict) -> Page:
+def physiotherapist_page_once(page: Page, base_url: str, physiotherapist_auth: dict) -> Page:  # pylint: disable=redefined-outer-name
     """Return a Page authenticated as Bob via a single localStorage.setItem() call.
 
     Unlike physiotherapist_page, this fixture does NOT use add_init_script, so

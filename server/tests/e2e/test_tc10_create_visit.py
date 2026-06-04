@@ -14,7 +14,6 @@ from playwright.sync_api import Page, expect
 from tests.e2e.pages import (
     CreateTreatmentPlanPage,
     CreateVisitSummaryPage,
-    ProfessionalHomePage,
 )
 
 ALICE_ID = "P100"
@@ -88,7 +87,7 @@ def test_tc10_p5_create_plan_with_exercises(physiotherapist_page: Page) -> None:
     ).fill_diagnosis("Rotator Cuff Strain").fill_visit_notes("Test").save_and_create_plan()
     physiotherapist_page.wait_for_load_state("networkidle")
 
-    if not physiotherapist_page.url.__contains__("treatment-plans/new"):
+    if "treatment-plans/new" not in physiotherapist_page.url:
         pytest.skip("Visit summary save did not redirect to create plan — check API state")
 
     ctp = CreateTreatmentPlanPage(physiotherapist_page)

@@ -9,7 +9,7 @@ import re
 
 from playwright.sync_api import Page, expect
 
-from tests.e2e.pages import LandingPage, PatientDetailsPage, ProfessionalHomePage
+from tests.e2e.pages import ProfessionalHomePage
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ def test_tc11_p1_dashboard_shows_patient_cards(physiotherapist_page: Page) -> No
     Then at least one patient card (Alice Smith) is visible.
     """
     # ACT
-    home = ProfessionalHomePage(physiotherapist_page).goto_as_physiotherapist()
+    ProfessionalHomePage(physiotherapist_page).goto_as_physiotherapist()
     physiotherapist_page.wait_for_load_state("networkidle")
 
     # ASSERT — Alice's card visible somewhere in the patients section
