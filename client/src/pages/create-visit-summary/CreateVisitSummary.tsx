@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Phone, Mail, ClipboardList } from 'lucide-react'
 import { useAtomValue } from 'jotai'
@@ -7,6 +7,7 @@ import TopNav from '@/components/TopNav'
 import { useHasPreviousPlan, useVisitSummary } from '@/hooks/useVisitSummaries'
 import { useCreateVisitSummary } from '@/hooks/useCreateVisitSummary'
 import { visitSummariesPath } from '@/lib/patientRoutes'
+import { useUnsavedChangesGuard, GUARD_HISTORY_KEY } from '@/hooks/useUnsavedChangesGuard'
 
 import '../patient-details/PatientDetails.css'
 import './CreateVisitSummary.css'
@@ -122,6 +123,29 @@ export default function CreateVisitSummary() {
   const createVisitSummary = useCreateVisitSummary()
   const isSaving = createVisitSummary.isPending
 
+  const [isSaved, setIsSaved] = useState(false)
+  const pendingNav = useRef<(() => void) | null>(null)
+
+  const isDirty =
+    !isSaved &&
+    (form.treatmentArea !== '' ||
+      form.medicalDiagnosis !== '' ||
+      form.visitNotes !== '' ||
+      form.recommendations !== '')
+
+  const requestNavigation = useUnsavedChangesGuard(isDirty)
+
+  useEffect(() => {
+    if (isSaved && pendingNav.current) {
+      // Remove the guard history entry before navigating so back-history stays clean
+      if ((window.history.state as Record<string, unknown> | null)?.[GUARD_HISTORY_KEY]) {
+        window.history.replaceState(null, '')
+      }
+      pendingNav.current()
+      pendingNav.current = null
+    }
+  }, [isSaved])
+
   const [errors, setErrors] = useState<FormErrors>({})
   const [saveError, setSaveError] = useState<string | null>(null)
 
@@ -173,7 +197,8 @@ export default function CreateVisitSummary() {
       onSuccess: (data) => {
         console.log('[DEBUG] Visit summary created, session_id:', data.session_id)
         if (!auth?.role || !patientId) return
-        navigate(visitSummariesPath(auth.role, patientId))
+        pendingNav.current = () => navigate(visitSummariesPath(auth.role, patientId))
+        setIsSaved(true)
       },
       onError: (err) => {
         console.error('[DEBUG] Save failed:', err)
@@ -196,7 +221,9 @@ export default function CreateVisitSummary() {
           ? `/fitness/patient/${patientId}/fitness-plans/new/${data.session_id}`
           : `/physiotherapist/patient/${patientId}/treatment-plans/new/${data.session_id}`
         console.log('[DEBUG] Navigating to:', planPath)
-        navigate(planPath, { state: { medical_diagnosis: form.medicalDiagnosis } })
+        const diagnosis = form.medicalDiagnosis
+        pendingNav.current = () => navigate(planPath, { state: { medical_diagnosis: diagnosis } })
+        setIsSaved(true)
       },
       onError: (err) => {
         console.error('[DEBUG] Save & create plan failed:', err)
@@ -206,8 +233,13 @@ export default function CreateVisitSummary() {
   }
 
   function handleCancel(): void {
-    if (!auth?.role || !patientId) { navigate(-1); return }
-    navigate(visitSummariesPath(auth.role, patientId ?? displayPatient.id))
+    requestNavigation(() => {
+      if ((window.history.state as Record<string, unknown> | null)?.[GUARD_HISTORY_KEY]) {
+        window.history.replaceState(null, '')
+      }
+      if (!auth?.role || !patientId) { navigate(-1); return }
+      navigate(visitSummariesPath(auth.role, patientId ?? displayPatient.id))
+    })
   }
 
   return (

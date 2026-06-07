@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAtomValue } from 'jotai'
 import { authAtom } from '@/store/authAtom'
+import { useRequestNavigation } from '@/hooks/useRequestNavigation'
 import { useLogout } from '@/hooks/useLogout'
 import { LogoIcon } from '@/pages/auth/AuthLayout'
 import './TopNav.css'
@@ -129,6 +130,7 @@ function getHomePath(role: string | undefined): string {
 
 export default function TopNav() {
   const auth = useAtomValue(authAtom)
+  const requestNavigation = useRequestNavigation()
   const logout = useLogout()
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
@@ -140,8 +142,8 @@ export default function TopNav() {
   const closeMenu = () => setMenuOpen(false)
 
   const handleNavigation = (item: { label: string; path: string }) => {
-    navigate(item.label === 'Home' ? homePath : item.path)
     closeMenu()
+    requestNavigation(() => navigate(item.label === 'Home' ? homePath : item.path))
   }
 
   const handleLogout = () => {

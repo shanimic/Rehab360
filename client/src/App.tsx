@@ -4,6 +4,7 @@ import type { ApiRole } from '@/types'
 import './styles/variables.css'
 import PageTransition from './components/PageTransition'
 import RoleRoute from './components/RoleRoute'
+import UnsavedChangesModal from './components/UnsavedChangesModal'
 
 const LandingPage        = React.lazy(() => import('./pages/auth/landing/LandingPage'))
 const RoleSelect         = React.lazy(() => import('./pages/auth/register/RoleSelect'))
@@ -87,6 +88,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AnimatedRoutes />
+      <UnsavedChangesModal />
     </BrowserRouter>
   )
 }

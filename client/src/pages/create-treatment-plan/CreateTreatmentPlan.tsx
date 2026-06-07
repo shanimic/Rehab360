@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { ChevronLeft, Target, Dumbbell, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import axios from 'axios'
 import { authAtom } from '@/store/authAtom'
 import { visitSummariesPath } from '@/lib/patientRoutes'
+import { useUnsavedChangesGuard, GUARD_HISTORY_KEY } from '@/hooks/useUnsavedChangesGuard'
 import TopNav from '@/components/TopNav'
 import AddExerciseModal from './AddExerciseModal'
 import type { ExerciseEntry } from './AddExerciseModal'
@@ -73,6 +74,29 @@ export default function CreateTreatmentPlan() {
   const [exercises, setExercises] = useState<ExerciseEntry[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  const [isSaved, setIsSaved] = useState(false)
+  const pendingNav = useRef<(() => void) | null>(null)
+
+  const isDirty =
+    !isSaved &&
+    (form.goal !== '' ||
+      form.start_date !== '' ||
+      form.end_date !== '' ||
+      form.notes !== '' ||
+      exercises.length > 0)
+
+  const requestNavigation = useUnsavedChangesGuard(isDirty)
+
+  useEffect(() => {
+    if (isSaved && pendingNav.current) {
+      if ((window.history.state as Record<string, unknown> | null)?.[GUARD_HISTORY_KEY]) {
+        window.history.replaceState(null, '')
+      }
+      pendingNav.current()
+      pendingNav.current = null
+    }
+  }, [isSaved])
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
@@ -140,7 +164,8 @@ export default function CreateTreatmentPlan() {
       {
         onSuccess: () => {
           if (!auth?.role || !patientId) return
-          navigate(visitSummariesPath(auth.role, patientId))
+          pendingNav.current = () => navigate(visitSummariesPath(auth.role, patientId))
+          setIsSaved(true)
         },
         onError: (err) => {
           if (axios.isAxiosError(err) && err.response?.data?.detail) {
@@ -164,8 +189,13 @@ export default function CreateTreatmentPlan() {
             type="button"
             className="patient-nav__back"
             onClick={() => {
-              if (!auth?.role || !patientId) { navigate(-1); return }
-              navigate(visitSummariesPath(auth.role, patientId))
+              requestNavigation(() => {
+                if ((window.history.state as Record<string, unknown> | null)?.[GUARD_HISTORY_KEY]) {
+                  window.history.replaceState(null, '')
+                }
+                if (!auth?.role || !patientId) { navigate(-1); return }
+                navigate(visitSummariesPath(auth.role, patientId))
+              })
             }}
           >
             <ChevronLeft size={20} />
