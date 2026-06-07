@@ -71,9 +71,6 @@ function VisitInfoCard({ visit, onOpenPlan }: VisitInfoCardProps) {
       </div>
 
       <div className="vsd-detail-grid">
-        <span className="vsd-detail-grid__label">Session</span>
-        <span className="vsd-detail-grid__value">#{visit.session_id}</span>
-
         <span className="vsd-detail-grid__label">Date</span>
         <span className="vsd-detail-grid__value">{formatDate(visit.visit_date)}</span>
 

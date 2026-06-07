@@ -47,11 +47,10 @@ function formatTime(time: string): string {
 
 interface VisitCardProps {
   session: SessionListItem
-  sessionNumber: number
   onClick: () => void
 }
 
-function VisitCard({ session, sessionNumber, onClick }: VisitCardProps) {
+function VisitCard({ session, onClick }: VisitCardProps) {
   const visitType = apiVisitTypeToLabel(session.visit_type)
   const isPhysicalTherapy = visitType === 'Physical Therapy'
 
@@ -63,9 +62,8 @@ function VisitCard({ session, sessionNumber, onClick }: VisitCardProps) {
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
     >
-      {/* Left: session number + date/time */}
+      {/* Left: date/time */}
       <div className="avs-visit-card__left">
-        <p className="avs-visit-card__session">Session {sessionNumber}</p>
         <p className="avs-visit-card__date">{formatDate(session.visit_date)}</p>
         <p className="avs-visit-card__time">{formatTime(session.visit_time)}</p>
       </div>
@@ -112,9 +110,6 @@ export default function AllVisitSummaries() {
     if (activeFilter === 'All Sessions') return true
     return apiVisitTypeToLabel(s.visit_type) === activeFilter
   })
-
-  // Oldest session is #1, newest is #N
-  const totalCount = sessions?.length ?? 0
 
   return (
     <div className="avs-page">
@@ -222,11 +217,10 @@ export default function AllVisitSummaries() {
             {!isLoading && !isError && filteredSessions.length === 0 && (
               <p className="avs-empty">No sessions found for this filter.</p>
             )}
-            {!isLoading && !isError && filteredSessions.map((session, index) => (
+            {!isLoading && !isError && filteredSessions.map((session) => (
               <VisitCard
                 key={session.session_id}
                 session={session}
-                sessionNumber={totalCount - index}
                 onClick={() => {
                   if (!auth?.role || !resolvedPatientId) { navigate(-1); return }
                   navigate(visitSummaryDetailPath(auth.role, resolvedPatientId, session.session_id))
