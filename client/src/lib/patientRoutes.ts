@@ -21,13 +21,9 @@ export function visitSummaryDetailPath(role: string, patientId: string, visitId:
   return `/fitness/patient/${patientId}/visit-summaries/${visitId}`
 }
 
-// visitType is required for PATIENT to distinguish treatment vs fitness plan.
 export function planPath(role: string, patientId: string, planId: number, visitType?: string): string {
-  if (role === 'PATIENT') {
-    return visitType === 'FITNESS'
-      ? `/patient/fitness-plans/${planId}`
-      : `/patient/treatment-plans/${planId}`
-  }
-  if (role === 'PHYSIOTHERAPIST') return `/physiotherapist/patient/${patientId}/treatment-plans/${planId}`
-  return `/fitness/patient/${patientId}/fitness-plans/${planId}`
+  const planSegment = visitType === 'FITNESS' ? 'fitness-plans' : 'treatment-plans'
+  if (role === 'PATIENT') return `/patient/${planSegment}/${planId}`
+  if (role === 'PHYSIOTHERAPIST') return `/physiotherapist/patient/${patientId}/${planSegment}/${planId}`
+  return `/fitness/patient/${patientId}/${planSegment}/${planId}`
 }

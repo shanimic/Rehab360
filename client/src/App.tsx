@@ -64,6 +64,7 @@ function AnimatedRoutes() {
       <Route path="/physiotherapist/patient/:patientId/visit-summaries/new" element={<RoleRoute allowedRoles={['PHYSIOTHERAPIST']}><PageTransition><CreateVisitSummary /></PageTransition></RoleRoute>} />
       <Route path="/physiotherapist/patient/:patientId/visit-summaries/:visitId" element={<RoleRoute allowedRoles={['PHYSIOTHERAPIST']}><PageTransition><VisitSummaryDetail /></PageTransition></RoleRoute>} />
       <Route path="/physiotherapist/patient/:patientId/treatment-plans/:planId" element={<RoleRoute allowedRoles={['PHYSIOTHERAPIST']}><PageTransition><ViewTreatmentPlan /></PageTransition></RoleRoute>} />
+      <Route path="/physiotherapist/patient/:patientId/fitness-plans/:planId" element={<RoleRoute allowedRoles={['PHYSIOTHERAPIST']}><PageTransition><ViewTreatmentPlan /></PageTransition></RoleRoute>} />
       <Route path="/physiotherapist/patient/:patientId/treatment-plans/new/:sessionId" element={<RoleRoute allowedRoles={['PHYSIOTHERAPIST']}><PageTransition><CreateTreatmentPlan /></PageTransition></RoleRoute>} />
 
       {/* ── FITNESS_TRAINER ── */}
@@ -73,6 +74,7 @@ function AnimatedRoutes() {
       <Route path="/fitness/patient/:patientId/visit-summaries/new" element={<RoleRoute allowedRoles={['FITNESS_TRAINER']}><PageTransition><CreateVisitSummary /></PageTransition></RoleRoute>} />
       <Route path="/fitness/patient/:patientId/visit-summaries/:visitId" element={<RoleRoute allowedRoles={['FITNESS_TRAINER']}><PageTransition><VisitSummaryDetail /></PageTransition></RoleRoute>} />
       <Route path="/fitness/patient/:patientId/fitness-plans/:planId" element={<RoleRoute allowedRoles={['FITNESS_TRAINER']}><PageTransition><ViewTreatmentPlan /></PageTransition></RoleRoute>} />
+      <Route path="/fitness/patient/:patientId/treatment-plans/:planId" element={<RoleRoute allowedRoles={['FITNESS_TRAINER']}><PageTransition><ViewTreatmentPlan /></PageTransition></RoleRoute>} />
       <Route path="/fitness/patient/:patientId/fitness-plans/new/:sessionId" element={<RoleRoute allowedRoles={['FITNESS_TRAINER']}><PageTransition><CreateTreatmentPlan /></PageTransition></RoleRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
