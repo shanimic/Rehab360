@@ -197,7 +197,7 @@ export default function CreateVisitSummary() {
       onSuccess: (data) => {
         console.log('[DEBUG] Visit summary created, session_id:', data.session_id)
         if (!auth?.role || !patientId) return
-        pendingNav.current = () => navigate(visitSummariesPath(auth.role, patientId))
+        pendingNav.current = () => { void navigate(visitSummariesPath(auth.role, patientId)) }
         setIsSaved(true)
       },
       onError: (err) => {
@@ -222,7 +222,7 @@ export default function CreateVisitSummary() {
           : `/physiotherapist/patient/${patientId}/treatment-plans/new/${data.session_id}`
         console.log('[DEBUG] Navigating to:', planPath)
         const diagnosis = form.medicalDiagnosis
-        pendingNav.current = () => navigate(planPath, { state: { medical_diagnosis: diagnosis } })
+        pendingNav.current = () => { void navigate(planPath, { state: { medical_diagnosis: diagnosis } }) }
         setIsSaved(true)
       },
       onError: (err) => {

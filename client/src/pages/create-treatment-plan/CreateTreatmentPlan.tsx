@@ -164,7 +164,7 @@ export default function CreateTreatmentPlan() {
       {
         onSuccess: () => {
           if (!auth?.role || !patientId) return
-          pendingNav.current = () => navigate(visitSummariesPath(auth.role, patientId))
+          pendingNav.current = () => { void navigate(visitSummariesPath(auth.role, patientId)) }
           setIsSaved(true)
         },
         onError: (err) => {
