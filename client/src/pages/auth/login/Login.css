@@ -17,16 +17,6 @@
   border: none;
 }
 
-.login-forgot {
-  text-align: right;
-  margin-top: -12px;
-  margin-bottom: 20px;
-}
-
-.login-forgot__link {
-  font-size: 13px;
-}
-
 .login-error {
   margin-bottom: 12px;
 }
