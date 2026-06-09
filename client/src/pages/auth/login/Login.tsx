@@ -1,4 +1,4 @@
-import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import type { AxiosError } from 'axios'
@@ -104,11 +104,6 @@ export default function Login() {
                 error={errMsg(field.state.meta.errors[0])}
                 autoComplete="current-password"
               />
-              <div className="login-forgot">
-                <Link to="/set-password" className="auth-link login-forgot__link">
-                  Forgot Password?
-                </Link>
-              </div>
             </>
           )}
         </form.Field>
