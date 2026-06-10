@@ -4,8 +4,8 @@ import type { Patient, PatientAlert, Appointment, AlertType, AlertSeverity } fro
 const MOCK_PATIENTS: Patient[] = [
   {
     id: '1',
-    name: 'John Smith',
-    medicalDiagnosis: 'Shoulder Rehabilitation',
+    name: 'Dana Lopez',
+    medicalDiagnosis: 'Rotator Cuff strain',
     weeklyCompliance: 82,
     painTrend: 'improving',
     lastReport: '2 hours ago',
@@ -18,8 +18,8 @@ const MOCK_PATIENTS: Patient[] = [
   },
   {
     id: '2',
-    name: 'Dana Lopez',
-    medicalDiagnosis: 'Knee Rehabilitation',
+    name: 'David Levi',
+    medicalDiagnosis: 'Shoulder Impingement Syndrome',
     weeklyCompliance: 65,
     painTrend: 'stable',
     lastReport: '1 day ago',
@@ -32,8 +32,8 @@ const MOCK_PATIENTS: Patient[] = [
   },
   {
     id: '3',
-    name: 'Ron Klein',
-    medicalDiagnosis: 'Lower Back Rehabilitation',
+    name: 'Maya Cohen',
+    medicalDiagnosis: 'ACL Tear - Phase 2 Recovery',
     weeklyCompliance: 40,
     painTrend: 'worsening',
     lastReport: '3 days ago',
@@ -46,8 +46,8 @@ const MOCK_PATIENTS: Patient[] = [
   },
   {
     id: '4',
-    name: 'Maya Cohen',
-    medicalDiagnosis: 'Hip Rehabilitation',
+    name: 'Alice Smith',
+    medicalDiagnosis: 'Rotator Cuff strain',
     weeklyCompliance: 95,
     painTrend: 'worsening',
     lastReport: '30 min ago',
@@ -75,11 +75,11 @@ const MOCK_PATIENTS: Patient[] = [
 ]
 
 const MOCK_SCHEDULE: Appointment[] = [
-  { id: '1', time: '09:00', patientName: 'John Smith', reason: 'Shoulder Progress Review' },
-  { id: '2', time: '10:30', patientName: 'Dana Lopez', reason: 'Knee Assessment' },
-  { id: '3', time: '12:00', patientName: 'Maya Cohen', reason: 'Hip Mobility Session' },
-  { id: '4', time: '14:00', patientName: 'Ron Klein', reason: 'Back Pain Consultation' },
-  { id: '5', time: '15:30', patientName: 'Eli Zamir', reason: 'Ankle Follow-up' },
+  { id: '1', time: '09:00', patientName: 'Alice Smith', reason: 'Rotator Cuff strain' },
+  { id: '2', time: '10:30', patientName: 'David Levi', reason: 'Shoulder Impingement Syndrome' },
+  { id: '3', time: '12:00', patientName: 'Maya Cohen', reason: 'ACL Tear - Phase 2 Recovery' },
+  { id: '4', time: '14:00', patientName: 'Ron Klein', reason: '-' },
+  { id: '5', time: '15:30', patientName: 'Eli Zamir', reason: '-' },
 ]
 
 interface AlertDef {
