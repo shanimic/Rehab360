@@ -398,28 +398,5 @@ Rehab360/
 
 ---
 
-## Future Enhancements
 
-- **In-app messaging** — Direct chat between patients and their assigned professionals is a planned feature that was out of scope for the current MVP.
 
-<!-- TODO: Additional roadmap items to be defined by the project team -->
-
----
-
-## Screenshots
-
-<!-- TODO: Add screenshots of key pages -->
-<!-- Suggested pages: Landing Page, Patient Home, AI Search, Visit Summary Detail, Create Treatment Plan -->
-
----
-
-## Authors
-
-<!-- TODO: Add team member names, student IDs, and institutional affiliation -->
-
----
-
-## License
-
-This project is licensed under the **Apache License 2.0**.  
-See the [LICENSE](LICENSE) file for the full license text.
