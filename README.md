@@ -21,13 +21,14 @@ A web-based rehabilitation management platform that connects patients, physiothe
 7. [User Roles and Permissions](#user-roles-and-permissions)
 8. [Main System Workflows](#main-system-workflows)
 9. [Database Overview](#database-overview)
-10. [Installation](#installation)
-11. [Running Locally](#running-locally)
-12. [Project Structure](#project-structure)
-13. [Future Enhancements](#future-enhancements)
-14. [Screenshots](#screenshots)
-15. [Authors](#authors)
-16. [License](#license)
+10. [Demo Users](#demo-users)
+11. [Installation](#installation)
+12. [Running Locally](#running-locally)
+13. [Project Structure](#project-structure)
+14. [Future Enhancements](#future-enhancements)
+15. [Screenshots](#screenshots)
+16. [Authors](#authors)
+17. [License](#license)
 
 ---
 
@@ -226,6 +227,22 @@ The `rehab360` MySQL database contains 11 tables:
 | `url_verifications` | Aggregated verification counts (physiotherapist and trainer) per content source URL |
 
 > The schema and seed data are located in `db/init.sql`. Users use a composite primary key `(user_id, user_role)` across the system.
+
+---
+
+## Demo Users
+
+The database seed includes the following pre-created accounts for testing and demonstration.
+
+All demo users share the same password: `1234`.
+
+| Name | Role | Email (Username) | Password |
+|------|------|------------------|----------|
+| Maya Cohen | Patient | maya@example.com | 1234 |
+| David Levi | Patient | david@example.com | 1234 |
+| Sarah Smith | Patient | sarah@example.com | 1234 |
+| Bob Johnson | Physiotherapist | bob@physio.com | 1234 |
+| Charlie Brown | Fitness Trainer | charlie@gym.com | 1234 |
 
 ---
 
